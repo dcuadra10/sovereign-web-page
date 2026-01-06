@@ -1,10 +1,12 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #1c1c1c;
+  background: #1c1c1c url('/background.jpg') no-repeat center center fixed;
+  background-size: cover;
   color: #f0f0f0;
   font-family: 'Segoe UI', sans-serif;
 }
+
 
 .main {
   display: flex;
@@ -116,7 +118,8 @@ body {
 }
 
 .discord {
-  margin: 20px 0; /* antes era 40px, ahora más compacto */
+  margin: 20px 0;
+  /* antes era 40px, ahora más compacto */
 }
 
 .discord-button {
@@ -147,9 +150,12 @@ body {
   background-color: #2a2a2a;
   padding: 20px;
   border-radius: 10px;
-  width: 525px;         /* más ancho */
-  height: 250px;         /* altura automática */
-  min-height: 100px;    /* menos alto que antes */
+  width: 525px;
+  /* más ancho */
+  height: 250px;
+  /* altura automática */
+  min-height: 100px;
+  /* menos alto que antes */
   text-align: center;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.04);
   display: flex;
@@ -163,14 +169,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+
 }
 
 .contact-list {
   display: flex;
   flex-direction: row;
   gap: 12px;
-  margin: 20px 0 10px 0; /* antes era 20px abajo, ahora solo 10px */;
+  margin: 20px 0 10px 0;
+  /* antes era 20px abajo, ahora solo 10px */
+  ;
   align-items: center;
 }
 
@@ -224,16 +232,19 @@ footer {
 .launch {
   text-align: center;
 }
+
 .contact-block h2 {
   font-size: 1.4em;
-  margin-bottom: 6px; /* antes era más grande, ahora más compacto */
+  margin-bottom: 6px;
+  /* antes era más grande, ahora más compacto */
 }
 
 .contact-block h5 {
   font-size: 1em;
   color: #ccc;
   font-weight: 500;
-  margin-top: 4px;     /* reduce el espacio entre h2 y h5 */
+  margin-top: 4px;
+  /* reduce el espacio entre h2 y h5 */
   margin-bottom: 10px;
   text-align: center;
 }
@@ -254,6 +265,152 @@ footer {
   border-color: #777;
 }
 
+
+
+/* --- Sovereign Empire Section --- */
+.sovereign-empire {
+  margin: 40px 0 80px 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top: 1px solid #333;
+  padding-top: 60px;
+}
+
+.sovereign-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.sovereign-header h2 {
+  font-size: 3.5em;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  background: linear-gradient(to right, #ffffff, #a0a0a0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+.sovereign-subtitle {
+  font-size: 1.8em;
+  color: #FFD700;
+  /* Gold */
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.sovereign-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1100px;
+  margin-bottom: 60px;
+}
+
+.sovereign-card {
+  background: linear-gradient(145deg, #2a2a2a, #222);
+  padding: 35px;
+  border-radius: 16px;
+  width: 300px;
+  flex: 1 1 280px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sovereign-card:hover {
+  transform: translateY(-10px);
+  border-color: #555;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.sovereign-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #FFD700, transparent);
+  opacity: 0.5;
+}
+
+.sovereign-card h3 {
+  font-size: 1.5em;
+  margin: 0 0 25px 0;
+  color: #fff;
+  border-bottom: 2px solid #333;
+  padding-bottom: 15px;
+  text-align: center;
+}
+
+.sovereign-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sovereign-card li {
+  margin-bottom: 15px;
+  padding-left: 25px;
+  position: relative;
+  color: #ccc;
+  font-size: 1.05em;
+  line-height: 1.5;
+}
+
+.sovereign-card li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  color: #FFD700;
+  font-size: 1.2em;
+  /* Bigger bullet */
+  top: -2px;
+}
+
+.sovereign-footer {
+  text-align: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+.contact-mentions {
+  margin-top: 20px;
+  color: #888;
+  font-size: 1.1em;
+}
+
+.mention {
+  color: #7289da;
+  background: rgba(114, 137, 218, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.sovereign-quote {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-size: 1.4em;
+  color: #e0e0e0;
+  margin-top: 40px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border-left: 4px solid #FFD700;
+  line-height: 1.6;
+}
 
 /* --- MEDIA QUERIES --- */
 @media (max-width: 768px) {
@@ -319,5 +476,24 @@ footer {
   .contact-button {
     width: 100%;
     justify-content: center;
+  }
+
+  /* Sovereign Responsive */
+  .sovereign-header h2 {
+    font-size: 2.2em;
+  }
+
+  .sovereign-subtitle {
+    font-size: 1.2em;
+  }
+
+  .sovereign-card {
+    width: 100%;
+    flex: auto;
+  }
+
+  .sovereign-quote {
+    font-size: 1.1em;
+    padding: 20px;
   }
 }

@@ -1,5 +1,5 @@
 // Countdown
-const launchDate = new Date("2026-03-27T00:00:00Z");
+const launchDate = new Date("2027-02-01T00:00:00Z");
 
 function updateCountdown() {
   const now = new Date();
@@ -25,26 +25,26 @@ let socket = null;
 // Initialize WebSocket connection
 function initializeWebSocket() {
   socket = io();
-  
+
   socket.on('connect', () => {
     console.log('[WebSocket] Connected to server');
     updateConnectionStatus('🟢 Connected', '#4CAF50');
     // Request initial stats
     socket.emit('requestStats');
   });
-  
+
   socket.on('serverStatsUpdate', (data) => {
     console.log('[WebSocket] Received real-time stats update:', data);
     updateServerStats(data);
   });
-  
+
   socket.on('disconnect', () => {
     console.log('[WebSocket] Disconnected from server');
     updateConnectionStatus('🔴 Disconnected', '#f44336');
     // Fallback to static data when disconnected
     setStaticInfo();
   });
-  
+
   socket.on('connect_error', (error) => {
     console.error('[WebSocket] Connection error:', error);
     updateConnectionStatus('❌ Connection Error', '#ff9800');
@@ -91,16 +91,16 @@ function updateServerStats(data) {
   try {
     // Update member count
     document.getElementById("member-count").textContent = `👥 ${data.totalMembers} Members`;
-    
+
     // Update server info
     document.getElementById("server-name").textContent = `🌠 ${data.serverName}`;
     document.getElementById("server-online-count").textContent = `🟢 ${data.onlineMembers}`;
     document.getElementById("server-status").textContent = data.status === 'Online' ? '✅ Online' : '❌ Offline';
     document.getElementById("server-notes").textContent = `📝 ${data.notes}`;
-    
+
     // Update timestamp
     updateLastUpdateTime();
-    
+
     // Add visual indicator for real-time updates
     addUpdateIndicator();
   } catch (error) {
@@ -115,7 +115,7 @@ function addUpdateIndicator() {
   serverStatusContent.style.border = "2px solid #4CAF50";
   serverStatusContent.style.borderRadius = "8px";
   serverStatusContent.style.transition = "border 0.5s ease";
-  
+
   setTimeout(() => {
     serverStatusContent.style.border = "2px solid transparent";
   }, 1000);
@@ -126,7 +126,7 @@ async function fetchServerStats() {
   try {
     const response = await fetch(botApiUrl);
     const data = await response.json();
-    
+
     if (response.ok) {
       updateServerStats(data);
     } else {
@@ -143,14 +143,14 @@ async function fetchServerStats() {
 // Set static info as fallback
 function setStaticInfo() {
   // "Registered" y "Online"
-  document.getElementById("member-count").textContent = "👥 230 Members";  
-  
+  document.getElementById("member-count").textContent = "👥 216 Members";
+
   // "Server Name", "Status" y "Notes"
-  document.getElementById("server-name").textContent = "🌠 Heavens of Glory || March 27";
-  document.getElementById("server-online-count").textContent = "🟢 67";
+  document.getElementById("server-name").textContent = "🌠 Sovereign Empire";
+  document.getElementById("server-online-count").textContent = "🟢 120";
   document.getElementById("server-status").textContent = "✅ Online";
   document.getElementById("server-notes").textContent = "📝 Bot configuration in progress";
-  
+
   // Update connection status
   updateConnectionStatus('⚠️ Bot Offline', '#ff9800');
 }
@@ -158,7 +158,7 @@ function setStaticInfo() {
 // Load configuration and initialize WebSocket on page load
 async function initialize() {
   await loadConfig();
-  
+
   // Set a timeout to show static info if no connection is made
   setTimeout(() => {
     const connectionStatus = document.getElementById("connection-status");
@@ -167,10 +167,10 @@ async function initialize() {
       setStaticInfo();
     }
   }, 10000); // 10 seconds timeout
-  
+
   // Initialize WebSocket connection for real-time updates
   initializeWebSocket();
-  
+
   // Fallback: Still fetch stats via API every 60 seconds as backup
   setInterval(fetchServerStats, 60000);
 }
