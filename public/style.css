@@ -315,14 +315,16 @@ footer {
   margin-bottom: 60px;
 }
 
+/* Glassmorphism & Visual Enhancements */
 .sovereign-card {
-  background: linear-gradient(145deg, #2a2a2a, #222);
+  background: rgba(42, 42, 42, 0.7);
+  backdrop-filter: blur(10px);
   padding: 35px;
   border-radius: 16px;
   width: 300px;
   flex: 1 1 280px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  border: 1px solid #333;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -330,86 +332,80 @@ footer {
 
 .sovereign-card:hover {
   transform: translateY(-10px);
-  border-color: #555;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-}
-
-.sovereign-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #FFD700, transparent);
-  opacity: 0.5;
+  border-color: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 
 .sovereign-card h3 {
-  font-size: 1.5em;
+  font-size: 1.6em;
   margin: 0 0 25px 0;
   color: #fff;
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 15px;
   text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
-.sovereign-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sovereign-card li {
-  margin-bottom: 15px;
-  padding-left: 25px;
-  position: relative;
-  color: #ccc;
-  font-size: 1.05em;
-  line-height: 1.5;
-}
-
-.sovereign-card li::before {
-  content: "✦";
-  position: absolute;
-  left: 0;
-  color: #FFD700;
-  font-size: 1.2em;
-  /* Bigger bullet */
-  top: -2px;
-}
-
-.sovereign-footer {
-  text-align: center;
-  width: 100%;
-  max-width: 800px;
-}
-
-.contact-mentions {
-  margin-top: 20px;
-  color: #888;
-  font-size: 1.1em;
-}
-
-.mention {
-  color: #7289da;
-  background: rgba(114, 137, 218, 0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin: 0 2px;
+.sovereign-header h2 {
+  font-size: 4em;
+  font-weight: 800;
+  margin: 0 0 15px 0;
+  background: linear-gradient(to bottom, #ffffff, #c0c0c0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
 }
 
 .sovereign-quote {
-  font-family: 'Georgia', serif;
+  font-family: 'Playfair Display', serif;
+  /* Or keep Georgia if Playfair not avail */
   font-style: italic;
-  font-size: 1.4em;
-  color: #e0e0e0;
-  margin-top: 40px;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
+  font-size: 1.5em;
+  color: #f0f0f0;
+  margin-top: 50px;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  border-radius: 20px;
   border-left: 4px solid #FFD700;
   line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Contact Buttons Row */
+.contact-buttons-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+
+.mini-contact-btn {
+  background: rgba(114, 137, 218, 0.2);
+  color: #99aab5;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid rgba(114, 137, 218, 0.3);
+  transition: all 0.2s ease;
+  font-size: 0.95em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mini-contact-btn:hover {
+  background: #5865F2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
+  border-color: #5865F2;
 }
 
 /* --- MEDIA QUERIES --- */

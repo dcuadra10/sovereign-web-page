@@ -31,6 +31,7 @@ app.get('/api/guild-info', async (req, res) => {
     const response = await fetch(`${koyebUrl}/api/stats`);
 
     if (!response.ok) {
+      console.error(`[API Proxy] Bot fetch failed: ${response.status} ${response.statusText}`);
       throw new Error(`Bot API returned ${response.status}`);
     }
 
@@ -39,6 +40,7 @@ app.get('/api/guild-info', async (req, res) => {
 
   } catch (error) {
     console.error("[API /guild-info] Error fetching from Bot:", error.message);
+    if (error.cause) console.error("Cause:", error.cause);
 
     // Return detailed fallback data matching the new branding
     res.json({
@@ -46,7 +48,7 @@ app.get('/api/guild-info', async (req, res) => {
       status: "Online",
       totalMembers: 216,
       onlineMembers: 120, // Simulated or fallback
-      notes: "Bot integration active (Fallback Mode)"
+      notes: "Bot connecting... (Please wait)"
     });
   }
 });
