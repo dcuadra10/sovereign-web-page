@@ -1,23 +1,17 @@
 ﻿const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const { createServer } = require('http');
-const { Server } = require('socket.io');
 const multer = require('multer');
 const xlsx = require('xlsx');
 require('dotenv').config();
 
-const db = require('./database');
+const { initDB, getAllStats, upsertStats } = require('./database');
 const { passport, ADMIN_ID } = require('./auth');
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
-  }
-});
+
+// Initialize database on startup
+initDB();
 
 // View engine
 app.set('view engine', 'ejs');
@@ -33,7 +27,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'super-secret-key-change-this',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 
+  }
 }));
 
 // Passport
@@ -52,7 +49,7 @@ function isAdmin(req, res, next) {
 }
 
 // File upload
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: '/tmp/uploads/' });
 
 // Routes
 app.get('/', (req, res) => {
@@ -77,39 +74,37 @@ app.get('/logout', (req, res) => {
   });
 });
 
-app.get('/dashboard', isAuthenticated, (req, res) => {
-  const stats = db.prepare('SELECT * FROM stats').all();
-  res.render('dashboard', { 
-    user: req.user, 
-    stats,
-    isAdmin: req.user.discordId === ADMIN_ID 
-  });
+app.get('/dashboard', isAuthenticated, async (req, res) => {
+  try {
+    const stats = await getAllStats();
+    res.render('dashboard', { 
+      user: req.user, 
+      stats,
+      isAdmin: req.user.discordId === ADMIN_ID 
+    });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).send('Error loading dashboard');
+  }
 });
 
-app.get('/admin', isAuthenticated, isAdmin, (req, res) => {
-  const stats = db.prepare('SELECT * FROM stats').all();
-  res.render('admin', { user: req.user, stats });
+app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const stats = await getAllStats();
+    res.render('admin', { user: req.user, stats });
+  } catch (error) {
+    console.error('Admin error:', error);
+    res.status(500).send('Error loading admin panel');
+  }
 });
 
-app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), (req, res) => {
+app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
   try {
     const workbook = xlsx.readFile(req.file.path);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
     
     // Skip header row
-    const stmt = db.prepare(`
-      INSERT INTO stats (governorId, username, power, highestPower, deads, totalKillPoints, resourcesGathered)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      ON CONFLICT(governorId) DO UPDATE SET
-        username = excluded.username,
-        power = excluded.power,
-        highestPower = excluded.highestPower,
-        deads = excluded.deads,
-        totalKillPoints = excluded.totalKillPoints,
-        resourcesGathered = excluded.resourcesGathered
-    `);
-    
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       if (row[0]) {
@@ -118,14 +113,14 @@ app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), (req,
         const t4Deaths = parseInt(row[5]) || 0;
         const deads = t5Deaths + t4Deaths;
         
-        stmt.run(
-          String(row[0]),  // governorId
-          row[1] || '',    // username
+        await upsertStats(
+          String(row[0]),       // governorId
+          row[1] || '',         // username
           parseInt(row[2]) || 0, // power
           parseInt(row[3]) || 0, // highestPower
-          deads,           // deads (T4 + T5)
-          parseInt(row[6]) || 0, // totalKillPoints (adjust index based on Excel)
-          parseInt(row[7]) || 0  // resourcesGathered (adjust index based on Excel)
+          deads,                 // deads (T4 + T5)
+          parseInt(row[6]) || 0, // totalKillPoints
+          parseInt(row[7]) || 0  // resourcesGathered
         );
       }
     }
@@ -138,15 +133,21 @@ app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), (req,
 });
 
 // API endpoint for stats
-app.get('/api/stats', (req, res) => {
-  const stats = db.prepare('SELECT * FROM stats').all();
-  res.json(stats);
+app.get('/api/stats', async (req, res) => {
+  try {
+    const stats = await getAllStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Start server (only for local development)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
 module.exports = app;

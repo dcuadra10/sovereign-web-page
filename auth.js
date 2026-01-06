@@ -1,6 +1,6 @@
 ﻿const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
-const db = require('./database');
+const { upsertUser, getUser } = require('./database');
 
 const ADMIN_ID = '1211770249200795734';
 
@@ -8,12 +8,22 @@ passport.serializeUser((user, done) => {
   done(null, user.discordId);
 });
 
-passport.deserializeUser((discordId, done) => {
-  const user = db.prepare('SELECT * FROM users WHERE discordId = ?').get(discordId);
-  if (user) {
-    user.isAdmin = user.discordId === ADMIN_ID;
+passport.deserializeUser(async (discordId, done) => {
+  try {
+    const user = await getUser(discordId);
+    if (user) {
+      done(null, {
+        discordId: user.discord_id,
+        username: user.username,
+        avatar: user.avatar,
+        isAdmin: user.discord_id === ADMIN_ID
+      });
+    } else {
+      done(null, null);
+    }
+  } catch (error) {
+    done(error, null);
   }
-  done(null, user || null);
 });
 
 passport.use(new DiscordStrategy({
@@ -21,23 +31,20 @@ passport.use(new DiscordStrategy({
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
   callbackURL: process.env.DISCORD_CALLBACK_URL,
   scope: ['identify']
-}, (accessToken, refreshToken, profile, done) => {
-  const stmt = db.prepare(`
-    INSERT INTO users (discordId, username, avatar)
-    VALUES (?, ?, ?)
-    ON CONFLICT(discordId) DO UPDATE SET
-      username = excluded.username,
-      avatar = excluded.avatar
-  `);
-  stmt.run(profile.id, profile.username, profile.avatar);
-  
-  const user = {
-    discordId: profile.id,
-    username: profile.username,
-    avatar: profile.avatar,
-    isAdmin: profile.id === ADMIN_ID
-  };
-  done(null, user);
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    await upsertUser(profile.id, profile.username, profile.avatar);
+    
+    const user = {
+      discordId: profile.id,
+      username: profile.username,
+      avatar: profile.avatar,
+      isAdmin: profile.id === ADMIN_ID
+    };
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
 }));
 
 module.exports = { passport, ADMIN_ID };
