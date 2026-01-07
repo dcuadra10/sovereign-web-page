@@ -9,7 +9,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; }
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; }
+    .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; text-decoration: none; color: white; }
     .nav-links { display: flex; gap: 20px; }
     .btn { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
     .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
@@ -17,12 +17,8 @@
     .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
     .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
     
-    .btn.active-btn {
-        background: #fff; 
-        color: #302b63; 
-        box-shadow: 0 0 15px rgba(255,255,255,0.5);
-    }
-
+    .btn.active-btn { background: #fff; color: #302b63; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+    
     .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
     .section { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -30,21 +26,17 @@
     .form-control { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; }
     .tier-card { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
     
-    .report-chunk {
-        margin-bottom: 20px;
-        background: rgba(0,0,0,0.2);
-        padding: 10px;
-        border-radius: 8px;
-    }
-    textarea.report-area { 
-        width: 100%; height: 150px; padding: 10px; background: rgba(0,0,0,0.3); color: #fff; 
-        border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-family: monospace; resize: vertical; margin-bottom: 5px;
-    }
+    .report-chunk { margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+    textarea.report-area { width: 100%; height: 150px; padding: 10px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-family: monospace; resize: vertical; margin-bottom: 5px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
+    th { opacity: 0.7; font-weight: 500; }
   </style>
 </head>
 <body>
   <nav class="navbar">
-    <a href="/" class="nav-brand" style="text-decoration:none; color:white;"> Sovereign Empire Admin</a>
+    <a href="/" class="nav-brand"> Sovereign Empire Admin</a>
     <div class="nav-links">
         <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
         <a href="/logout" class="btn btn-secondary">Logout</a>
@@ -63,9 +55,7 @@
                 </div>
                 <button class="btn btn-primary">Save Config</button>
             </form>
-            
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-            
             <h3> KvK Season Management</h3>
             <form action="/admin/kvk" method="POST" onsubmit="return confirmAction(this)">
                 <div class="form-group">
@@ -74,7 +64,7 @@
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button type="button" class="btn btn-primary" onclick="this.form.action.value='save'; this.form.submit()">Update Name</button>
-                    <button type="submit" name="action" value="reset" class="btn btn-danger" onclick="return confirm('WARNING: This will DELETE ALL STATS to start a new season. Continue?')">Reset All Stats (New KvK)</button>
+                    <button type="submit" name="action" value="reset" class="btn btn-danger" onclick="return confirm('WARNING: This will DELETE ALL STATS to start a new season (A Backup will be created). Continue?')">Reset All Stats (New KvK)</button>
                 </div>
             </form>
         </div>
@@ -90,21 +80,40 @@
             <div style="max-height: 200px; overflow-y: auto;">
                 <% admins.forEach(a => { %>
                     <div class="tier-card">
-                        <div>
-                            <strong><%= a.note || 'Admin' %></strong><br>
-                            <span style="font-size: 0.8rem; opacity: 0.7;"><%= a.discord_id %></span>
-                        </div>
+                        <div><strong><%= a.note || 'Admin' %></strong><br><span style="font-size: 0.8rem; opacity: 0.7;"><%= a.discord_id %></span></div>
                         <% if (a.discord_id !== user.discordId) { %>
-                            <form action="/admin/manage-admins" method="POST">
-                                <input type="hidden" name="discordId" value="<%= a.discord_id %>">
-                                <button type="submit" name="action" value="remove" class="btn btn-danger btn-sm">Remove</button>
-                            </form>
-                        <% } else { %>
-                            <span style="font-size: 0.8rem; color: #4ade80;">You</span>
-                        <% } %>
+                            <form action="/admin/manage-admins" method="POST"><input type="hidden" name="discordId" value="<%= a.discord_id %>"><button type="submit" name="action" value="remove" class="btn btn-danger btn-sm">Remove</button></form>
+                        <% } else { %><span style="font-size: 0.8rem; color: #4ade80;">You</span><% } %>
                     </div>
                 <% }) %>
             </div>
+        </div>
+    </div>
+
+    <!-- BACKUPS -->
+    <div class="section">
+        <h2> Backups / History</h2>
+        <div style="max-height: 250px; overflow-y: auto;">
+            <table>
+                <thead><tr><th>Name</th><th>Date</th><th>KvK / File</th><th>Size</th><th>Action</th></tr></thead>
+                <tbody>
+                    <% if (backups.length === 0) { %><tr><td colspan="5" style="text-align:center; opacity:0.5;">No backups found</td></tr><% } %>
+                    <% backups.forEach(b => { %>
+                        <tr>
+                            <td><%= b.name %></td>
+                            <td><%= new Date(b.created_at).toLocaleDateString() %></td>
+                            <td><%= b.kvk_season %> <span style="font-size:0.7em; opacity:0.6;"><%= b.filename %></span></td>
+                            <td><%= b.count %> records</td>
+                            <td>
+                                <form action="/admin/backup/delete" method="POST" onsubmit="return confirm('Delete this backup permanently?')">
+                                    <input type="hidden" name="id" value="<%= b.id %>">
+                                    <button class="btn btn-danger btn-sm"></button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -125,14 +134,10 @@
                 </div>
                 <button class="btn btn-success" style="margin-top:10px;">Save Tier</button>
             </form>
-            
             <div style="margin-top:20px; max-height:300px; overflow-y:auto;">
                 <% tiers.forEach(t => { %>
                     <div class="tier-card">
-                        <div>
-                            <strong><%= t.name %></strong> <span style="font-size:0.8rem">(<%= Number(t.min_power)/1000000 %>M - <%= Number(t.max_power)/1000000 %>M)</span><br>
-                            <span style="font-size:0.8rem">Kill: <%= t.kill_multiplier %>x | Death: <%= t.death_multiplier %>x</span>
-                        </div>
+                        <div><strong><%= t.name %></strong> <span style="font-size:0.8rem">(<%= Number(t.min_power)/1000000 %>M - <%= Number(t.max_power)/1000000 %>M)</span><br><span style="font-size:0.8rem">Kill: <%= t.kill_multiplier %>x | Death: <%= t.death_multiplier %>x</span></div>
                         <button class="btn btn-secondary btn-sm" onclick="editTier(<%= JSON.stringify(t) %>)">Edit</button>
                     </div>
                 <% }) %>
@@ -149,9 +154,7 @@
                     <button type="button" class="btn btn-primary" onclick="upload('update')">Update Progress</button>
                 </div>
             </form>
-            
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 25px 0;">
-            
             <h2> One-Click Reports</h2>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 20px;">
                 <button class="btn btn-secondary report-btn" onclick="generateReport('non-compliant', this)">Copy Non-Compliant List</button>
@@ -160,10 +163,7 @@
                     <button class="btn btn-secondary report-btn" style="border-radius:0 6px 6px 0;" onclick="generateReport('top', this)">Copy Top Contributors</button>
                 </div>
             </div>
-            
-            <div id="reportContainer">
-                <textarea class="report-area" placeholder="Report output..." readonly></textarea>
-            </div>
+            <div id="reportContainer"><textarea class="report-area" placeholder="Report output..." readonly></textarea></div>
         </div>
     </div>
   </div>
@@ -178,80 +178,49 @@
         document.getElementById('tierDeath').value = t.death_multiplier;
     }
     
-    function upload(type) {
+    function upload(type, force = false) {
         const file = document.getElementById('fileInput').files[0];
         if(!file) return alert('Select file');
-        if(type==='creation' && !confirm('Delete existing stats?')) return;
+        if(type==='creation' && !confirm('Delete existing stats? This will create a backup first.')) return;
         
         const fd = new FormData(); fd.append('file', file);
         const xhr = new XMLHttpRequest();
         xhr.upload.onprogress = e => document.getElementById('bar').style.width = (e.loaded/e.total*100) + '%';
-        xhr.onload = () => { alert(xhr.status===200 ? 'Success' : 'Error'); if(xhr.status===200) location.reload(); };
-        xhr.open('POST', '/admin/upload/'+type); xhr.send(fd);
+        xhr.onload = () => {
+            if (xhr.status === 409) {
+                const resp = JSON.parse(xhr.responseText);
+                if (confirm(resp.warning + "\n\nDo you want to proceed anyway?")) {
+                    upload(type, true); // Retry with force
+                }
+            } else if (xhr.status===200) {
+                 alert('Success'); location.reload();
+            } else {
+                 alert('Error: ' + xhr.responseText);
+            }
+        };
+        xhr.open('POST', '/admin/upload/'+type + (force ? '?force=true' : '')); xhr.send(fd);
     }
     
     async function generateReport(type, btn) {
-        // Active State
-        document.querySelectorAll('.report-btn').forEach(b => b.classList.remove('active-btn'));
-        btn.classList.add('active-btn');
-    
+        document.querySelectorAll('.report-btn').forEach(b => b.classList.remove('active-btn')); btn.classList.add('active-btn');
         const limit = document.getElementById('topLimit').value;
         const url = type === 'top' ? '/api/reports/top?limit=' + limit : '/api/reports/non-compliant';
-        
         try {
-            const res = await fetch(url);
-            const list = await res.json();
-            
-            const container = document.getElementById('reportContainer');
-            container.innerHTML = '';
-            
-            if (list.length === 0) {
-                container.innerHTML = '<p style="opacity:0.6">No records found for this report.</p>';
-                return;
-            }
-
-            // Split Logic for 2000 chars limit (safety 1900)
-            const MAX_CHARS = 1900;
-            let currentChunk = '';
-            let chunks = [];
-            
-            list.forEach(line => {
-                if ((currentChunk.length + line.length + 1) > MAX_CHARS) {
-                    chunks.push(currentChunk);
-                    currentChunk = '';
-                }
-                currentChunk += line + '\n';
-            });
+            const res = await fetch(url); const list = await res.json();
+            const container = document.getElementById('reportContainer'); container.innerHTML = '';
+            if (list.length === 0) { container.innerHTML = '<p style="opacity:0.6">No records found.</p>'; return; }
+            const MAX_CHARS = 1900; let currentChunk = ''; let chunks = [];
+            list.forEach(line => { if ((currentChunk.length + line.length + 1) > MAX_CHARS) { chunks.push(currentChunk); currentChunk = ''; } currentChunk += line + '\n'; });
             if (currentChunk) chunks.push(currentChunk);
-            
-            // Render Textareas
             chunks.forEach((chunk, index) => {
-                const div = document.createElement('div');
-                div.className = 'report-chunk';
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span>Part ${index + 1} / ${chunks.length}</span>
-                        <button class="btn btn-success btn-sm" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <textarea class="report-area" readonly>${chunk}</textarea>
-                `;
+                const div = document.createElement('div'); div.className = 'report-chunk';
+                div.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Part ${index + 1} / ${chunks.length}</span><button class="btn btn-success btn-sm" onclick="copyText(this)">Copy</button></div><textarea class="report-area" readonly>${chunk}</textarea>`;
                 container.appendChild(div);
             });
-            
-        } catch(e) {
-            alert('Error generating report');
-        }
+        } catch(e) { alert('Error generating report'); }
     }
     
-    function copyText(btn) {
-        const area = btn.parentElement.nextElementSibling;
-        area.select();
-        document.execCommand('copy');
-        const original = btn.innerText;
-        btn.innerText = 'Copied!';
-        setTimeout(() => btn.innerText = original, 1000);
-    }
+    function copyText(btn) { const area = btn.parentElement.nextElementSibling; area.select(); document.execCommand('copy'); const original = btn.innerText; btn.innerText = 'Copied!'; setTimeout(() => btn.innerText = original, 1000); }
   </script>
 </body>
 </html>
-

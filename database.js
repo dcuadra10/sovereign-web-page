@@ -20,9 +20,19 @@ async function initDB() {
         )
     `;
     await sql`CREATE TABLE IF NOT EXISTS admins (discord_id TEXT PRIMARY KEY, note TEXT)`;
-
-    // Insert Default Admin if not exists
-    await sql`INSERT INTO admins (discord_id, note) VALUES ('1211770249200795734', 'Super Admin') ON CONFLICT DO NOTHING`;
+    await sql`Insert INTO admins (discord_id, note) VALUES ('1211770249200795734', 'Super Admin') ON CONFLICT DO NOTHING`;
+    
+    // New Backups Table
+    await sql`
+        CREATE TABLE IF NOT EXISTS backups (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW(),
+            data JSONB NOT NULL,
+            kvk_season TEXT,
+            filename TEXT
+        )
+    `;
 
     console.log('Database initialized');
   } catch (error) { console.error('DB init error:', error); }
@@ -55,8 +65,18 @@ async function getAdmins() { return await sql`SELECT * FROM admins`; }
 async function addAdmin(discordId, note) { await sql`INSERT INTO admins (discord_id, note) VALUES (${discordId}, ${note}) ON CONFLICT (discord_id) DO UPDATE SET note = EXCLUDED.note`; }
 async function removeAdmin(discordId) { await sql`DELETE FROM admins WHERE discord_id = ${discordId}`; }
 
+// Backup Functions
+async function createBackup(name, kvk, filename) {
+    const stats = await getAllStats();
+    if (stats.length === 0) return; // Don't backup empty
+    await sql`INSERT INTO backups (name, data, kvk_season, filename) VALUES (${name}, ${JSON.stringify(stats)}, ${kvk}, ${filename})`;
+}
+async function getBackups() { return await sql`SELECT id, name, created_at, kvk_season, filename, jsonb_array_length(data) as count FROM backups ORDER BY created_at DESC`; }
+async function deleteBackup(id) { await sql`DELETE FROM backups WHERE id = ${id}`; }
+
 module.exports = {
   sql, initDB, upsertUser, getUser, linkGovernor, setConfig, getConfig,
   getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, clearAllStats, getAllTiers, upsertTier, deleteTier,
-  getAdmins, addAdmin, removeAdmin
+  getAdmins, addAdmin, removeAdmin,
+  createBackup, getBackups, deleteBackup
 };
