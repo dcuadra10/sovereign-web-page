@@ -3,110 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stats - Sovereign Empire</title>
+  <title>Kingdom Stats - Sovereign Empire</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; }
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; }
-    .btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s; background: linear-gradient(135deg, #5865F2, #7289da); color: white; }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .nav-links { display: flex; gap: 20px; }
+    .btn { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+    .btn:hover { background: rgba(255,255,255,0.2); }
+    
     .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
-    .page-header { margin-bottom: 40px; }
-    .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #fff 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .page-header p { color: rgba(255,255,255,0.6); }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-    .stat-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 25px; transition: all 0.3s; }
-    .stat-card:hover { transform: translateY(-5px); border-color: rgba(167,139,250,0.5); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-    .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-    .stat-username { font-size: 1.2rem; font-weight: 600; }
-    .stat-id { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
-    .stat-tier { font-size: 0.75rem; padding: 3px 8px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; }
-    .stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .stat-label { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
-    .stat-value { font-weight: 600; color: #a78bfa; font-size: 0.9rem; }
-    .progress-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .progress-title { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
-    .progress-item { margin-bottom: 12px; }
-    .progress-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
-    .progress-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-    .progress-bar { height: 100%; border-radius: 4px; }
-    .progress-bar.kills { background: linear-gradient(90deg, #667eea, #764ba2); }
-    .progress-bar.deaths { background: linear-gradient(90deg, #f5576c, #f093fb); }
-    .progress-complete { color: #22c55e; }
-    .empty-state { text-align: center; padding: 80px 40px; background: rgba(255,255,255,0.05); border-radius: 16px; }
-    .search-box { margin-bottom: 30px; }
-    .search-input { width: 100%; max-width: 400px; padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; font-size: 1rem; }
-    .search-input:focus { outline: none; border-color: #a78bfa; }
-    .search-input::placeholder { color: rgba(255,255,255,0.4); }
-    .no-tier { font-size: 0.75rem; color: rgba(255,255,255,0.4); font-style: italic; }
+    
+    /* Totals Banner */
+    .totals-banner {
+        background: linear-gradient(90deg, #1cb5e0 0%, #000851 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+    .total-item { text-align: center; }
+    .total-val { font-size: 1.5rem; font-weight: 700; display: block; }
+    .total-lbl { font-size: 0.8rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+
+    .stats-header { text-align: center; margin-bottom: 40px; }
+    .stats-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #fff 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .stats-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .stat-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 20px;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.08); }
+    
+    .role-badge { 
+        display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; 
+        background: rgba(255,255,255,0.1); margin-bottom: 10px;
+    }
+    .compliant { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
+    .non-compliant { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.4); }
+
+    .progress-track { background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; margin: 8px 0 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: #a78bfa; }
+    .progress-fill.green { background: #4ade80; }
+    .progress-fill.red { background: #f87171; }
+    
+    .stat-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 5px; }
+    .sub-text { font-size: 0.8rem; opacity: 0.6; }
   </style>
 </head>
 <body>
   <nav class="navbar">
-    <div class="nav-brand"><span></span><span>Sovereign Empire</span></div>
-    <a href="/" class="btn"> Login</a>
+    <a href="/" class="nav-brand" style="text-decoration:none; color:white;"> Sovereign Empire Stats</a>
+    <div class="nav-links">
+        <a href="/login" class="btn btn-secondary">Login</a>
+    </div>
   </nav>
+
   <div class="container">
-    <div class="page-header">
-      <h1> Kingdom Stats</h1>
-      <p>Public statistics and requirement progress</p>
+    <div class="stats-header">
+        <h1>Kingdom Statistics</h1>
+        <p style="opacity: 0.7;">Live data for <%= currentKvK || 'Current Season' %></p>
     </div>
-    <div class="search-box">
-      <input type="text" class="search-input" placeholder=" Search..." id="searchInput">
+
+    <div class="totals-banner">
+        <div class="total-item"><span class="total-val"><%= totals.count %></span><span class="total-lbl">Members</span></div>
+        <div class="total-item"><span class="total-val"><%= (Number(totals.total_power)/1000000).toFixed(0) %>M</span><span class="total-lbl">Kingdom Power</span></div>
+        <div class="total-item"><span class="total-val"><%= (Number(totals.total_kills)/1000000).toFixed(0) %>M</span><span class="total-lbl">Total Kills</span></div>
+        <div class="total-item"><span class="total-val"><%= (Number(totals.total_deads)/1000).toFixed(0) %>K</span><span class="total-lbl">Total Deads</span></div>
     </div>
-    <% if (stats.length === 0) { %>
-      <div class="empty-state"><div style="font-size: 4rem;"></div><h2>No Stats Available</h2></div>
-    <% } else { %>
-      <div class="stats-grid" id="statsGrid">
-        <% stats.forEach(stat => { %>
-          <div class="stat-card" data-username="<%= stat.username?.toLowerCase() || '' %>" data-id="<%= stat.governor_id %>">
-            <div class="stat-header">
-              <div>
-                <div class="stat-username"><%= stat.username %></div>
-                <div class="stat-id">ID: <%= stat.governor_id %></div>
-              </div>
-              <% if (stat.tier) { %><span class="stat-tier"><%= stat.tier.name %></span><% } %>
-            </div>
-            <div class="stat-row"><span class="stat-label"> Power</span><span class="stat-value"><%= Number(stat.highest_power || 0).toLocaleString() %></span></div>
-            <div class="stat-row"><span class="stat-label"> Deads</span><span class="stat-value"><%= Number(stat.deads || 0).toLocaleString() %></span></div>
-            <div class="stat-row"><span class="stat-label"> Kills</span><span class="stat-value"><%= Number(stat.total_kill_points || 0).toLocaleString() %></span></div>
-            <% if (stat.tier) { %>
-              <div class="progress-section">
-                <div class="progress-title"> Progress</div>
-                <div class="progress-item">
-                  <div class="progress-header">
-                    <span> Kills</span>
-                    <span class="<%= stat.killProgress >= 100 ? 'progress-complete' : '' %>"><%= stat.killProgress %>%</span>
-                  </div>
-                  <div class="progress-bar-bg"><div class="progress-bar kills" style="width: <%= Math.min(stat.killProgress, 100) %>%"></div></div>
-                </div>
-                <% if (stat.deathReq > 0) { %>
-                  <div class="progress-item">
-                    <div class="progress-header">
-                      <span> Deaths</span>
-                      <span class="<%= stat.deathProgress >= 100 ? 'progress-complete' : '' %>"><%= stat.deathProgress %>%</span>
+
+    <div class="stats-grid">
+        <% stats.forEach(p => { %>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:start;">
+                    <div>
+                        <div class="role-badge <%= p.isCompliant ? 'compliant' : 'non-compliant' %>">
+                            <%= p.isCompliant ? ' Compliant' : ' At Risk' %>
+                        </div>
+                        <h3 style="margin-bottom:2px;"><%= p.username %></h3>
+                        <div class="sub-text">ID: <%= p.governor_id %> | <%= p.kingdom %></div>
                     </div>
-                    <div class="progress-bar-bg"><div class="progress-bar deaths" style="width: <%= Math.min(stat.deathProgress, 100) %>%"></div></div>
-                  </div>
-                <% } %>
-              </div>
-            <% } else { %>
-              <div class="progress-section"><span class="no-tier">No tier configured</span></div>
-            <% } %>
-          </div>
+                </div>
+                
+                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+                
+                <div>
+                    <div class="stat-row"><span>Power</span> <span><%= (Number(p.highest_power)/1000000).toFixed(1) %>M</span></div>
+                    <div class="stat-row"><span>Tier</span> <span><%= p.tier ? p.tier.name : 'Unranked' %></span></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <div class="stat-row"><span>Kills (<%= p.killProgress %>%)</span> <span><%= (Number(p.killsGained)/1000000).toFixed(1) %>M / <%= (Number(p.killReq)/1000000).toFixed(1) %>M</span></div>
+                    <div class="progress-track"><div class="progress-fill <%= p.killProgress >= 100 ? 'green' : 'red' %>" style="width: <%= p.killProgress %>%"></div></div>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <div class="stat-row"><span>Deads (<%= p.deathProgress %>%)</span> <span><%= Number(p.deadsGained).toLocaleString() %> / <%= Number(p.deathReq).toLocaleString() %></span></div>
+                    <div class="progress-track"><div class="progress-fill <%= p.deathProgress >= 100 ? 'green' : 'red' %>" style="width: <%= p.deathProgress %>%"></div></div>
+                </div>
+            </div>
         <% }) %>
-      </div>
-    <% } %>
+    </div>
   </div>
-  <script>
-    document.getElementById('searchInput')?.addEventListener('input', e => {
-      const q = e.target.value.toLowerCase();
-      document.querySelectorAll('.stat-card').forEach(c => {
-        c.style.display = (c.dataset.username.includes(q) || c.dataset.id.includes(q)) ? 'block' : 'none';
-      });
-    });
-  </script>
 </body>
 </html>
