@@ -1,17 +1,22 @@
 ﻿const express = require('express');
 const path = require('path');
-const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const xlsx = require('xlsx');
 require('dotenv').config();
 
-const { initDB, getAllStats, upsertStats } = require('./database');
-const { passport, ADMIN_ID } = require('./auth');
+const { initDB, getAllStats, upsertStats, upsertUser, getUser } = require('./database');
 
 const app = express();
+const JWT_SECRET = process.env.SESSION_SECRET || 'super-secret-key';
+const ADMIN_ID = '1211770249200795734';
 
-// Initialize database on startup
+// Initialize database
 initDB();
+
+// Trust proxy for Vercel
+app.set('trust proxy', 1);
 
 // View engine
 app.set('view engine', 'ejs');
@@ -21,30 +26,35 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Session
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'super-secret-key-change-this',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 
+// Get user from JWT cookie
+function getUserFromToken(req) {
+  try {
+    const token = req.cookies.auth_token;
+    if (!token) return null;
+    return jwt.verify(token, JWT_SECRET);
+  } catch {
+    return null;
   }
-}));
+}
 
-// Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Middleware to check auth
+// Middleware
 function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) return next();
+  const user = getUserFromToken(req);
+  if (user) {
+    req.user = user;
+    return next();
+  }
   res.redirect('/');
 }
 
 function isAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user.discordId === ADMIN_ID) return next();
+  const user = getUserFromToken(req);
+  if (user && user.discordId === ADMIN_ID) {
+    req.user = user;
+    return next();
+  }
   res.status(403).send('Forbidden');
 }
 
@@ -53,36 +63,93 @@ const upload = multer({ dest: '/tmp/uploads/' });
 
 // Routes
 app.get('/', (req, res) => {
-  if (req.isAuthenticated()) {
+  const user = getUserFromToken(req);
+  if (user) {
     return res.redirect('/dashboard');
   }
   res.render('login');
 });
 
-// Public stats page (no login required)
+// Public stats
 app.get('/stats', async (req, res) => {
   try {
     const stats = await getAllStats();
     res.render('stats', { stats });
   } catch (error) {
-    console.error('Stats error:', error);
-    res.status(500).send('Error loading stats');
+    res.status(500).send('Error: ' + error.message);
   }
 });
 
-app.get('/auth/discord', passport.authenticate('discord'));
+// Discord OAuth - redirect to Discord
+app.get('/auth/discord', (req, res) => {
+  const clientId = process.env.DISCORD_CLIENT_ID;
+  const redirectUri = encodeURIComponent(process.env.DISCORD_CALLBACK_URL);
+  const scope = encodeURIComponent('identify');
+  res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`);
+});
 
-app.get('/auth/discord/callback',
-  passport.authenticate('discord', { failureRedirect: '/' }),
-  (req, res) => {
-    res.redirect('/dashboard');
+// Discord OAuth callback
+app.get('/auth/discord/callback', async (req, res) => {
+  const code = req.query.code;
+  if (!code) {
+    return res.redirect('/?error=no_code');
   }
-);
+
+  try {
+    // Exchange code for token
+    const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.DISCORD_CLIENT_ID,
+        client_secret: process.env.DISCORD_CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: process.env.DISCORD_CALLBACK_URL
+      })
+    });
+
+    const tokenData = await tokenResponse.json();
+    if (!tokenData.access_token) {
+      console.error('Token error:', tokenData);
+      return res.redirect('/?error=token_failed');
+    }
+
+    // Get user info
+    const userResponse = await fetch('https://discord.com/api/users/@me', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+    });
+    const userData = await userResponse.json();
+
+    // Save to database
+    await upsertUser(userData.id, userData.username, userData.avatar);
+
+    // Create JWT token
+    const token = jwt.sign({
+      discordId: userData.id,
+      username: userData.username,
+      avatar: userData.avatar,
+      isAdmin: userData.id === ADMIN_ID
+    }, JWT_SECRET, { expiresIn: '7d' });
+
+    // Set cookie
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error('Auth error:', error);
+    res.redirect('/?error=auth_failed');
+  }
+});
 
 app.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect('/');
-  });
+  res.clearCookie('auth_token');
+  res.redirect('/');
 });
 
 app.get('/dashboard', isAuthenticated, async (req, res) => {
@@ -94,8 +161,7 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
       isAdmin: req.user.discordId === ADMIN_ID 
     });
   } catch (error) {
-    console.error('Dashboard error:', error);
-    res.status(500).send('Error loading dashboard');
+    res.status(500).send('Error: ' + error.message);
   }
 });
 
@@ -104,8 +170,7 @@ app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
     const stats = await getAllStats();
     res.render('admin', { user: req.user, stats });
   } catch (error) {
-    console.error('Admin error:', error);
-    res.status(500).send('Error loading admin panel');
+    res.status(500).send('Error: ' + error.message);
   }
 });
 
@@ -136,7 +201,6 @@ app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), async
     
     res.redirect('/admin?success=1');
   } catch (error) {
-    console.error('Upload error:', error);
     res.redirect('/admin?error=' + encodeURIComponent(error.message));
   }
 });
@@ -152,9 +216,7 @@ app.get('/api/stats', async (req, res) => {
 
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`Server on port ${PORT}`));
 }
 
 module.exports = app;
