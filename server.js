@@ -17,6 +17,7 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Serve static files FIRST
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,7 +36,7 @@ function getUserFromToken(req) {
 function isAuthenticated(req, res, next) {
   const user = getUserFromToken(req);
   if (user) { req.user = user; return next(); }
-  res.redirect('/');
+  res.redirect('/login');
 }
 
 function isAdmin(req, res, next) {
@@ -93,15 +94,12 @@ function parseExcelData(buffer) {
   return records;
 }
 
-// Calculate progress for each player
 async function calculateProgress(stats, tiers) {
   return stats.map(stat => {
     const power = Number(stat.initial_power) || Number(stat.highest_power) || 0;
     const tier = tiers.find(t => power >= Number(t.min_power) && power < Number(t.max_power));
     
-    if (!tier) {
-      return { ...stat, tier: null, killReq: 0, deathReq: 0, killProgress: 0, deathProgress: 0 };
-    }
+    if (!tier) return { ...stat, tier: null, killReq: 0, deathReq: 0, killProgress: 0, deathProgress: 0 };
     
     const killReq = Math.floor(power * Number(tier.kill_multiplier));
     const deathReq = Number(tier.death_requirement);
@@ -118,25 +116,23 @@ async function calculateProgress(stats, tiers) {
     const deathProgress = deathReq > 0 ? Math.min(100, (deadsGained / deathReq) * 100) : 100;
     
     return {
-      ...stat,
-      tier,
-      killReq,
-      deathReq,
-      killsGained,
-      deadsGained,
+      ...stat, tier, killReq, deathReq, killsGained, deadsGained,
       killProgress: Math.round(killProgress * 10) / 10,
       deathProgress: Math.round(deathProgress * 10) / 10
     };
   });
 }
 
-// Routes
-app.get('/', (req, res) => {
+// HOME - serves index.html from public folder automatically
+
+// LOGIN page
+app.get('/login', (req, res) => {
   const user = getUserFromToken(req);
   if (user) return res.redirect('/dashboard');
   res.render('login');
 });
 
+// Public stats
 app.get('/stats', async (req, res) => {
   try {
     const stats = await getAllStats();
@@ -154,7 +150,7 @@ app.get('/auth/discord', (req, res) => {
 
 app.get('/auth/discord/callback', async (req, res) => {
   const code = req.query.code;
-  if (!code) return res.redirect('/?error=no_code');
+  if (!code) return res.redirect('/login?error=no_code');
   try {
     const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
       method: 'POST',
@@ -167,7 +163,7 @@ app.get('/auth/discord/callback', async (req, res) => {
       })
     });
     const tokenData = await tokenResponse.json();
-    if (!tokenData.access_token) return res.redirect('/?error=token_failed');
+    if (!tokenData.access_token) return res.redirect('/login?error=token_failed');
     const userResponse = await fetch('https://discord.com/api/users/@me', {
       headers: { Authorization: `Bearer ${tokenData.access_token}` }
     });
@@ -182,7 +178,7 @@ app.get('/auth/discord/callback', async (req, res) => {
       sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000
     });
     res.redirect('/dashboard');
-  } catch (error) { res.redirect('/?error=auth_failed'); }
+  } catch (error) { res.redirect('/login?error=auth_failed'); }
 });
 
 app.get('/logout', (req, res) => { res.clearCookie('auth_token'); res.redirect('/'); });
@@ -204,7 +200,6 @@ app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
   } catch (error) { res.status(500).send('Error: ' + error.message); }
 });
 
-// Tier management
 app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => {
   try {
     const { id, name, minPower, maxPower, killMultiplier, deathRequirement } = req.body;
@@ -220,28 +215,24 @@ app.post('/admin/tier/delete', isAuthenticated, isAdmin, async (req, res) => {
   } catch (error) { res.redirect('/admin?error=' + encodeURIComponent(error.message)); }
 });
 
-// CREATION upload - saves initial values
 app.post('/admin/upload/creation', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).send('No file uploaded');
     const records = parseExcelData(req.file.buffer);
     if (records.length === 0) return res.status(400).send('No valid records');
-    
     await clearAllStats();
     for (const r of records) {
       await createStatsWithInitial(r.governorId, r.username, r.highestPower, r.deads, r.killPoints, r.resources);
     }
-    res.status(200).send(`Creation complete! Added ${records.length} records with initial values saved`);
+    res.status(200).send(`Creation complete! Added ${records.length} records`);
   } catch (error) { res.status(500).send('Upload failed: ' + error.message); }
 });
 
-// UPDATE upload
 app.post('/admin/upload/update', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).send('No file uploaded');
     const records = parseExcelData(req.file.buffer);
     if (records.length === 0) return res.status(400).send('No valid records');
-    
     for (const r of records) {
       await upsertStats(r.governorId, r.username, r.highestPower, r.deads, r.killPoints, r.resources);
     }
