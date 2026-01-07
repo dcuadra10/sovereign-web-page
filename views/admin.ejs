@@ -18,11 +18,9 @@
     .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
     .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
     .page-header { margin-bottom: 40px; }
     .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .page-header p { color: rgba(255,255,255,0.6); }
     .section { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; margin-bottom: 30px; }
     .section h2 { margin-bottom: 20px; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
@@ -38,178 +36,100 @@
     .file-input { display: none; }
     .file-label { display: inline-flex; align-items: center; gap: 10px; padding: 20px 30px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 12px; cursor: pointer; }
     .file-label:hover { border-color: #a78bfa; }
-    .file-name { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 10px; }
     .upload-buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
     .progress-container { display: none; margin-top: 20px; }
     .progress-container.show { display: block; }
     .progress-bar-bg { width: 100%; height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
     .progress-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; transition: width 0.3s; width: 0%; }
-    .progress-text { text-align: center; margin-top: 10px; color: rgba(255,255,255,0.8); }
     .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
     .alert-success { background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.5); color: #22c55e; }
     .alert-error { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); color: #ef4444; }
-    .alert-warning { background: rgba(234,179,8,0.2); border: 1px solid rgba(234,179,8,0.5); color: #eab308; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
     th { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
     .table-wrapper { max-height: 400px; overflow-y: auto; }
-    .empty-state { text-align: center; padding: 40px; color: rgba(255,255,255,0.5); }
   </style>
 </head>
 <body>
   <nav class="navbar">
-    <div class="nav-brand">
-      <span></span><span>Sovereign Empire</span>
-      <span style="color: #f5576c; font-size: 0.8rem; margin-left: 10px;">ADMIN</span>
-    </div>
-    <div class="nav-links">
-      <a href="/dashboard" class="btn btn-secondary"> Dashboard</a>
-      <a href="/logout" class="btn btn-secondary">Logout</a>
-    </div>
+    <div class="nav-brand"><span></span><span>Sovereign Empire</span> <span style="font-size:0.8rem;color:#f5576c;">ADMIN</span></div>
+    <div class="nav-links"><a href="/dashboard" class="btn btn-secondary">Dashboard</a><a href="/logout" class="btn btn-secondary">Logout</a></div>
   </nav>
   
   <div class="container">
-    <div class="page-header">
-      <h1> Admin Panel</h1>
-      <p>Configure tiers, requirements, and upload stats</p>
-    </div>
-    
+    <div class="page-header"><h1> Admin Panel</h1></div>
     <div id="alertContainer"></div>
     
     <div class="grid-2">
-      <!-- TIER CONFIGURATION -->
+      <!-- TIERS -->
       <div class="section">
         <h2> Tier Requirements</h2>
-        <p style="color: rgba(255,255,255,0.5); margin-bottom: 20px; font-size: 0.9rem;">
-          Configure kill requirements based on power tiers. Kill Multiplier is the % of initial power required as kill points.
-        </p>
-        
         <form action="/admin/tier" method="POST">
           <input type="hidden" name="id" id="tierId">
-          <div class="form-group">
-            <label>Tier Name</label>
-            <input type="text" name="name" class="form-control" placeholder="e.g. 100M Tier" required id="tierName">
+          <div class="form-group"><label>Name</label><input type="text" name="name" class="form-control" placeholder="100M Tier" required id="tierName"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+            <div class="form-group"><label>Min Power</label><input type="number" name="minPower" class="form-control" required id="tierMin"></div>
+            <div class="form-group"><label>Max Power</label><input type="number" name="maxPower" class="form-control" required id="tierMax"></div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group">
-              <label>Min Power</label>
-              <input type="number" name="minPower" class="form-control" placeholder="100000000" required id="tierMin">
-            </div>
-            <div class="form-group">
-              <label>Max Power</label>
-              <input type="number" name="maxPower" class="form-control" placeholder="200000000" required id="tierMax">
-            </div>
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group">
-              <label>Kill Multiplier (e.g. 1.0 = 100%)</label>
-              <input type="number" step="0.01" name="killMultiplier" class="form-control" placeholder="1.00" required id="tierKill">
-            </div>
-            <div class="form-group">
-              <label>Death Requirement</label>
-              <input type="number" name="deathRequirement" class="form-control" placeholder="500000" required id="tierDeath">
-            </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+            <div class="form-group"><label>Kill Multiplier (e.g. 1.0)</label><input type="number" step="0.01" name="killMultiplier" class="form-control" required id="tierKill"></div>
+            <div class="form-group"><label>Death Multiplier (e.g. 0.05)</label><input type="number" step="0.0001" name="deathMultiplier" class="form-control" placeholder="0.05 = 5%" required id="tierDeath"></div>
           </div>
           <button type="submit" class="btn btn-success"> Save Tier</button>
         </form>
-        
-        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
-        
-        <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Current Tiers</h3>
-        <% if (tiers.length === 0) { %>
-          <div class="empty-state">No tiers configured yet</div>
-        <% } else { %>
-          <% tiers.forEach(tier => { %>
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:25px 0;">
+        <% if (!tiers.length) { %><div>No tiers</div><% } else { %>
+          <% tiers.forEach(t => { %>
             <div class="tier-card">
               <div class="tier-header">
-                <span class="tier-name"><%= tier.name %></span>
+                <span class="tier-name"><%= t.name %></span>
                 <div>
-                  <button class="btn btn-secondary btn-sm" onclick="editTier(<%= tier.id %>, '<%= tier.name %>', <%= tier.min_power %>, <%= tier.max_power %>, <%= tier.kill_multiplier %>, <%= tier.death_requirement %>)"></button>
-                  <form action="/admin/tier/delete" method="POST" style="display: inline;">
-                    <input type="hidden" name="id" value="<%= tier.id %>">
-                    <button class="btn btn-danger btn-sm" onclick="return confirm('Delete this tier?')"></button>
-                  </form>
+                  <button class="btn btn-secondary btn-sm" onclick="editTier(<%= t.id %>, '<%= t.name %>', <%= t.min_power %>, <%= t.max_power %>, <%= t.kill_multiplier %>, <%= t.death_multiplier || 0 %>)"></button>
+                  <form action="/admin/tier/delete" method="POST" style="display:inline;"><input type="hidden" name="id" value="<%= t.id %>"><button class="btn btn-danger btn-sm" onclick="return confirm('Delete?')"></button></form>
                 </div>
               </div>
               <div class="tier-details">
-                Power: <%= Number(tier.min_power).toLocaleString() %> - <%= Number(tier.max_power).toLocaleString() %><br>
-                Kill Req: <%= (tier.kill_multiplier * 100).toFixed(0) %>% of power | Death Req: <%= Number(tier.death_requirement).toLocaleString() %>
+                Power: <%= Number(t.min_power).toLocaleString() %> - <%= Number(t.max_power).toLocaleString() %><br>
+                Kill Req: <%= (t.kill_multiplier * 100).toFixed(0) %>% | Death Req: <%= (t.death_multiplier * 100).toFixed(2) %>%
               </div>
             </div>
           <% }) %>
         <% } %>
       </div>
       
-      <!-- FILE UPLOAD -->
+      <!-- UPLOAD -->
       <div class="section">
         <h2> Upload Stats</h2>
         <form id="uploadForm">
-          <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls" required>
-          <label for="fileInput" class="file-label">
-            <span style="font-size: 2rem;"></span>
-            <div>
-              <div style="font-weight: 600;">Choose Excel File</div>
-              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">.xlsx or .xls</div>
-            </div>
-          </label>
-          <div class="file-name" id="fileName">No file selected</div>
-          
-          <div class="progress-container" id="progressContainer">
-            <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="progress-text" id="progressText">Uploading... 0%</div>
-          </div>
-          
+          <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls">
+          <label for="fileInput" class="file-label"><span style="font-size:2rem;"></span><div><strong>Choose Excel</strong></div></label>
+          <div id="fileName" style="margin-top:10px;color:rgba(255,255,255,0.5);"></div>
+          <div class="progress-container" id="prog"><div class="progress-bar-bg"><div class="progress-bar" id="bar"></div></div><div style="text-align:center;margin-top:5px;" id="txt">0%</div></div>
           <div class="upload-buttons">
-            <button type="button" class="btn btn-danger" onclick="uploadFile('creation')"> Creation</button>
-            <button type="button" class="btn btn-primary" onclick="uploadFile('update')"> Update</button>
+            <button type="button" class="btn btn-danger" onclick="upload('creation')"> Creation</button>
+            <button type="button" class="btn btn-primary" onclick="upload('update')"> Update</button>
           </div>
         </form>
-        
-        <div class="alert alert-warning" style="margin-top: 20px;">
-           <strong>Creation</strong>: Deletes all & saves initial values for progress tracking<br>
-           <strong>Update</strong>: Updates current stats, calculates progress from initial
-        </div>
       </div>
     </div>
     
-    <!-- STATS TABLE -->
     <div class="section">
-      <h2> Current Stats <span style="font-size: 0.9rem; color: #a78bfa;">(<%= stats.length %> members)</span></h2>
-      <% if (stats.length === 0) { %>
-        <div class="empty-state">No stats uploaded yet</div>
-      <% } else { %>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Highest Power</th>
-                <th>Deads</th>
-                <th>Kill Points</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% stats.forEach(s => { %>
-                <tr>
-                  <td><%= s.governor_id %></td>
-                  <td><%= s.username %></td>
-                  <td><%= Number(s.highest_power || 0).toLocaleString() %></td>
-                  <td><%= Number(s.deads || 0).toLocaleString() %></td>
-                  <td><%= Number(s.total_kill_points || 0).toLocaleString() %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
-      <% } %>
+      <h2> Current Stats (<%= stats.length %>)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>ID</th><th>User</th><th>Power</th><th>Deads</th><th>Kills</th></tr></thead>
+          <tbody>
+            <% stats.forEach(s => { %>
+              <tr><td><%= s.governor_id %></td><td><%= s.username %></td><td><%= Number(s.highest_power).toLocaleString() %></td><td><%= Number(s.deads).toLocaleString() %></td><td><%= Number(s.total_kill_points).toLocaleString() %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   
   <script>
-    document.getElementById('fileInput').addEventListener('change', e => {
-      document.getElementById('fileName').textContent = e.target.files[0]?.name || 'No file selected';
-    });
+    document.getElementById('fileInput').addEventListener('change', e => document.getElementById('fileName').textContent = e.target.files[0]?.name || '');
     
     function editTier(id, name, min, max, kill, death) {
       document.getElementById('tierId').value = id;
@@ -218,52 +138,21 @@
       document.getElementById('tierMax').value = max;
       document.getElementById('tierKill').value = kill;
       document.getElementById('tierDeath').value = death;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top:0,behavior:'smooth'});
     }
     
-    function uploadFile(type) {
+    function upload(type) {
       const file = document.getElementById('fileInput').files[0];
-      if (!file) return alert('Select a file first');
-      if (type === 'creation' && !confirm(' This will DELETE ALL existing stats. Continue?')) return;
+      if (!file) return alert('Select file');
+      if (type === 'creation' && !confirm('Delete all stats?')) return;
       
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const prog = document.getElementById('progressContainer');
-      const bar = document.getElementById('progressBar');
-      const txt = document.getElementById('progressText');
-      prog.classList.add('show');
-      
+      const fd = new FormData(); fd.append('file', file);
+      const prog = document.getElementById('prog'); prog.classList.add('show');
       const xhr = new XMLHttpRequest();
-      xhr.upload.onprogress = e => {
-        if (e.lengthComputable) {
-          const pct = Math.round((e.loaded / e.total) * 100);
-          bar.style.width = pct + '%';
-          txt.textContent = 'Uploading... ' + pct + '%';
-        }
-      };
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          bar.style.width = '100%';
-          txt.textContent = 'Complete!';
-          document.getElementById('alertContainer').innerHTML = '<div class="alert alert-success"> ' + xhr.responseText + '</div>';
-          setTimeout(() => location.reload(), 1500);
-        } else {
-          document.getElementById('alertContainer').innerHTML = '<div class="alert alert-error"> ' + xhr.responseText + '</div>';
-          prog.classList.remove('show');
-        }
-      };
-      xhr.onerror = () => {
-        document.getElementById('alertContainer').innerHTML = '<div class="alert alert-error"> Upload failed</div>';
-        prog.classList.remove('show');
-      };
-      xhr.open('POST', '/admin/upload/' + type);
-      xhr.send(formData);
+      xhr.upload.onprogress = e => { if (e.lengthComputable) { const p = Math.round(e.loaded/e.total*100); document.getElementById('bar').style.width = p+'%'; document.getElementById('txt').textContent = p+'%'; }};
+      xhr.onload = () => { if (xhr.status===200) { alert('Success'); location.reload(); } else { alert('Error: ' + xhr.responseText); prog.classList.remove('show'); }};
+      xhr.open('POST', '/admin/upload/'+type); xhr.send(fd);
     }
-    
-    const params = new URLSearchParams(location.search);
-    if (params.get('success')) document.getElementById('alertContainer').innerHTML = '<div class="alert alert-success"> ' + params.get('success') + '</div>';
-    if (params.get('error')) document.getElementById('alertContainer').innerHTML = '<div class="alert alert-error"> ' + decodeURIComponent(params.get('error')) + '</div>';
   </script>
 </body>
 </html>
