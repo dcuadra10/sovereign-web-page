@@ -11,147 +11,173 @@
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; }
     .nav-links { display: flex; gap: 20px; }
-    .btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s; border: none; cursor: pointer; font-size: 1rem; }
-    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .btn-danger { background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); color: white; }
+    .btn { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    .btn-danger { background: linear-gradient(135deg, #f5576c, #f093fb); color: white; }
     .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
-    .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
-    .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
     .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
-    .page-header { margin-bottom: 40px; }
-    .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .section { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; margin-bottom: 30px; }
-    .section h2 { margin-bottom: 20px; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .section { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; color: rgba(255,255,255,0.7); font-size: 0.9rem; }
-    .form-control { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; font-size: 1rem; }
-    .form-control:focus { outline: none; border-color: #a78bfa; }
-    .tier-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
-    .tier-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .tier-name { font-weight: 600; font-size: 1.1rem; }
-    .tier-details { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
-    .file-input { display: none; }
-    .file-label { display: inline-flex; align-items: center; gap: 10px; padding: 20px 30px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 12px; cursor: pointer; }
-    .file-label:hover { border-color: #a78bfa; }
-    .upload-buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
-    .progress-container { display: none; margin-top: 20px; }
-    .progress-container.show { display: block; }
-    .progress-bar-bg { width: 100%; height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-    .progress-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; transition: width 0.3s; width: 0%; }
-    .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
-    .alert-success { background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.5); color: #22c55e; }
-    .alert-error { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); color: #ef4444; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    th { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
-    .table-wrapper { max-height: 400px; overflow-y: auto; }
+    .form-control { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; }
+    .tier-card { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+    textarea { width: 100%; height: 100px; padding: 10px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-family: monospace; resize: vertical; }
   </style>
 </head>
 <body>
   <nav class="navbar">
-    <div class="nav-brand"><span></span><span>Sovereign Empire</span> <span style="font-size:0.8rem;color:#f5576c;">ADMIN</span></div>
-    <div class="nav-links"><a href="/dashboard" class="btn btn-secondary">Dashboard</a><a href="/logout" class="btn btn-secondary">Logout</a></div>
+    <div class="nav-brand"><span> Admin Panel</span></div>
+    <div class="nav-links">
+        <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+        <a href="/logout" class="btn btn-secondary">Logout</a>
+    </div>
   </nav>
   
   <div class="container">
-    <div class="page-header"><h1> Admin Panel</h1></div>
-    <div id="alertContainer"></div>
-    
     <div class="grid-2">
-      <!-- TIERS -->
-      <div class="section">
-        <h2> Tier Requirements</h2>
-        <form action="/admin/tier" method="POST">
-          <input type="hidden" name="id" id="tierId">
-          <div class="form-group"><label>Name</label><input type="text" name="name" class="form-control" placeholder="100M Tier" required id="tierName"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
-            <div class="form-group"><label>Min Power</label><input type="number" name="minPower" class="form-control" required id="tierMin"></div>
-            <div class="form-group"><label>Max Power</label><input type="number" name="maxPower" class="form-control" required id="tierMax"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
-            <div class="form-group"><label>Kill Multiplier (e.g. 1.0)</label><input type="number" step="0.01" name="killMultiplier" class="form-control" required id="tierKill"></div>
-            <div class="form-group"><label>Death Multiplier (e.g. 0.05)</label><input type="number" step="0.0001" name="deathMultiplier" class="form-control" placeholder="0.05 = 5%" required id="tierDeath"></div>
-          </div>
-          <button type="submit" class="btn btn-success"> Save Tier</button>
-        </form>
-        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:25px 0;">
-        <% if (!tiers.length) { %><div>No tiers</div><% } else { %>
-          <% tiers.forEach(t => { %>
-            <div class="tier-card">
-              <div class="tier-header">
-                <span class="tier-name"><%= t.name %></span>
-                <div>
-                  <button class="btn btn-secondary btn-sm" onclick="editTier(<%= t.id %>, '<%= t.name %>', <%= t.min_power %>, <%= t.max_power %>, <%= t.kill_multiplier %>, <%= t.death_multiplier || 0 %>)"></button>
-                  <form action="/admin/tier/delete" method="POST" style="display:inline;"><input type="hidden" name="id" value="<%= t.id %>"><button class="btn btn-danger btn-sm" onclick="return confirm('Delete?')"></button></form>
+        <!-- GLOBAL CONFIG -->
+        <div class="section">
+            <h2> System Config</h2>
+            <form action="/admin/config" method="POST" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label>Discord Server ID (Guild ID)</label>
+                    <input type="text" name="guildId" class="form-control" value="<%= guildId || '' %>" required placeholder="e.g. 123456789012345678">
                 </div>
-              </div>
-              <div class="tier-details">
-                Power: <%= Number(t.min_power).toLocaleString() %> - <%= Number(t.max_power).toLocaleString() %><br>
-                Kill Req: <%= (t.kill_multiplier * 100).toFixed(0) %>% | Death Req: <%= (t.death_multiplier * 100).toFixed(2) %>%
-              </div>
+                <button class="btn btn-primary">Save Config</button>
+            </form>
+            
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+            
+            <h3> KvK Season Management</h3>
+            <form action="/admin/kvk" method="POST" onsubmit="return confirmAction(this)">
+                <div class="form-group">
+                    <label>Current KvK Name</label>
+                    <input type="text" name="kvkName" class="form-control" value="<%= currentKvK %>" placeholder="e.g. KvK 1">
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn btn-primary" onclick="this.form.action.value='save'; this.form.submit()">Update Name</button>
+                    <button type="submit" name="action" value="reset" class="btn btn-danger" onclick="return confirm('WARNING: This will DELETE ALL STATS to start a new season. Continue?')">Reset All Stats (New KvK)</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ADMIN MANAGEMENT -->
+        <div class="section">
+            <h2> Manage Admins</h2>
+            <form action="/admin/manage-admins" method="POST" style="margin-bottom: 20px; display: flex; gap: 10px;">
+                <input type="text" name="discordId" class="form-control" placeholder="Discord User ID" required>
+                <input type="text" name="note" class="form-control" placeholder="Note (e.g. Leader)">
+                <button type="submit" name="action" value="add" class="btn btn-success">Add</button>
+            </form>
+            <div style="max-height: 200px; overflow-y: auto;">
+                <% admins.forEach(a => { %>
+                    <div class="tier-card">
+                        <div>
+                            <strong><%= a.note || 'Admin' %></strong><br>
+                            <span style="font-size: 0.8rem; opacity: 0.7;"><%= a.discord_id %></span>
+                        </div>
+                        <% if (a.discord_id !== user.discordId) { %>
+                            <form action="/admin/manage-admins" method="POST">
+                                <input type="hidden" name="discordId" value="<%= a.discord_id %>">
+                                <button type="submit" name="action" value="remove" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        <% } else { %>
+                            <span style="font-size: 0.8rem; color: #4ade80;">You</span>
+                        <% } %>
+                    </div>
+                <% }) %>
             </div>
-          <% }) %>
-        <% } %>
-      </div>
-      
-      <!-- UPLOAD -->
-      <div class="section">
-        <h2> Upload Stats</h2>
-        <form id="uploadForm">
-          <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls">
-          <label for="fileInput" class="file-label"><span style="font-size:2rem;"></span><div><strong>Choose Excel</strong></div></label>
-          <div id="fileName" style="margin-top:10px;color:rgba(255,255,255,0.5);"></div>
-          <div class="progress-container" id="prog"><div class="progress-bar-bg"><div class="progress-bar" id="bar"></div></div><div style="text-align:center;margin-top:5px;" id="txt">0%</div></div>
-          <div class="upload-buttons">
-            <button type="button" class="btn btn-danger" onclick="upload('creation')"> Creation</button>
-            <button type="button" class="btn btn-primary" onclick="upload('update')"> Update</button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-    
-    <div class="section">
-      <h2> Current Stats (<%= stats.length %>)</h2>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>ID</th><th>User</th><th>Power</th><th>Deads</th><th>Kills</th></tr></thead>
-          <tbody>
-            <% stats.forEach(s => { %>
-              <tr><td><%= s.governor_id %></td><td><%= s.username %></td><td><%= Number(s.highest_power).toLocaleString() %></td><td><%= Number(s.deads).toLocaleString() %></td><td><%= Number(s.total_kill_points).toLocaleString() %></td></tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+
+    <!-- TIERS & UPLOAD -->
+    <div class="grid-2">
+        <div class="section">
+            <h2> Tier Requirements</h2>
+            <form action="/admin/tier" method="POST">
+                <input type="hidden" name="id" id="tierId">
+                <div class="form-group"><input type="text" name="name" class="form-control" placeholder="Tier Name" id="tierName" required></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <input type="number" name="minPower" class="form-control" placeholder="Min Power" id="tierMin" required>
+                    <input type="number" name="maxPower" class="form-control" placeholder="Max Power" id="tierMax" required>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                    <input type="number" step="0.01" name="killMultiplier" class="form-control" placeholder="Kill Mult (1.0)" id="tierKill" required>
+                    <input type="number" step="0.0001" name="deathMultiplier" class="form-control" placeholder="Death Mult (0.05)" id="tierDeath" required>
+                </div>
+                <button class="btn btn-success" style="margin-top:10px;">Save Tier</button>
+            </form>
+            
+            <div style="margin-top:20px; max-height:300px; overflow-y:auto;">
+                <% tiers.forEach(t => { %>
+                    <div class="tier-card">
+                        <div>
+                            <strong><%= t.name %></strong> <span style="font-size:0.8rem">(<%= Number(t.min_power)/1000000 %>M - <%= Number(t.max_power)/1000000 %>M)</span><br>
+                            <span style="font-size:0.8rem">Kill: <%= t.kill_multiplier %>x | Death: <%= t.death_multiplier %>x</span>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="editTier(<%= JSON.stringify(t) %>)">Edit</button>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2> Upload Stats</h2>
+            <form id="uploadForm">
+                <input type="file" id="fileInput" class="form-control" accept=".xlsx,.xls">
+                <div class="progress-bar-bg" style="height:5px; background:rgba(255,255,255,0.1); margin:10px 0;"><div id="bar" style="height:100%; width:0%; background:#4ade80;"></div></div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn btn-danger" onclick="upload('creation')">New List (Wipe Old)</button>
+                    <button type="button" class="btn btn-primary" onclick="upload('update')">Update Progress</button>
+                </div>
+            </form>
+            
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+            
+            <h2> One-Click Reports</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="generateReport('non-compliant')">Copy Non-Compliant List</button>
+                <div style="display:flex; align-items:center;">
+                    <input type="number" id="topLimit" value="10" style="width:60px; padding:8px; border-radius:6px 0 0 6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:white;">
+                    <button class="btn btn-secondary" style="border-radius:0 6px 6px 0;" onclick="generateReport('top')">Copy Top Contributors</button>
+                </div>
+            </div>
+            
+            <textarea id="reportOutput" placeholder="Report will appear here..." readonly></textarea>
+            <button class="btn btn-success" style="width:100%; margin-top:10px;" onclick="navigator.clipboard.writeText(document.getElementById('reportOutput').value); alert('Copied!')">Copy to Clipboard</button>
+        </div>
     </div>
   </div>
-  
+
   <script>
-    document.getElementById('fileInput').addEventListener('change', e => document.getElementById('fileName').textContent = e.target.files[0]?.name || '');
-    
-    function editTier(id, name, min, max, kill, death) {
-      document.getElementById('tierId').value = id;
-      document.getElementById('tierName').value = name;
-      document.getElementById('tierMin').value = min;
-      document.getElementById('tierMax').value = max;
-      document.getElementById('tierKill').value = kill;
-      document.getElementById('tierDeath').value = death;
-      window.scrollTo({top:0,behavior:'smooth'});
+    function editTier(t) {
+        document.getElementById('tierId').value = t.id;
+        document.getElementById('tierName').value = t.name;
+        document.getElementById('tierMin').value = t.min_power;
+        document.getElementById('tierMax').value = t.max_power;
+        document.getElementById('tierKill').value = t.kill_multiplier;
+        document.getElementById('tierDeath').value = t.death_multiplier;
     }
     
     function upload(type) {
-      const file = document.getElementById('fileInput').files[0];
-      if (!file) return alert('Select file');
-      if (type === 'creation' && !confirm('Delete all stats?')) return;
-      
-      const fd = new FormData(); fd.append('file', file);
-      const prog = document.getElementById('prog'); prog.classList.add('show');
-      const xhr = new XMLHttpRequest();
-      xhr.upload.onprogress = e => { if (e.lengthComputable) { const p = Math.round(e.loaded/e.total*100); document.getElementById('bar').style.width = p+'%'; document.getElementById('txt').textContent = p+'%'; }};
-      xhr.onload = () => { if (xhr.status===200) { alert('Success'); location.reload(); } else { alert('Error: ' + xhr.responseText); prog.classList.remove('show'); }};
-      xhr.open('POST', '/admin/upload/'+type); xhr.send(fd);
+        const file = document.getElementById('fileInput').files[0];
+        if(!file) return alert('Select file');
+        if(type==='creation' && !confirm('Delete existing stats?')) return;
+        
+        const fd = new FormData(); fd.append('file', file);
+        const xhr = new XMLHttpRequest();
+        xhr.upload.onprogress = e => document.getElementById('bar').style.width = (e.loaded/e.total*100) + '%';
+        xhr.onload = () => { alert(xhr.status===200 ? 'Success' : 'Error'); if(xhr.status===200) location.reload(); };
+        xhr.open('POST', '/admin/upload/'+type); xhr.send(fd);
+    }
+    
+    async function generateReport(type) {
+        const limit = document.getElementById('topLimit').value;
+        const url = type === 'top' ? '/api/reports/top?limit=' + limit : '/api/reports/non-compliant';
+        const res = await fetch(url);
+        const list = await res.json();
+        document.getElementById('reportOutput').value = list.join('\n');
     }
   </script>
 </body>
