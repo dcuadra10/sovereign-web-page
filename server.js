@@ -6,7 +6,7 @@ const multer = require('multer');
 const xlsx = require('xlsx');
 require('dotenv').config();
 
-const { initDB, getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, upsertUser, getUser, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig, clearAllStats, getAllTiers, upsertTier, deleteTier, getAdmins, addAdmin, removeAdmin, createBackup, getBackups, deleteBackup } = require('./database');
+const { initDB, getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, upsertUser, getUser, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig, clearAllStats, getAllTiers, upsertTier, deleteTier, getAdmins, addAdmin, removeAdmin, createBackup, getBackups, getBackupById, deleteBackup } = require('./database');
 
 const app = express();
 const JWT_SECRET = process.env.SESSION_SECRET || 'super-secret-key';
@@ -34,11 +34,8 @@ async function isAdmin(req, res, next) {
 // Helpers
 function findColumnIndex(headers, possibleNames) {
   for (const name of possibleNames) {
-    // Exact match check first to distinguish "Power" from "Highest Power"
     let index = headers.findIndex(h => h && h.toString().toLowerCase() === name.toLowerCase());
     if (index !== -1) return index;
-    
-    // Fallback to includes
     index = headers.findIndex(h => h && h.toString().toLowerCase().includes(name.toLowerCase()));
     if (index !== -1) return index;
   }
@@ -62,27 +59,17 @@ function parseExcelData(buffer) {
   const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
   if (data.length < 2) throw new Error('Excel file is empty');
   const headers = data[0].map(h => h ? h.toString() : '');
-  
-  // MODIFIED: 'Power' is now the primary target, searching for exact 'Power' first to avoid 'Highest Power'
   const cols = {
     governorId: findColumnIndex(headers, ['Character ID', 'Governor ID', 'ID']),
     username: findColumnIndex(headers, ['Username', 'Name', 'Player']),
     kingdom: findColumnIndex(headers, ['Kingdom', 'Origin', 'Server']),
-    power: findColumnIndex(headers, ['Power', 'Current Power']), // Prioritize "Power"
-    // Fallback if Power column not found, though user requested "Power" explicitly.
-    // If "Power" doesn't exist, we might fall back to Highest Power or keep it 0.
-    // Let's add Highest Power as a secondary check if Power returns -1
-    
+    power: findColumnIndex(headers, ['Power', 'Current Power']), 
     t5Deaths: findColumnIndex(headers, ['T5 Deaths', 'T5 Dead']),
     t4Deaths: findColumnIndex(headers, ['T4 Deaths', 'T4 Dead']),
     killPoints: findColumnIndex(headers, ['Total Kill Points', 'Kill Points', 'Kills']),
     resources: findColumnIndex(headers, ['Resources Gathered', 'Resources', 'RSS'])
   };
-  
-  // Secondary check for Power
-  if (cols.power === -1) {
-      cols.power = findColumnIndex(headers, ['Highest Power', 'Max Power']);
-  }
+  if (cols.power === -1) { cols.power = findColumnIndex(headers, ['Highest Power', 'Max Power']); }
 
   if (cols.governorId === -1) cols.governorId = 0; if (cols.username === -1 && headers.length > 1) cols.username = 1;
   const records = [];
@@ -94,7 +81,7 @@ function parseExcelData(buffer) {
       governorId: String(row[cols.governorId]),
       username: cols.username !== -1 && row[cols.username] ? String(row[cols.username]) : 'N/A',
       kingdom: cols.kingdom !== -1 && row[cols.kingdom] ? String(row[cols.kingdom]) : '',
-      highestPower: cols.power !== -1 ? parseInt(row[cols.power]) || 0 : 0, // Using "Power" column value
+      highestPower: cols.power !== -1 ? parseInt(row[cols.power]) || 0 : 0, 
       deads: t5 + t4,
       killPoints: cols.killPoints !== -1 ? parseInt(row[cols.killPoints]) || 0 : 0,
       resources: cols.resources !== -1 ? parseInt(row[cols.resources]) || 0 : 0
@@ -105,10 +92,7 @@ function parseExcelData(buffer) {
 
 async function calculateProgress(stats, tiers) {
   return stats.map(stat => {
-    // Tier calculation strictly uses INITIAL POWER (as requested)
-    // Fallback to current power only if initial is missing (legacy data)
     const power = Number(stat.initial_power) || Number(stat.highest_power) || 0;
-    
     const tier = tiers.find(t => power >= Number(t.min_power) && power < Number(t.max_power));
     if (!tier) return { ...stat, tier: null, killReq: 0, deathReq: 0, killProgress: 0, deathProgress: 0, isCompliant: false };
     const killReq = Math.floor(power * Number(tier.kill_multiplier));
@@ -137,14 +121,7 @@ app.get('/stats', async (req, res) => {
         const t = await getKingdomTotals(); 
         const tiers = await getAllTiers(); 
         const sp = await calculateProgress(s, tiers); 
-        
-        // SORTING: KP + (Deaths * 2)
-        sp.sort((a,b) => {
-            const scoreA = a.killsGained + (a.deadsGained * 2);
-            const scoreB = b.killsGained + (b.deadsGained * 2);
-            return scoreB - scoreA;
-        });
-
+        sp.sort((a,b) => { const scoreA = a.killsGained + (a.deadsGained * 2); const scoreB = b.killsGained + (b.deadsGained * 2); return scoreB - scoreA; });
         const k = await getConfig('current_kvk') || 'Unknown'; 
         res.render('stats', { stats: sp, totals: t, tiers, currentKvK: k }); 
     } catch { res.status(500).send('Error'); } 
@@ -217,7 +194,18 @@ app.post('/admin/kvk', isAuthenticated, isAdmin, async (req, res) => {
 app.post('/admin/manage-admins', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action==='add') await addAdmin(req.body.discordId, req.body.note); else await removeAdmin(req.body.discordId); res.redirect('/admin'); });
 app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { try { const min = parseNumber(req.body.minPower); const max = parseNumber(req.body.maxPower); await upsertTier(req.body.id||null, req.body.name, min, max, parseFloat(req.body.killMultiplier), parseFloat(req.body.deathMultiplier)); res.redirect('/admin?ok=tier'); } catch(e) { res.redirect('/admin?err=' + e.message); } });
 app.post('/admin/tier/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteTier(req.body.id); res.redirect('/admin'); });
+
+// BACKUP: DELETE & DOWNLOAD
 app.post('/admin/backup/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteBackup(req.body.id); res.redirect('/admin?ok=del_backup'); });
+app.get('/admin/backup/download/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const b = await getBackupById(req.params.id);
+        if (!b) return res.status(404).send('Backup not found');
+        res.setHeader('Content-Disposition', `attachment; filename="backup-${b.kvk_season}-${b.id}.json"`);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(b.data, null, 2));
+    } catch(e) { res.status(500).send(e.message); }
+});
 
 // Upload Routes
 app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
@@ -252,11 +240,7 @@ app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res)
 
 app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => { 
     const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); 
-    sp.sort((a,b) => {
-        const scoreA = a.killsGained + (a.deadsGained * 2);
-        const scoreB = b.killsGained + (b.deadsGained * 2);
-        return scoreB - scoreA;
-    });
+    sp.sort((a,b) => { const scoreA = a.killsGained + (a.deadsGained * 2); const scoreB = b.killsGained + (b.deadsGained * 2); return scoreB - scoreA; });
     res.json(sp.slice(0, parseInt(req.query.limit)||10).map((x,i)=>`Top ${i+1}: ${x.governor_id} ${x.username}`)); 
 });
 

@@ -69,8 +69,6 @@ async function getAllStats() { return await sql`SELECT * FROM stats ORDER BY hig
 async function getKingdomTotals() { const r = await sql`SELECT COUNT(*) as count, SUM(highest_power) as total_power, SUM(total_kill_points) as total_kills, SUM(deads) as total_deads FROM stats`; return r[0]; }
 
 // MODIFIED: upsertStats now sets initial values ON INSERT, but does NOT update them on conflict.
-// This ensures that if a user is new (mid-season), their current stats become their baseline.
-// If they already exist, their baseline is preserved.
 async function upsertStats(govId, name, kingdom, power, deads, kills, rss) {
   await sql`
     INSERT INTO stats (
@@ -89,11 +87,9 @@ async function upsertStats(govId, name, kingdom, power, deads, kills, rss) {
         deads = EXCLUDED.deads, 
         total_kill_points = EXCLUDED.total_kill_points, 
         resources_gathered = EXCLUDED.resources_gathered
-    -- Note: initial_* columns are NOT in the UPDATE set, preserving original values.
   `;
 }
 
-// createStatsWithInitial: Used for "Creation/Reset" uploads. Force resets everything including initials.
 async function createStatsWithInitial(govId, name, kingdom, power, deads, kills, rss) {
   await sql`
     INSERT INTO stats (
@@ -133,11 +129,13 @@ async function createBackup(name, kvk, filename) {
     await sql`INSERT INTO backups (name, data, kvk_season, filename) VALUES (${name}, ${JSON.stringify(stats)}, ${kvk}, ${filename})`;
 }
 async function getBackups() { return await sql`SELECT id, name, created_at, kvk_season, filename, jsonb_array_length(data) as count FROM backups ORDER BY created_at DESC`; }
+// NEW FUNCTION
+async function getBackupById(id) { const r = await sql`SELECT * FROM backups WHERE id = ${id}`; return r[0]; }
 async function deleteBackup(id) { await sql`DELETE FROM backups WHERE id = ${id}`; }
 
 module.exports = {
   sql, initDB, upsertUser, getUser, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig,
   getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, clearAllStats, getAllTiers, upsertTier, deleteTier,
   getAdmins, addAdmin, removeAdmin,
-  createBackup, getBackups, deleteBackup
+  createBackup, getBackups, getBackupById, deleteBackup
 };

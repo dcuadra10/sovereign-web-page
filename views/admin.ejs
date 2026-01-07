@@ -32,6 +32,27 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
     th { opacity: 0.7; font-weight: 500; }
+
+    /* TOAST STYLES */
+    .toast {
+      position: fixed;
+      top: 20px; left: 50%; transform: translateX(-50%);
+      padding: 15px 25px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: flex; align-items: center; gap: 10px;
+      animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards; /* Auto hide after 3.5s */
+      max-width: 90%;
+    }
+    .toast-error { background: rgba(220, 38, 38, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+    .toast-success { background: rgba(22, 163, 74, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+    .toast-warning { background: rgba(234, 179, 8, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: #000; }
+    
+    @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
   </style>
 </head>
 <body>
@@ -131,7 +152,8 @@
                             <td><%= new Date(b.created_at).toLocaleDateString() %></td>
                             <td><%= b.kvk_season %> <span style="font-size:0.7em; opacity:0.6;"><%= b.filename %></span></td>
                             <td><%= b.count %> records</td>
-                            <td>
+                            <td style="display:flex; gap:5px;">
+                                <a href="/admin/backup/download/<%= b.id %>" class="btn btn-primary btn-sm" target="_blank"></a>
                                 <form action="/admin/backup/delete" method="POST" onsubmit="return confirm('Delete this backup permanently?')">
                                     <input type="hidden" name="id" value="<%= b.id %>">
                                     <button class="btn btn-danger btn-sm"></button>
@@ -206,6 +228,15 @@
   </div>
 
   <script>
+    function showToast(msg, type = 'success') {
+        const t = document.createElement('div');
+        t.className = `toast toast-${type}`;
+        t.innerHTML = '<span>' + (type==='success'?' ':' ') + msg + '</span>';
+        document.body.appendChild(t);
+        // Clean up is handled by CSS fadeOut animation visually, but remove element after 4s
+        setTimeout(() => t.remove(), 4000);
+    }
+
     function editTier(t) {
         document.getElementById('tierId').value = t.id;
         document.getElementById('tierName').value = t.name;
@@ -217,7 +248,7 @@
     
     function upload(type, force = false) {
         const file = document.getElementById('fileInput').files[0];
-        if(!file) return alert('Select file');
+        if(!file) return showToast('Please select a file first', 'error');
         if(type==='creation' && !confirm('Delete existing stats? This will create a backup first.')) return;
         
         const fd = new FormData(); fd.append('file', file);
@@ -226,15 +257,22 @@
         xhr.onload = () => {
             if (xhr.status === 409) {
                 const resp = JSON.parse(xhr.responseText);
+                // For 409 we still use confirm as it requires interaction
                 if (confirm(resp.warning + "\n\nDo you want to proceed anyway?")) {
                     upload(type, true); // Retry with force
+                } else {
+                    showToast('Upload cancelled', 'warning');
+                     document.getElementById('bar').style.width = '0%';
                 }
             } else if (xhr.status===200) {
-                 alert('Success'); location.reload();
+                 showToast('Upload Successful! Page reloading...', 'success');
+                 setTimeout(() => location.reload(), 2000);
             } else {
-                 alert('Error: ' + xhr.responseText);
+                 showToast('Error: ' + xhr.responseText, 'error');
+                 document.getElementById('bar').style.width = '0%';
             }
         };
+        xhr.onerror = () => showToast('Network Error', 'error');
         xhr.open('POST', '/admin/upload/'+type + (force ? '?force=true' : '')); xhr.send(fd);
     }
     
@@ -254,10 +292,35 @@
                 div.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Part ${index + 1} / ${chunks.length}</span><button class="btn btn-success btn-sm" onclick="copyText(this)">Copy</button></div><textarea class="report-area" readonly>${chunk}</textarea>`;
                 container.appendChild(div);
             });
-        } catch(e) { alert('Error generating report'); }
+            showToast('Report Generated Successfully', 'success');
+        } catch(e) { showToast('Error generating report', 'error'); }
     }
     
-    function copyText(btn) { const area = btn.parentElement.nextElementSibling; area.select(); document.execCommand('copy'); const original = btn.innerText; btn.innerText = 'Copied!'; setTimeout(() => btn.innerText = original, 1000); }
+    function copyText(btn) { 
+        const area = btn.parentElement.nextElementSibling; 
+        area.select(); 
+        document.execCommand('copy'); 
+        const original = btn.innerText; 
+        btn.innerText = 'Copied!'; 
+        setTimeout(() => btn.innerText = original, 1000);
+        showToast('Copied to clipboard', 'success');
+    }
+
+    // Check URL params for server-side messages (redirects)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('ok')) {
+        let msg = 'Action Completed';
+        if (params.get('ok') === 'tier') msg = 'Tier Saved';
+        if (params.get('ok') === 'kvk') msg = 'Season Updated';
+        if (params.get('ok') === 'del_backup') msg = 'Backup Deleted';
+        if (params.get('ok') === 'unlink') msg = 'User Unlinked';
+        showToast(msg, 'success');
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    if (params.get('err')) {
+        showToast(decodeURIComponent(params.get('err')), 'error');
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
   </script>
 </body>
 </html>
