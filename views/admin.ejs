@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -251,7 +251,7 @@
               <tr>
                 <th>Governor ID</th>
                 <th>Username</th>
-                <th>Power</th>
+                
                 <th>Highest Power</th>
                 <th> Deads</th>
                 <th>Kill Points</th>
@@ -262,7 +262,7 @@
                 <tr>
                   <td><%= stat.governor_id %></td>
                   <td><%= stat.username %></td>
-                  <td><%= Number(stat.power || 0).toLocaleString() %></td>
+                  
                   <td><%= Number(stat.highest_power || 0).toLocaleString() %></td>
                   <td><%= Number(stat.deads || 0).toLocaleString() %></td>
                   <td><%= Number(stat.total_kill_points || 0).toLocaleString() %></td>
