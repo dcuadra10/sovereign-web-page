@@ -109,9 +109,27 @@ async function calculateProgress(stats, tiers) {
 
 // Routes
 app.get('/login', (req, res) => { const user = getUserFromToken(req); if (user) return res.redirect('/dashboard'); res.render('login'); });
-app.get('/stats', async (req, res) => { try { const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); const k = await getConfig('current_kvk') || 'Unknown'; res.render('stats', { stats: sp, totals: t, tiers, currentKvK: k }); } catch { res.status(500).send('Error'); } });
 
-// Updated scopes to include guilds.members.read
+// STATS PAGE (Public Leaderboard)
+app.get('/stats', async (req, res) => { 
+    try { 
+        const s = await getAllStats(); 
+        const t = await getKingdomTotals(); 
+        const tiers = await getAllTiers(); 
+        const sp = await calculateProgress(s, tiers); 
+        
+        // SORTING: By Kills Gained (Primary) then Deads Gained (Secondary)
+        sp.sort((a,b) => {
+            if (b.killsGained !== a.killsGained) return b.killsGained - a.killsGained;
+            return b.deadsGained - a.deadsGained;
+        });
+
+        const k = await getConfig('current_kvk') || 'Unknown'; 
+        res.render('stats', { stats: sp, totals: t, tiers, currentKvK: k }); 
+    } catch { res.status(500).send('Error'); } 
+});
+
+// OAuth2 ... (No changes here)
 app.get('/auth/discord', (req, res) => res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK_URL)}&response_type=code&scope=identify guilds guilds.members.read`));
 app.get('/auth/discord/callback', async (req, res) => {
   const code = req.query.code; if (!code) return res.redirect('/login');
@@ -128,47 +146,22 @@ app.get('/auth/discord/callback', async (req, res) => {
 });
 app.get('/logout', (req, res) => { res.clearCookie('auth_token'); res.redirect('/'); });
 
+// Link Account ... (No changes here)
 app.post('/link-account', isAuthenticated, async (req, res) => {
   try {
     const guildId = await getConfig('discord_guild_id');
     const roleId = await getConfig('discord_role_id');
-    
-    // Check 1: Guild ID Configured
     if (!guildId) return res.redirect('/dashboard?error=Admin has not configured the Guild ID yet.');
-
-    // Fetch Member in Guild (This endpoint works with guilds.members.read scope + User Token)
-    const memberReq = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, { 
-        headers: { Authorization: `Bearer ${req.user.accessToken}` } 
-    });
-
-    // Check 2: User in Guild
-    if (memberReq.status === 404 || memberReq.status === 403) {
-        return res.redirect('/dashboard?error=You are not in the server.&link=https://discord.gg/BCmNW9PuSm');
-    }
-    
-    if (!memberReq.ok) {
-        // Token might be expired or other issue
-        return res.redirect('/dashboard?error=Verification failed. Please try logging in again.');
-    }
-
+    const memberReq = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, { headers: { Authorization: `Bearer ${req.user.accessToken}` } });
+    if (memberReq.status === 404 || memberReq.status === 403) { return res.redirect('/dashboard?error=You are not in the server.&link=https://discord.gg/BCmNW9PuSm'); }
+    if (!memberReq.ok) { return res.redirect('/dashboard?error=Verification failed. Please try logging in again.'); }
     const member = await memberReq.json();
-
-    // Check 3: Role Verification (if roleId is set)
-    if (roleId && (!member.roles || !member.roles.includes(roleId))) {
-        return res.redirect('/dashboard?error=You do not have the required role to link your account.');
-    }
-
-    // Check 4: ID Exists in Stats
+    if (roleId && (!member.roles || !member.roles.includes(roleId))) { return res.redirect('/dashboard?error=You do not have the required role to link your account.'); }
     const s = await getAllStats();
-    if (!s.find(x => x.governor_id === req.body.governorId)) {
-        return res.redirect('/dashboard?error=Governor ID not found in the stats list.');
-    }
-
+    if (!s.find(x => x.governor_id === req.body.governorId)) { return res.redirect('/dashboard?error=Governor ID not found in the stats list.'); }
     await linkGovernor(req.user.discordId, req.body.governorId);
     res.redirect('/dashboard?success=Account Linked Successfully');
-  } catch(e) { 
-      res.redirect('/dashboard?error=' + encodeURIComponent(e.message)); 
-  }
+  } catch(e) { res.redirect('/dashboard?error=' + encodeURIComponent(e.message)); }
 });
 
 app.get('/dashboard', isAuthenticated, async (req, res) => { 
@@ -182,135 +175,67 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
   } catch (e){ res.status(500).send('Error loading dashboard: ' + e.message); } 
 });
 
-// Admin
+// Admin ... (No changes here)
 app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
   try { 
-    const s = await getAllStats(); 
-    const t = await getAllTiers(); 
-    const a = await getAdmins(); 
-    const backups = await getBackups() || []; 
-    
-    const g = await getConfig('discord_guild_id') || ''; 
-    const r = await getConfig('discord_role_id') || '';
-    
-    const k = await getConfig('current_kvk') || '';
-    const lastK = await getConfig('last_scan_kingdom');
-    const lastD = await getConfig('last_scan_end_date');
+    const s = await getAllStats(); const t = await getAllTiers(); const a = await getAdmins(); const backups = await getBackups() || []; 
+    const g = await getConfig('discord_guild_id') || ''; const r = await getConfig('discord_role_id') || '';
+    const k = await getConfig('current_kvk') || ''; const lastK = await getConfig('last_scan_kingdom'); const lastD = await getConfig('last_scan_end_date');
     const linked = await getLinkedUsers() || [];
-
-    res.render('admin', { 
-        user: req.user, stats: s, tiers: t, admins: a, backups, 
-        linkedUsers: linked, guildId: g, roleId: r, 
-        currentKvK: k, lastK, lastD 
-    }); 
-  } catch (e) { 
-      console.error(e);
-      res.status(500).send('Admin Panel Error: ' + e.message); 
-  } 
+    res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, lastK, lastD }); 
+  } catch (e) { console.error(e); res.status(500).send('Admin Panel Error: ' + e.message); } 
 });
 
 app.post('/admin/unlink', isAuthenticated, isAdmin, async (req, res) => { await unlinkUser(req.body.discordId); res.redirect('/admin?ok=unlink'); });
-
-app.post('/admin/config', isAuthenticated, isAdmin, async (req, res) => { 
-    await setConfig('discord_guild_id', req.body.guildId); 
-    await setConfig('discord_role_id', req.body.roleId); 
-    res.redirect('/admin'); 
-});
-
+app.post('/admin/config', isAuthenticated, isAdmin, async (req, res) => { await setConfig('discord_guild_id', req.body.guildId); await setConfig('discord_role_id', req.body.roleId); res.redirect('/admin'); });
 app.post('/admin/kvk', isAuthenticated, isAdmin, async (req, res) => {
     const kvk = await getConfig('current_kvk');
-    if (req.body.action === 'reset') {
-        await createBackup(`Auto-Backup (Reset ${kvk})`, kvk, 'Reset Action');
-        await clearAllStats();
-    }
-    await setConfig('current_kvk', req.body.kvkName);
-    res.redirect('/admin?ok=kvk');
+    if (req.body.action === 'reset') { await createBackup(`Auto-Backup (Reset ${kvk})`, kvk, 'Reset Action'); await clearAllStats(); }
+    await setConfig('current_kvk', req.body.kvkName); res.redirect('/admin?ok=kvk');
 });
 app.post('/admin/manage-admins', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action==='add') await addAdmin(req.body.discordId, req.body.note); else await removeAdmin(req.body.discordId); res.redirect('/admin'); });
-
-// --- TIER PARSING LOGIC HERE ---
-app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { 
-    try {
-        const min = parseNumber(req.body.minPower);
-        const max = parseNumber(req.body.maxPower);
-        await upsertTier(
-            req.body.id||null, 
-            req.body.name, 
-            min, 
-            max, 
-            parseFloat(req.body.killMultiplier), 
-            parseFloat(req.body.deathMultiplier)
-        ); 
-        res.redirect('/admin?ok=tier'); 
-    } catch(e) { res.redirect('/admin?err=' + e.message); }
-});
-// ------------------------------
-
+app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { try { const min = parseNumber(req.body.minPower); const max = parseNumber(req.body.maxPower); await upsertTier(req.body.id||null, req.body.name, min, max, parseFloat(req.body.killMultiplier), parseFloat(req.body.deathMultiplier)); res.redirect('/admin?ok=tier'); } catch(e) { res.redirect('/admin?err=' + e.message); } });
 app.post('/admin/tier/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteTier(req.body.id); res.redirect('/admin'); });
-
 app.post('/admin/backup/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteBackup(req.body.id); res.redirect('/admin?ok=del_backup'); });
 
-// Upload with Validation
+// Upload Routes (No changes)
 app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).send('No file');
         const r = parseExcelData(req.file.buffer);
         if (!r.length) return res.status(400).send('No records');
-
-        const filename = req.file.originalname; // e.g., 3386-2026-01-05-2026-01-20.xlsx
+        const filename = req.file.originalname; 
         const match = filename.match(/^(\d+)-(\d{4}-\d{2}-\d{2})-(\d{4}-\d{2}-\d{2})/);
         const force = req.query.force === 'true';
-
-        // Validation only for UPDATE
         if (req.params.type === 'update' && match && !force) {
-            const newKingdom = match[1];
-            const newStart = match[2];
-            const oldKindgom = await getConfig('last_scan_kingdom');
-            const oldEnd = await getConfig('last_scan_end_date');
-
-            if (oldKindgom && oldKindgom !== newKingdom) {
-                return res.status(409).json({ warning: `Kingdom mismatch! Previous: ${oldKindgom}, File: ${newKingdom}. Use same Kingdom?` });
-            }
-            if (oldEnd && oldEnd !== newStart) {
-                return res.status(409).json({ warning: `Date gap! Previous ended: ${oldEnd}, File starts: ${newStart}. Recommendation: Match start date with previous end date.` });
-            }
+            const newKingdom = match[1]; const newStart = match[2];
+            const oldKindgom = await getConfig('last_scan_kingdom'); const oldEnd = await getConfig('last_scan_end_date');
+            if (oldKindgom && oldKindgom !== newKingdom) { return res.status(409).json({ warning: `Kingdom mismatch! Previous: ${oldKindgom}, File: ${newKingdom}. Use same Kingdom?` }); }
+            if (oldEnd && oldEnd !== newStart) { return res.status(409).json({ warning: `Date gap! Previous ended: ${oldEnd}, File starts: ${newStart}. Recommendation: Match start date with previous end date.` }); }
         }
-
         if (req.params.type === 'creation') {
-            const kvk = await getConfig('current_kvk');
-            await createBackup(`Auto-Backup (New List ${kvk})`, kvk, filename);
-            await clearAllStats();
+            const kvk = await getConfig('current_kvk'); await createBackup(`Auto-Backup (New List ${kvk})`, kvk, filename); await clearAllStats();
             for (const x of r) await createStatsWithInitial(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources);
-            
-            // Save Start Date
             if (match) await setConfig('season_start_date', match[2]);
-        } else {
-            for (const x of r) await upsertStats(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources);
-        }
-
-        // Save new config
-        if (match) {
-            await setConfig('last_scan_kingdom', match[1]);
-            await setConfig('last_scan_end_date', match[3]);
-        }
-
+        } else { for (const x of r) await upsertStats(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources); }
+        if (match) { await setConfig('last_scan_kingdom', match[1]); await setConfig('last_scan_end_date', match[3]); }
         res.status(200).send(`Done: ${r.length}`);
     } catch (e) { res.status(500).send(e.message); }
 });
 
-// Reports - Modified to exclude percentages/status text
+// Reports - SORT BY GROWTH (Kills + Deads)
 app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res) => { 
-    const s = await getAllStats(); 
-    const t = await getAllTiers(); 
-    const sp = await calculateProgress(s, t); 
+    const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); 
     res.json(sp.filter(x=>!x.isCompliant).map(x=>`${x.governor_id} ${x.username}`)); 
 });
 
 app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => { 
-    const s = await getAllStats(); 
-    const t = await getAllTiers(); 
-    const sp = await calculateProgress(s, t); 
-    sp.sort((a,b)=>(b.rawKillProgress+b.rawDeathProgress)-(a.rawKillProgress+a.rawDeathProgress)); 
+    const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); 
+    
+    // Sort logic: Total Gained Activity (KP + Deaths) descending
+    // Since users can define their own criteria, this is a safe default for "Top Contributors"
+    sp.sort((a,b) => (b.killsGained + b.deadsGained) - (a.killsGained + a.deadsGained)); 
+
     res.json(sp.slice(0, parseInt(req.query.limit)||10).map((x,i)=>`Top ${i+1}: ${x.governor_id} ${x.username}`)); 
 });
 

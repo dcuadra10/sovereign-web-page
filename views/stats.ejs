@@ -45,8 +45,11 @@
     .table-container { background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 15px 20px; text-align: left; }
-    th { background: rgba(0,0,0,0.3); font-weight: 600; color: rgba(255,255,255,0.8); cursor: pointer; user-select: none; }
-    th:hover { background: rgba(255,255,255,0.1); }
+    th { background: rgba(0,0,0,0.3); font-weight: 600; color: rgba(255,255,255,0.8); cursor: pointer; user-select: none; position:relative; }
+    th:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    th.sort-asc::after { content: " "; font-size: 0.7em; }
+    th.sort-desc::after { content: " "; font-size: 0.7em; }
+    
     tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
     tr:hover { background: rgba(255,255,255,0.05); }
     
@@ -103,10 +106,10 @@
             <thead>
                 <tr>
                     <th class="rank-cell">#</th>
-                    <th>Governor</th>
-                    <th>Power</th>
-                    <th>KP Rised (Season)</th>
-                    <th>Deaths (Season)</th>
+                    <th onclick="sortTable(1)">Governor</th>
+                    <th onclick="sortTable(2, true)">Power</th>
+                    <th onclick="sortTable(3, true)">KP Rised (Season)</th>
+                    <th onclick="sortTable(4, true)">Deaths (Season)</th>
                     <th>Tier</th>
                     <th>Status</th>
                 </tr>
@@ -119,12 +122,12 @@
                             <div><%= p.username %></div>
                             <span><%= p.governor_id %></span>
                         </td>
-                        <td class="val-cell"><script>document.write(fmt(<%= p.highest_power %>))</script></td>
-                        <td class="val-cell">
+                        <td class="val-cell" data-sort="<%= p.highest_power %>"><script>document.write(fmt(<%= p.highest_power %>))</script></td>
+                        <td class="val-cell" data-sort="<%= p.killsGained %>">
                             <script>document.write(fmt(<%= p.killsGained %>))</script>
                             <div class="progress-mini"><div class="progress-mini-fill" style="width:<%= Math.min(p.killProgress, 100) %>%"></div></div>
                         </td>
-                        <td class="val-cell">
+                        <td class="val-cell" data-sort="<%= p.deadsGained %>">
                             <script>document.write(fmt(<%= p.deadsGained %>))</script>
                             <div class="progress-mini"><div class="progress-mini-fill" style="width:<%= Math.min(p.deathProgress, 100) %>%"></div></div>
                         </td>
@@ -140,14 +143,70 @@
   </div>
 
   <script>
+    // Search Filter
     document.getElementById('searchInput').addEventListener('keyup', function(e) {
         const term = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('.stat-row');
+        let visibleCount = 0;
         rows.forEach(row => {
             const text = row.getAttribute('data-search');
-            row.style.display = text.includes(term) ? '' : 'none';
+            if (text.includes(term)) {
+                row.style.display = '';
+                // Re-calculate ranks for filtered view? Usually simpler to keep original ranks, 
+                // but visually it might be nice to just show them.
+            } else {
+                row.style.display = 'none';
+            }
         });
     });
+
+    // Sort Function
+    let currentSort = { col: 3, asc: false }; // Default sort by KP Rised (col 3) DESC
+
+    function sortTable(colIndex, isNumeric = false) {
+        const table = document.getElementById("statsTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const ths = table.querySelectorAll("th");
+
+        // Toggle sort direction
+        let asc = false; // Default to Descending for numbers
+        if (currentSort.col === colIndex) {
+            asc = !currentSort.asc;
+        }
+        currentSort = { col: colIndex, asc: asc };
+
+        // Update UI Icons
+        ths.forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+        ths[colIndex].classList.add(asc ? 'sort-asc' : 'sort-desc');
+
+        rows.sort((a, b) => {
+            let valA, valB;
+            
+            if (isNumeric) {
+                // Use data-sort attribute for raw number values
+                valA = Number(a.children[colIndex].getAttribute('data-sort')) || 0;
+                valB = Number(b.children[colIndex].getAttribute('data-sort')) || 0;
+            } else {
+                valA = a.children[colIndex].innerText.toLowerCase();
+                valB = b.children[colIndex].innerText.toLowerCase();
+            }
+
+            if (valA < valB) return asc ? -1 : 1;
+            if (valA > valB) return asc ? 1 : -1;
+            return 0;
+        });
+
+        // Re-append rows
+        rows.forEach((row, i) => {
+            // Update Rank # visual ONLY if not searching (optional, but cleaner)
+            // row.children[0].innerText = i + 1; 
+            tbody.appendChild(row);
+        });
+    }
+
+    // Initialize Default Sort Visual
+    document.querySelectorAll("th")[3].classList.add('sort-desc'); // KP Rised column
   </script>
 </body>
 </html>
