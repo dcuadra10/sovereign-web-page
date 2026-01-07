@@ -14,9 +14,11 @@
     /* Stats Modal Overlay */
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(8px);
       z-index: 1000;
       display: flex;
@@ -26,78 +28,90 @@
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-    
+
     .modal-overlay.active {
       opacity: 1;
       pointer-events: all;
     }
-    
+
     .stats-modal {
       background: linear-gradient(135deg, #1f1c2eb3 0%, #302b63e6 100%);
       padding: 40px 60px;
       border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
       text-align: center;
       transform: scale(0.9);
       transition: transform 0.3s ease;
       max-width: 500px;
       width: 90%;
     }
-    
+
     .modal-overlay.active .stats-modal {
       transform: scale(1);
     }
-    
+
     .modal-title {
-        font-size: 2rem;
-        margin-bottom: 30px;
-        background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+      font-size: 2rem;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    
+
     .modal-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-    
+
     .modal-btn {
-        padding: 18px 30px;
-        border-radius: 12px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        text-decoration: none;
-        color: white;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        border: none;
-        cursor: pointer;
+      padding: 18px 30px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: white;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      border: none;
+      cursor: pointer;
     }
-    
-    .btn-login-big { background: linear-gradient(135deg, #5865F2, #4752c4); box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3); }
-    .btn-public-big { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
-    
-    .modal-btn:hover { transform: translateY(-3px); filter: brightness(1.2); }
+
+    .btn-login-big {
+      background: linear-gradient(135deg, #5865F2, #4752c4);
+      box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3);
+    }
+
+    .btn-public-big {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.2);
+    }
+
     .close-modal {
-        margin-top: 20px;
-        background: none;
-        border: none;
-        color: rgba(255,255,255,0.5);
-        cursor: pointer;
-        text-decoration: underline;
+      margin-top: 20px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      text-decoration: underline;
     }
-    
+
     /* Stats Button Main Page - CENTERED */
     .view-stats-container {
-        display: flex;
-        justify-content: center; /* Center horizontally */
-        width: 100%;
-        margin: 30px 0;
+      display: flex;
+      justify-content: center;
+      /* Center horizontally */
+      width: 100%;
+      margin: 30px 0;
     }
 
     .view-stats-btn {
@@ -117,27 +131,37 @@
       z-index: 10;
       position: relative;
     }
-    
-    .view-stats-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 15px 35px rgba(167, 139, 250, 0.6); }
+
+    .view-stats-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(167, 139, 250, 0.6);
+    }
 
     .sovereign-card ul {
-        text-align: center;
-        list-style-position: inside;
-        padding-left: 0;
+      text-align: center;
+      list-style-position: inside;
+      padding-left: 0;
     }
-    .sovereign-card li { margin-bottom: 8px; }
+
+    .sovereign-card li {
+      margin-bottom: 8px;
+    }
 
     .mini-contact-btn {
-        background: rgba(255,255,255,0.1);
-        padding: 5px 12px;
-        border-radius: 20px;
-        color: white;
-        text-decoration: none;
-        font-size: 0.9rem;
-        border: 1px solid rgba(255,255,255,0.1);
-        transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 12px;
+      border-radius: 20px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
     }
-    .mini-contact-btn:hover { background: rgba(255,255,255,0.2); border-color: #a78bfa; }
+
+    .mini-contact-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #a78bfa;
+    }
   </style>
 </head>
 
@@ -145,31 +169,33 @@
   <!-- MODAL -->
   <div class="modal-overlay" id="statsModal">
     <div class="stats-modal">
-        <h2 class="modal-title"> Choose Action</h2>
-        <div class="modal-buttons">
-            <a href="/login" class="modal-btn btn-login-big">
-                <span></span> Member Dashboard Login
-            </a>
-            <a href="/stats" class="modal-btn btn-public-big">
-                <span></span> View Public Kingdom Stats
-            </a>
-        </div>
-        <button class="close-modal" onclick="toggleModal()">Close</button>
+      <h2 class="modal-title"> Choose Action</h2>
+      <div class="modal-buttons">
+        <a href="/login" class="modal-btn btn-login-big">
+          <span></span> Member Dashboard Login
+        </a>
+        <a href="/stats" class="modal-btn btn-public-big">
+          <span></span> View Public Kingdom Stats
+        </a>
+      </div>
+      <button class="close-modal" onclick="toggleModal()">Close</button>
     </div>
   </div>
 
   <main class="main">
     <section class="hero">
-      <a href="/" style="text-decoration:none; color:inherit; display:block;"><h1>Sovereign Empire</h1></a>
+      <a href="/" style="text-decoration:none; color:inherit; display:block;">
+        <h1>Sovereign Empire</h1>
+      </a>
       <p class="subtitle"> Kingdom 1234</p>
-      
+
       <!-- MAIN ACTION BUTTON CENTERED -->
       <div class="view-stats-container">
-          <button class="view-stats-btn" onclick="toggleModal()">
-             View Stats & Progress
-          </button>
+        <button class="view-stats-btn" onclick="toggleModal()">
+          View Stats & Progress
+        </button>
       </div>
-      
+
       <div class="tags">
         <span> ROK</span>
         <span> Organized</span>
@@ -204,7 +230,7 @@
 
     <section class="discord">
       <a href="https://discord.gg/BY2f2vPM4G" class="discord-button" target="_blank">
-         Join Our Discord
+        Join Our Discord
       </a>
     </section>
 
@@ -243,13 +269,14 @@
         <div class="sovereign-contact">
           <h3> Contact Details</h3>
           <div class="contact-buttons-row" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <a href="https://discord.com/users/1211770249200795734" target="_blank" class="mini-contact-btn"> dcuadra</a>
-            <a href="https://discord.com/users/989242012450553856" target="_blank" class="mini-contact-btn"> Catcher</a>
-            <a href="#" class="mini-contact-btn"> Leader (TBD)</a>
+            <a href="https://discord.com/users/1211770249200795734" target="_blank" class="mini-contact-btn">
+              dcuadra</a>
+            <a href="https://discord.com/users/1351027112718368851" class="mini-contact-btn" target="_blank"> Hogan</a>
+            <a href="https://discord.com/users/836712927758385182" class="mini-contact-btn" target="_blank"> laser</a>
           </div>
         </div>
         <blockquote class="sovereign-quote">
-          While everyone is reaching for the stars  we reach for what is beyond.
+          While everyone is reaching for the stars we reach for what is beyond.
         </blockquote>
       </div>
     </section>
@@ -266,22 +293,22 @@
         <h2> Contact Us</h2>
         <div class="contact-list">
           <a href="https://discord.com/users/1211770249200795734" class="contact-button" target="_blank"> dcuadra</a>
-          <a href="https://discord.com/users/989242012450553856" class="contact-button" target="_blank"> Catcher</a>
-          <a href="#" class="contact-button"> Leader</a>
+          <a href="https://discord.com/users/1351027112718368851" class="contact-button" target="_blank"> Hogan</a>
+          <a href="https://discord.com/users/836712927758385182" class="contact-button" target="_blank"> laser</a>
         </div>
       </div>
     </section>
 
     <footer>
-      <p> 2027 Sovereign Empire.  All rights reserved.</p>
+      <p> 2027 Sovereign Empire. All rights reserved.</p>
     </footer>
   </main>
 
   <script>
     function toggleModal() {
-        document.getElementById('statsModal').classList.toggle('active');
+      document.getElementById('statsModal').classList.toggle('active');
     }
   </script>
 </body>
-</html>
 
+</html>
