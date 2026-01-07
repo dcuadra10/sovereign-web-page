@@ -92,7 +92,14 @@
         text-decoration: underline;
     }
     
-    /* Stats Button Main Page */
+    /* Stats Button Main Page - CENTERED */
+    .view-stats-container {
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        width: 100%;
+        margin: 30px 0;
+    }
+
     .view-stats-btn {
       background: linear-gradient(135deg, #a78bfa 0%, #f093fb 100%);
       color: white;
@@ -107,14 +114,12 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      margin: 30px 0;
       z-index: 10;
       position: relative;
     }
     
     .view-stats-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 15px 35px rgba(167, 139, 250, 0.6); }
 
-    /* Centered List Fix */
     .sovereign-card ul {
         text-align: center;
         list-style-position: inside;
@@ -122,7 +127,6 @@
     }
     .sovereign-card li { margin-bottom: 8px; }
 
-    /* Contact Buttons Row */
     .mini-contact-btn {
         background: rgba(255,255,255,0.1);
         padding: 5px 12px;
@@ -159,10 +163,12 @@
       <h1>Sovereign Empire</h1>
       <p class="subtitle"> Sovereign Empire</p>
       
-      <!-- MAIN ACTION BUTTON -->
-      <button class="view-stats-btn" onclick="toggleModal()">
-         View Stats & Progress
-      </button>
+      <!-- MAIN ACTION BUTTON CENTERED -->
+      <div class="view-stats-container">
+          <button class="view-stats-btn" onclick="toggleModal()">
+             View Stats & Progress
+          </button>
+      </div>
       
       <div class="tags">
         <span> ROK</span>
