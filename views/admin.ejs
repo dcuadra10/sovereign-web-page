@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,190 +7,54 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-      color: #fff;
-    }
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.3rem;
-      font-weight: 700;
-    }
+    body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; }
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; }
     .nav-links { display: flex; gap: 20px; }
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px;
-    }
+    .btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; border: none; cursor: pointer; font-size: 1rem; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn-danger { background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); color: white; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 40px; }
     .page-header { margin-bottom: 40px; }
-    .page-header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .page-header p { color: rgba(255, 255, 255, 0.6); }
-    .upload-section {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 40px;
-      margin-bottom: 40px;
-    }
-    .upload-section h2 { margin-bottom: 20px; font-size: 1.5rem; }
+    .upload-section { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; margin-bottom: 40px; }
+    .upload-section h2 { margin-bottom: 10px; font-size: 1.5rem; }
+    .upload-section p { color: rgba(255, 255, 255, 0.5); margin-bottom: 20px; font-size: 0.9rem; }
     .upload-form { display: flex; flex-direction: column; gap: 20px; }
     .file-input { display: none; }
-    .file-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 20px 30px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px dashed rgba(255, 255, 255, 0.3);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .file-label:hover {
-      border-color: #a78bfa;
-      background: rgba(167, 139, 250, 0.1);
-    }
-    .file-name {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.9rem;
-      margin-top: 10px;
-    }
-    .progress-container {
-      display: none;
-      margin-top: 20px;
-    }
+    .file-label { display: inline-flex; align-items: center; gap: 10px; padding: 20px 30px; background: rgba(255, 255, 255, 0.1); border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; }
+    .file-label:hover { border-color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
+    .file-name { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin-top: 10px; }
+    .upload-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+    .progress-container { display: none; margin-top: 20px; }
     .progress-container.show { display: block; }
-    .progress-bar-bg {
-      width: 100%;
-      height: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 10px;
-      transition: width 0.3s ease;
-      width: 0%;
-    }
-    .progress-text {
-      text-align: center;
-      margin-top: 10px;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    .alert {
-      padding: 15px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    .alert-success {
-      background: rgba(34, 197, 94, 0.2);
-      border: 1px solid rgba(34, 197, 94, 0.5);
-      color: #22c55e;
-    }
-    .alert-error {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.5);
-      color: #ef4444;
-    }
-    .stats-table-container {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      overflow: hidden;
-    }
-    .stats-table-header {
-      padding: 25px 30px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .progress-bar-bg { width: 100%; height: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; transition: width 0.3s ease; width: 0%; }
+    .progress-text { text-align: center; margin-top: 10px; color: rgba(255, 255, 255, 0.8); }
+    .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
+    .alert-success { background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #22c55e; }
+    .alert-error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; }
+    .alert-warning { background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.5); color: #eab308; }
+    .stats-table-container { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; }
+    .stats-table-header { padding: 25px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
     .stats-table-header h2 { font-size: 1.3rem; }
-    .stats-count {
-      background: rgba(167, 139, 250, 0.2);
-      color: #a78bfa;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
+    .stats-count { background: rgba(167, 139, 250, 0.2); color: #a78bfa; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
     table { width: 100%; border-collapse: collapse; }
-    th, td {
-      padding: 15px 20px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    th {
-      background: rgba(255, 255, 255, 0.03);
-      color: rgba(255, 255, 255, 0.6);
-      font-weight: 500;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-    }
+    th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    th { background: rgba(255, 255, 255, 0.03); color: rgba(255, 255, 255, 0.6); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; }
     tr:hover { background: rgba(255, 255, 255, 0.03); }
     .table-wrapper { max-height: 500px; overflow-y: auto; }
-    .empty-table {
-      text-align: center;
-      padding: 60px;
-      color: rgba(255, 255, 255, 0.5);
-    }
+    .empty-table { text-align: center; padding: 60px; color: rgba(255, 255, 255, 0.5); }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-brand">
-      <span></span>
-      <span>Sovereign Empire</span>
+      <span></span><span>Sovereign Empire</span>
       <span style="color: #f5576c; font-size: 0.8rem; margin-left: 10px;">ADMIN</span>
     </div>
     <div class="nav-links">
@@ -209,6 +73,8 @@
     
     <div class="upload-section">
       <h2> Upload Stats File</h2>
+      <p>Select an Excel file (.xlsx) with columns: Character ID, Username, Highest Power, T5 Deaths, T4 Deaths, Total Kill Points, Resources Gathered</p>
+      
       <form id="uploadForm" class="upload-form">
         <div>
           <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls" required>
@@ -223,14 +89,24 @@
         </div>
         
         <div class="progress-container" id="progressContainer">
-          <div class="progress-bar-bg">
-            <div class="progress-bar" id="progressBar"></div>
-          </div>
+          <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
           <div class="progress-text" id="progressText">Uploading... 0%</div>
         </div>
         
-        <button type="submit" class="btn btn-primary" id="submitBtn"> Upload & Update Stats</button>
+        <div class="upload-buttons">
+          <button type="button" class="btn btn-danger" id="creationBtn" onclick="uploadFile('creation')">
+             Creation (Replace All)
+          </button>
+          <button type="button" class="btn btn-primary" id="updateBtn" onclick="uploadFile('update')">
+             Update (Add/Modify)
+          </button>
+        </div>
       </form>
+      
+      <div class="alert alert-warning" style="margin-top: 20px;">
+         <strong>Creation</strong> will DELETE all existing stats and upload fresh data.<br>
+         <strong>Update</strong> will add new entries and update existing ones (keeps old data).
+      </div>
     </div>
     
     <div class="stats-table-container">
@@ -251,10 +127,10 @@
               <tr>
                 <th>Governor ID</th>
                 <th>Username</th>
-                
                 <th>Highest Power</th>
                 <th> Deads</th>
                 <th>Kill Points</th>
+                <th>Resources</th>
               </tr>
             </thead>
             <tbody>
@@ -262,10 +138,10 @@
                 <tr>
                   <td><%= stat.governor_id %></td>
                   <td><%= stat.username %></td>
-                  
                   <td><%= Number(stat.highest_power || 0).toLocaleString() %></td>
                   <td><%= Number(stat.deads || 0).toLocaleString() %></td>
                   <td><%= Number(stat.total_kill_points || 0).toLocaleString() %></td>
+                  <td><%= Number(stat.resources_gathered || 0).toLocaleString() %></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -278,32 +154,34 @@
   <script>
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
-    const uploadForm = document.getElementById('uploadForm');
     const progressContainer = document.getElementById('progressContainer');
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
-    const submitBtn = document.getElementById('submitBtn');
     const alertContainer = document.getElementById('alertContainer');
     
     fileInput.addEventListener('change', (e) => {
       fileName.textContent = e.target.files.length > 0 ? e.target.files[0].name : 'No file selected';
     });
     
-    uploadForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
+    function uploadFile(type) {
       const file = fileInput.files[0];
       if (!file) {
-        showAlert('Please select a file', 'error');
+        showAlert('Please select a file first', 'error');
         return;
+      }
+      
+      if (type === 'creation') {
+        if (!confirm(' This will DELETE ALL existing stats and upload fresh data. Are you sure?')) {
+          return;
+        }
       }
       
       const formData = new FormData();
       formData.append('file', file);
       
-      // Show progress
       progressContainer.classList.add('show');
-      submitBtn.disabled = true;
+      document.getElementById('creationBtn').disabled = true;
+      document.getElementById('updateBtn').disabled = true;
       
       const xhr = new XMLHttpRequest();
       
@@ -318,8 +196,8 @@
       xhr.addEventListener('load', () => {
         if (xhr.status === 200) {
           progressBar.style.width = '100%';
-          progressText.textContent = 'Processing complete!';
-          showAlert('Stats uploaded successfully!', 'success');
+          progressText.textContent = 'Complete!';
+          showAlert(xhr.responseText, 'success');
           setTimeout(() => location.reload(), 1500);
         } else {
           showAlert('Upload failed: ' + xhr.responseText, 'error');
@@ -332,9 +210,9 @@
         resetProgress();
       });
       
-      xhr.open('POST', '/admin/upload');
+      xhr.open('POST', `/admin/upload/${type}`);
       xhr.send(formData);
-    });
+    }
     
     function showAlert(message, type) {
       alertContainer.innerHTML = `<div class="alert alert-${type}">${type === 'success' ? '' : ''} ${message}</div>`;
@@ -344,13 +222,9 @@
       progressContainer.classList.remove('show');
       progressBar.style.width = '0%';
       progressText.textContent = 'Uploading... 0%';
-      submitBtn.disabled = false;
+      document.getElementById('creationBtn').disabled = false;
+      document.getElementById('updateBtn').disabled = false;
     }
-    
-    // Check URL params for messages
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success')) showAlert('Stats uploaded successfully!', 'success');
-    if (params.get('error')) showAlert('Error: ' + decodeURIComponent(params.get('error')), 'error');
   </script>
 </body>
 </html>
