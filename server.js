@@ -40,6 +40,18 @@ function findColumnIndex(headers, possibleNames) {
   return -1;
 }
 
+function parseNumber(str) {
+    if (!str) return 0;
+    if (typeof str === 'number') return str;
+    const s = str.toString().toLowerCase().trim();
+    let mult = 1;
+    if (s.endsWith('b')) mult = 1000000000;
+    else if (s.endsWith('m')) mult = 1000000;
+    else if (s.endsWith('k')) mult = 1000;
+    
+    return Math.floor(parseFloat(s.replace(/[^\d\.]/g, '')) * mult);
+}
+
 function parseExcelData(buffer) {
   const workbook = xlsx.read(buffer, { type: 'buffer' });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -153,7 +165,25 @@ app.post('/admin/kvk', isAuthenticated, isAdmin, async (req, res) => {
     res.redirect('/admin?ok=kvk');
 });
 app.post('/admin/manage-admins', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action==='add') await addAdmin(req.body.discordId, req.body.note); else await removeAdmin(req.body.discordId); res.redirect('/admin'); });
-app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { await upsertTier(req.body.id||null, req.body.name, req.body.minPower, req.body.maxPower, req.body.killMultiplier, req.body.deathMultiplier); res.redirect('/admin'); });
+
+// --- TIER PARSING LOGIC HERE ---
+app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { 
+    try {
+        const min = parseNumber(req.body.minPower);
+        const max = parseNumber(req.body.maxPower);
+        await upsertTier(
+            req.body.id||null, 
+            req.body.name, 
+            min, 
+            max, 
+            parseFloat(req.body.killMultiplier), 
+            parseFloat(req.body.deathMultiplier)
+        ); 
+        res.redirect('/admin?ok=tier'); 
+    } catch(e) { res.redirect('/admin?err=' + e.message); }
+});
+// ------------------------------
+
 app.post('/admin/tier/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteTier(req.body.id); res.redirect('/admin'); });
 
 app.post('/admin/backup/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteBackup(req.body.id); res.redirect('/admin?ok=del_backup'); });
