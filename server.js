@@ -298,9 +298,22 @@ app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'),
     } catch (e) { res.status(500).send(e.message); }
 });
 
-// Reports
-app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); res.json(sp.filter(x=>!x.isCompliant).map(x=>`${x.governor_id} ${x.username} - Kills: ${x.killProgress}% | Deaths: ${x.deathProgress}%`)); });
-app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); sp.sort((a,b)=>(b.rawKillProgress+b.rawDeathProgress)-(a.rawKillProgress+a.rawDeathProgress)); res.json(sp.slice(0, parseInt(req.query.limit)||10).map((x,i)=>`Top ${i+1}: ${x.governor_id} ${x.username} - Score: ${(x.killProgress+x.deathProgress).toFixed(1)}%`)); });
+// Reports - Modified to exclude percentages/status text
+app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res) => { 
+    const s = await getAllStats(); 
+    const t = await getAllTiers(); 
+    const sp = await calculateProgress(s, t); 
+    res.json(sp.filter(x=>!x.isCompliant).map(x=>`${x.governor_id} ${x.username}`)); 
+});
+
+app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => { 
+    const s = await getAllStats(); 
+    const t = await getAllTiers(); 
+    const sp = await calculateProgress(s, t); 
+    sp.sort((a,b)=>(b.rawKillProgress+b.rawDeathProgress)-(a.rawKillProgress+a.rawDeathProgress)); 
+    res.json(sp.slice(0, parseInt(req.query.limit)||10).map((x,i)=>`Top ${i+1}: ${x.governor_id} ${x.username}`)); 
+});
+
 app.get('/api/stats', async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); res.json(sp); });
 
 if (process.env.NODE_ENV !== 'production') { app.listen(process.env.PORT || 3000, () => console.log('Server running')); }
