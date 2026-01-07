@@ -1,274 +1,153 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kingdom Stats - Sovereign Empire</title>
+  <title>Leaderboard - Sovereign Empire</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-      color: #fff;
-    }
-
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.3rem;
-      font-weight: 700;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 40px;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; }
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; text-decoration: none; color: white; }
+    .nav-links { display: flex; gap: 20px; }
+    .btn { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+    .btn:hover { background: rgba(255,255,255,0.2); }
+    
+    .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+    
     /* Totals Banner */
     .totals-banner {
-      background: linear-gradient(90deg, #1cb5e0 0%, #000851 100%);
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 20px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(90deg, #1cb5e0 0%, #000851 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     }
+    .total-item { text-align: center; }
+    .total-val { font-size: 1.5rem; font-weight: 700; display: block; }
+    .total-lbl { font-size: 0.8rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
 
-    .total-item {
-      text-align: center;
-    }
+    .stats-header { text-align: center; margin-bottom: 30px; }
+    .stats-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #fff 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .search-box { margin-bottom: 20px; display: flex; justify-content: center; }
+    .search-input { width: 100%; max-width: 400px; padding: 12px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; text-align: center; transition: all 0.3s; }
+    .search-input:focus { outline: none; border-color: #a78bfa; background: rgba(0,0,0,0.5); width: 100%; max-width: 500px; }
 
-    .total-val {
-      font-size: 1.5rem;
-      font-weight: 700;
-      display: block;
-    }
-
-    .total-lbl {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      opacity: 0.8;
-      letter-spacing: 1px;
-    }
-
-    .stats-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .stats-header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .stats-grid {
-      display: grid;
-      gap: 20px;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 20px;
-      transition: transform 0.2s;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .role-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      background: rgba(255, 255, 255, 0.1);
-      margin-bottom: 10px;
-    }
-
-    .compliant {
-      background: rgba(74, 222, 128, 0.2);
-      color: #4ade80;
-      border: 1px solid rgba(74, 222, 128, 0.4);
-    }
-
-    .non-compliant {
-      background: rgba(248, 113, 113, 0.2);
-      color: #f87171;
-      border: 1px solid rgba(248, 113, 113, 0.4);
-    }
-
-    .progress-track {
-      background: rgba(255, 255, 255, 0.1);
-      height: 6px;
-      border-radius: 3px;
-      margin: 8px 0 4px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      border-radius: 3px;
-      background: #a78bfa;
-    }
-
-    .progress-fill.green {
-      background: #4ade80;
-    }
-
-    .progress-fill.red {
-      background: #f87171;
-    }
-
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      margin-top: 5px;
-    }
-
-    .sub-text {
-      font-size: 0.8rem;
-      opacity: 0.6;
-    }
+    /* Leaderboard Table */
+    .table-container { background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 15px 20px; text-align: left; }
+    th { background: rgba(0,0,0,0.3); font-weight: 600; color: rgba(255,255,255,0.8); cursor: pointer; user-select: none; }
+    th:hover { background: rgba(255,255,255,0.1); }
+    tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+    tr:hover { background: rgba(255,255,255,0.05); }
+    
+    .rank-cell { font-weight: 700; color: #a78bfa; width: 60px; text-align: center; }
+    .gov-cell div { font-weight: 600; }
+    .gov-cell span { font-size: 0.8rem; opacity: 0.6; }
+    .val-cell { font-family: monospace; font-size: 1rem; }
+    
+    .compliant { color: #4ade80; }
+    .non-compliant { color: #f87171; }
+    .progress-mini { width: 60px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; display: inline-block; vertical-align: middle; margin-left: 8px; }
+    .progress-mini-fill { height: 100%; background: #a78bfa; border-radius: 2px; }
   </style>
 </head>
-
 <body>
   <nav class="navbar">
     <a href="/" class="nav-brand" style="text-decoration:none; color:white;"> Sovereign Empire Stats</a>
     <div class="nav-links">
-      <a href="/login" class="btn btn-secondary">Login</a>
+        <a href="/login" class="btn btn-secondary">Login</a>
     </div>
   </nav>
 
   <div class="container">
     <div class="stats-header">
-      <h1>Kingdom Statistics</h1>
-      <p style="opacity: 0.7;">Live data for <%= currentKvK || 'Current Season' %>
-      </p>
+        <h1>Season Leaderboard</h1>
+        <p style="opacity: 0.7;">Live data for <%= currentKvK || 'Current Season' %></p>
     </div>
+
+    <!-- Smart Numbers Script -->
+    <script>
+        function fmt(n) {
+            if (!n && n !== 0) return '0';
+            n = Number(n);
+            if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+            return n.toLocaleString();
+        }
+    </script>
 
     <div class="totals-banner">
-      <div class="total-item"><span class="total-val">
-          <%= totals.count %>
-        </span><span class="total-lbl">Members</span></div>
-      <div class="total-item"><span class="total-val">
-          <%= (Number(totals.total_power)/1000000).toFixed(0) %>M
-        </span><span class="total-lbl">Kingdom Power</span></div>
-      <div class="total-item"><span class="total-val">
-          <%= (Number(totals.total_kills)/1000000).toFixed(0) %>M
-        </span><span class="total-lbl">Total Kills</span></div>
-      <div class="total-item"><span class="total-val">
-          <%= (Number(totals.total_deads)/1000).toFixed(0) %>K
-        </span><span class="total-lbl">Total Deads</span></div>
+        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.count %>))</script></span><span class="total-lbl">Members</span></div>
+        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.total_power %>))</script></span><span class="total-lbl">Kingdom Power</span></div>
+        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.total_kills %>))</script></span><span class="total-lbl">Season KP</span></div>
+        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.total_deads %>))</script></span><span class="total-lbl">Season Deaths</span></div>
     </div>
 
-    <div class="stats-grid">
-      <% stats.forEach(p=> { %>
-        <div class="stat-card">
-          <div style="display:flex; justify-content:space-between; align-items:start;">
-            <div>
-              <div class="role-badge <%= p.isCompliant ? 'compliant' : 'non-compliant' %>">
-                <%= p.isCompliant ? ' Compliant' : ' At Risk' %>
-              </div>
-              <h3 style="margin-bottom:2px;">
-                <%= p.username %>
-              </h3>
-              <div class="sub-text">ID: <%= p.governor_id %> | <%= p.kingdom %>
-              </div>
-            </div>
-          </div>
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by Username or ID...">
+    </div>
 
-          <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-
-          <div>
-            <div class="stat-row"><span>Power</span> <span>
-                <%= (Number(p.highest_power)/1000000).toFixed(1) %>M
-              </span></div>
-            <div class="stat-row"><span>Tier</span> <span>
-                <%= p.tier ? p.tier.name : 'Unranked' %>
-              </span></div>
-          </div>
-
-          <div style="margin-top: 15px;">
-            <div class="stat-row"><span>Kills (<%= p.killProgress %>%)</span> <span>
-                <%= (Number(p.killsGained)/1000000).toFixed(1) %>M / <%= (Number(p.killReq)/1000000).toFixed(1) %>M
-              </span></div>
-            <div class="progress-track">
-              <div class="progress-fill <%= p.killProgress >= 100 ? 'green' : 'red' %>"
-                style="width: <%= p.killProgress %>%"></div>
-            </div>
-          </div>
-
-          <div style="margin-top: 10px;">
-            <div class="stat-row"><span>Deads (<%= p.deathProgress %>%)</span> <span>
-                <%= Number(p.deadsGained).toLocaleString() %> / <%= Number(p.deathReq).toLocaleString() %>
-              </span></div>
-            <div class="progress-track">
-              <div class="progress-fill <%= p.deathProgress >= 100 ? 'green' : 'red' %>"
-                style="width: <%= p.deathProgress %>%"></div>
-            </div>
-          </div>
-        </div>
-        <% }) %>
+    <div class="table-container">
+        <table id="statsTable">
+            <thead>
+                <tr>
+                    <th class="rank-cell">#</th>
+                    <th>Governor</th>
+                    <th>Power</th>
+                    <th>KP Rised (Season)</th>
+                    <th>Deaths (Season)</th>
+                    <th>Tier</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% stats.forEach((p, index) => { %>
+                    <tr class="stat-row" data-search="<%= p.username.toLowerCase() %> <%= p.governor_id %>">
+                        <td class="rank-cell"><%= index + 1 %></td>
+                        <td class="gov-cell">
+                            <div><%= p.username %></div>
+                            <span><%= p.governor_id %></span>
+                        </td>
+                        <td class="val-cell"><script>document.write(fmt(<%= p.highest_power %>))</script></td>
+                        <td class="val-cell">
+                            <script>document.write(fmt(<%= p.killsGained %>))</script>
+                            <div class="progress-mini"><div class="progress-mini-fill" style="width:<%= Math.min(p.killProgress, 100) %>%"></div></div>
+                        </td>
+                        <td class="val-cell">
+                            <script>document.write(fmt(<%= p.deadsGained %>))</script>
+                            <div class="progress-mini"><div class="progress-mini-fill" style="width:<%= Math.min(p.deathProgress, 100) %>%"></div></div>
+                        </td>
+                        <td><%= p.tier ? p.tier.name : '-' %></td>
+                        <td style="font-weight:bold;" class="<%= p.isCompliant ? 'compliant' : 'non-compliant' %>">
+                            <%= p.isCompliant ? 'PASS' : 'RISK' %>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
     </div>
   </div>
-</body>
 
+  <script>
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+        const term = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.stat-row');
+        rows.forEach(row => {
+            const text = row.getAttribute('data-search');
+            row.style.display = text.includes(term) ? '' : 'none';
+        });
+    });
+  </script>
+</body>
 </html>

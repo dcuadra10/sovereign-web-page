@@ -51,6 +51,8 @@ async function upsertUser(discordId, username, avatar) {
 }
 async function linkGovernor(discordId, governorId) { await sql`UPDATE users SET governor_id = ${governorId} WHERE discord_id = ${discordId}`; }
 async function getUser(discordId) { const r = await sql`SELECT * FROM users WHERE discord_id = ${discordId}`; return r[0] || null; }
+async function getLinkedUsers() { return await sql`SELECT * FROM users WHERE governor_id IS NOT NULL`; }
+async function unlinkUser(discordId) { await sql`UPDATE users SET governor_id = NULL WHERE discord_id = ${discordId}`; }
 
 async function setConfig(key, value) { await sql`INSERT INTO config (key, value) VALUES (${key}, ${value}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`; }
 async function getConfig(key) { const r = await sql`SELECT value FROM config WHERE key = ${key}`; return r[0]?.value || null; }
@@ -82,7 +84,7 @@ async function getBackups() { return await sql`SELECT id, name, created_at, kvk_
 async function deleteBackup(id) { await sql`DELETE FROM backups WHERE id = ${id}`; }
 
 module.exports = {
-  sql, initDB, upsertUser, getUser, linkGovernor, setConfig, getConfig,
+  sql, initDB, upsertUser, getUser, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig,
   getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, clearAllStats, getAllTiers, upsertTier, deleteTier,
   getAdmins, addAdmin, removeAdmin,
   createBackup, getBackups, deleteBackup

@@ -6,7 +6,7 @@ const multer = require('multer');
 const xlsx = require('xlsx');
 require('dotenv').config();
 
-const { initDB, getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, upsertUser, getUser, linkGovernor, setConfig, getConfig, clearAllStats, getAllTiers, upsertTier, deleteTier, getAdmins, addAdmin, removeAdmin, createBackup, getBackups, deleteBackup } = require('./database');
+const { initDB, getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, upsertUser, getUser, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig, clearAllStats, getAllTiers, upsertTier, deleteTier, getAdmins, addAdmin, removeAdmin, createBackup, getBackups, deleteBackup } = require('./database');
 
 const app = express();
 const JWT_SECRET = process.env.SESSION_SECRET || 'super-secret-key';
@@ -139,7 +139,16 @@ app.post('/link-account', isAuthenticated, async (req, res) => {
   } catch(e) { res.status(500).send(e.message); }
 });
 
-app.get('/dashboard', isAuthenticated, async (req, res) => { try { const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); const k = await getConfig('current_kvk'); const u = await getUser(req.user.discordId); const a = await getAdmins(); res.render('dashboard', { user: {...req.user, ...u}, stats: sp, totals: t, tiers, currentKvK: k, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId) }); } catch { res.status(500).send('Error'); } });
+app.get('/dashboard', isAuthenticated, async (req, res) => { 
+  try { 
+    const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); 
+    const k = await getConfig('current_kvk'); 
+    const u = await getUser(req.user.discordId); 
+    const a = await getAdmins(); 
+    const lastStart = await getConfig('season_start_date');
+    res.render('dashboard', { user: {...req.user, ...u}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId) }); 
+  } catch { res.status(500).send('Error'); } 
+});
 
 // Admin
 app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
@@ -149,10 +158,13 @@ app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
     const k = await getConfig('current_kvk');
     const lastK = await getConfig('last_scan_kingdom');
     const lastD = await getConfig('last_scan_end_date');
-    
-    res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, guildId: g, currentKvK: k, lastK, lastD }); 
+    const linked = await getLinkedUsers();
+
+    res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, currentKvK: k, lastK, lastD }); 
   } catch { res.status(500).send('Error'); } 
 });
+
+app.post('/admin/unlink', isAuthenticated, isAdmin, async (req, res) => { await unlinkUser(req.body.discordId); res.redirect('/admin?ok=unlink'); });
 
 app.post('/admin/config', isAuthenticated, isAdmin, async (req, res) => { await setConfig('discord_guild_id', req.body.guildId); res.redirect('/admin'); });
 app.post('/admin/kvk', isAuthenticated, isAdmin, async (req, res) => {
@@ -219,6 +231,9 @@ app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'),
             await createBackup(`Auto-Backup (New List ${kvk})`, kvk, filename);
             await clearAllStats();
             for (const x of r) await createStatsWithInitial(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources);
+            
+            // Save Start Date
+            if (match) await setConfig('season_start_date', match[2]);
         } else {
             for (const x of r) await upsertStats(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources);
         }

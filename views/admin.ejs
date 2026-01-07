@@ -69,15 +69,37 @@
             </form>
         </div>
 
-        <!-- ADMIN MANAGEMENT -->
+        <!-- LINKED USERS & ADMINS -->
         <div class="section">
+             <h2> Linked Users</h2>
+             <div style="max-height: 250px; overflow-y: auto; margin-bottom:20px;">
+                <table>
+                    <thead><tr><th>Discord User</th><th>Governor ID</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <% if (linkedUsers.length === 0) { %><tr><td colspan="3" style="text-align:center;">No linked users</td></tr><% } %>
+                        <% linkedUsers.forEach(u => { %>
+                            <tr>
+                                <td><%= u.username %></td>
+                                <td><%= u.governor_id %></td>
+                                <td>
+                                    <form action="/admin/unlink" method="POST" onsubmit="return confirm('Unlink this user?')">
+                                        <input type="hidden" name="discordId" value="<%= u.discord_id %>">
+                                        <button class="btn btn-danger btn-sm">Unlink</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
             <h2> Manage Admins</h2>
             <form action="/admin/manage-admins" method="POST" style="margin-bottom: 20px; display: flex; gap: 10px;">
                 <input type="text" name="discordId" class="form-control" placeholder="Discord User ID" required>
                 <input type="text" name="note" class="form-control" placeholder="Note (e.g. Leader)">
                 <button type="submit" name="action" value="add" class="btn btn-success">Add</button>
             </form>
-            <div style="max-height: 200px; overflow-y: auto;">
+            <div style="max-height: 150px; overflow-y: auto;">
                 <% admins.forEach(a => { %>
                     <div class="tier-card">
                         <div><strong><%= a.note || 'Admin' %></strong><br><span style="font-size: 0.8rem; opacity: 0.7;"><%= a.discord_id %></span></div>
