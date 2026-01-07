@@ -48,7 +48,6 @@ function parseNumber(str) {
     if (s.endsWith('b')) mult = 1000000000;
     else if (s.endsWith('m')) mult = 1000000;
     else if (s.endsWith('k')) mult = 1000;
-    
     return Math.floor(parseFloat(s.replace(/[^\d\.]/g, '')) * mult);
 }
 
@@ -112,7 +111,8 @@ async function calculateProgress(stats, tiers) {
 app.get('/login', (req, res) => { const user = getUserFromToken(req); if (user) return res.redirect('/dashboard'); res.render('login'); });
 app.get('/stats', async (req, res) => { try { const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); const k = await getConfig('current_kvk') || 'Unknown'; res.render('stats', { stats: sp, totals: t, tiers, currentKvK: k }); } catch { res.status(500).send('Error'); } });
 
-app.get('/auth/discord', (req, res) => res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK_URL)}&response_type=code&scope=identify guilds`));
+// Updated scopes to include guilds.members.read
+app.get('/auth/discord', (req, res) => res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK_URL)}&response_type=code&scope=identify guilds guilds.members.read`));
 app.get('/auth/discord/callback', async (req, res) => {
   const code = req.query.code; if (!code) return res.redirect('/login');
   try {
@@ -130,13 +130,45 @@ app.get('/logout', (req, res) => { res.clearCookie('auth_token'); res.redirect('
 
 app.post('/link-account', isAuthenticated, async (req, res) => {
   try {
-    const gid = await getConfig('discord_guild_id'); if (!gid) return res.status(400).send('No Guild ID');
-    const gr = await fetch('https://discord.com/api/users/@me/guilds', { headers: { Authorization: `Bearer ${req.user.accessToken}` } });
-    if (!gr.ok) return res.status(400).send('Relogin');
-    const guilds = await gr.json(); if (!guilds.some(g => g.id === gid)) return res.status(403).send('Not in server');
-    const s = await getAllStats(); if (!s.find(x => x.governor_id === req.body.governorId)) return res.status(404).send('ID not found');
-    await linkGovernor(req.user.discordId, req.body.governorId); res.redirect('/dashboard?ok=1');
-  } catch(e) { res.status(500).send(e.message); }
+    const guildId = await getConfig('discord_guild_id');
+    const roleId = await getConfig('discord_role_id');
+    
+    // Check 1: Guild ID Configured
+    if (!guildId) return res.redirect('/dashboard?error=Admin has not configured the Guild ID yet.');
+
+    // Fetch Member in Guild (This endpoint works with guilds.members.read scope + User Token)
+    const memberReq = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, { 
+        headers: { Authorization: `Bearer ${req.user.accessToken}` } 
+    });
+
+    // Check 2: User in Guild
+    if (memberReq.status === 404 || memberReq.status === 403) {
+        return res.redirect('/dashboard?error=You are not in the server.&link=https://discord.gg/BCmNW9PuSm');
+    }
+    
+    if (!memberReq.ok) {
+        // Token might be expired or other issue
+        return res.redirect('/dashboard?error=Verification failed. Please try logging in again.');
+    }
+
+    const member = await memberReq.json();
+
+    // Check 3: Role Verification (if roleId is set)
+    if (roleId && (!member.roles || !member.roles.includes(roleId))) {
+        return res.redirect('/dashboard?error=You do not have the required role to link your account.');
+    }
+
+    // Check 4: ID Exists in Stats
+    const s = await getAllStats();
+    if (!s.find(x => x.governor_id === req.body.governorId)) {
+        return res.redirect('/dashboard?error=Governor ID not found in the stats list.');
+    }
+
+    await linkGovernor(req.user.discordId, req.body.governorId);
+    res.redirect('/dashboard?success=Account Linked Successfully');
+  } catch(e) { 
+      res.redirect('/dashboard?error=' + encodeURIComponent(e.message)); 
+  }
 });
 
 app.get('/dashboard', isAuthenticated, async (req, res) => { 
@@ -147,26 +179,44 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
     const a = await getAdmins(); 
     const lastStart = await getConfig('season_start_date');
     res.render('dashboard', { user: {...req.user, ...u}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId) }); 
-  } catch { res.status(500).send('Error'); } 
+  } catch (e){ res.status(500).send('Error loading dashboard: ' + e.message); } 
 });
 
 // Admin
 app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
   try { 
-    const s = await getAllStats(); const t = await getAllTiers(); const a = await getAdmins(); const backups = await getBackups(); 
-    const g = await getConfig('discord_guild_id'); 
-    const k = await getConfig('current_kvk');
+    const s = await getAllStats(); 
+    const t = await getAllTiers(); 
+    const a = await getAdmins(); 
+    const backups = await getBackups() || []; 
+    
+    const g = await getConfig('discord_guild_id') || ''; 
+    const r = await getConfig('discord_role_id') || '';
+    
+    const k = await getConfig('current_kvk') || '';
     const lastK = await getConfig('last_scan_kingdom');
     const lastD = await getConfig('last_scan_end_date');
-    const linked = await getLinkedUsers();
+    const linked = await getLinkedUsers() || [];
 
-    res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, currentKvK: k, lastK, lastD }); 
-  } catch { res.status(500).send('Error'); } 
+    res.render('admin', { 
+        user: req.user, stats: s, tiers: t, admins: a, backups, 
+        linkedUsers: linked, guildId: g, roleId: r, 
+        currentKvK: k, lastK, lastD 
+    }); 
+  } catch (e) { 
+      console.error(e);
+      res.status(500).send('Admin Panel Error: ' + e.message); 
+  } 
 });
 
 app.post('/admin/unlink', isAuthenticated, isAdmin, async (req, res) => { await unlinkUser(req.body.discordId); res.redirect('/admin?ok=unlink'); });
 
-app.post('/admin/config', isAuthenticated, isAdmin, async (req, res) => { await setConfig('discord_guild_id', req.body.guildId); res.redirect('/admin'); });
+app.post('/admin/config', isAuthenticated, isAdmin, async (req, res) => { 
+    await setConfig('discord_guild_id', req.body.guildId); 
+    await setConfig('discord_role_id', req.body.roleId); 
+    res.redirect('/admin'); 
+});
+
 app.post('/admin/kvk', isAuthenticated, isAdmin, async (req, res) => {
     const kvk = await getConfig('current_kvk');
     if (req.body.action === 'reset') {

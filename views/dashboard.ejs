@@ -78,6 +78,26 @@
     .action-row { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
     .btn-lg { padding: 15px 30px; font-size: 1rem; }
     .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px; left: 50%; transform: translateX(-50%);
+      padding: 15px 25px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: flex; align-items: center; gap: 10px;
+      animation: slideDown 0.5s ease forwards;
+      max-width: 90%;
+    }
+    .toast-error { background: rgba(220, 38, 38, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+    .toast-success { background: rgba(22, 163, 74, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+    
+    @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
   </style>
 </head>
 <body>
@@ -159,5 +179,35 @@
         </div>
     <% } %>
   </div>
+
+  <script>
+    // URL Params for Toasts
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const success = params.get('success');
+    const link = params.get('link');
+
+    if (error) {
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-error';
+        let html = '<span> ' + decodeURIComponent(error) + '</span>';
+        if (link) { html += '<a href="' + link + '" target="_blank" style="color:white; margin-left:10px; text-decoration:underline;">Join Here</a>'; }
+        toast.innerHTML = html;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 6000);
+    }
+    if (success) {
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-success';
+        toast.innerHTML = '<span> ' + decodeURIComponent(success) + '</span>';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+    
+    // Clean URL
+    if (error || success) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  </script>
 </body>
 </html>

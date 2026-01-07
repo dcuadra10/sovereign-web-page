@@ -53,6 +53,10 @@
                     <label>Discord Server ID (Guild ID)</label>
                     <input type="text" name="guildId" class="form-control" value="<%= guildId || '' %>" required placeholder="e.g. 123456789012345678">
                 </div>
+                 <div class="form-group">
+                    <label>Required Role ID (Optional)</label>
+                    <input type="text" name="roleId" class="form-control" value="<%= roleId || '' %>" placeholder="e.g. 123456789012345678 (Leave empty for no role check)">
+                </div>
                 <button class="btn btn-primary">Save Config</button>
             </form>
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
@@ -76,19 +80,20 @@
                 <table>
                     <thead><tr><th>Discord User</th><th>Governor ID</th><th>Action</th></tr></thead>
                     <tbody>
-                        <% if (linkedUsers.length === 0) { %><tr><td colspan="3" style="text-align:center;">No linked users</td></tr><% } %>
-                        <% linkedUsers.forEach(u => { %>
-                            <tr>
-                                <td><%= u.username %></td>
-                                <td><%= u.governor_id %></td>
-                                <td>
-                                    <form action="/admin/unlink" method="POST" onsubmit="return confirm('Unlink this user?')">
-                                        <input type="hidden" name="discordId" value="<%= u.discord_id %>">
-                                        <button class="btn btn-danger btn-sm">Unlink</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <% }) %>
+                        <% if (!linkedUsers || linkedUsers.length === 0) { %><tr><td colspan="3" style="text-align:center;">No linked users</td></tr><% } else { %>
+                            <% linkedUsers.forEach(u => { %>
+                                <tr>
+                                    <td><%= u.username %></td>
+                                    <td><%= u.governor_id %></td>
+                                    <td>
+                                        <form action="/admin/unlink" method="POST" onsubmit="return confirm('Unlink this user?')">
+                                            <input type="hidden" name="discordId" value="<%= u.discord_id %>">
+                                            <button class="btn btn-danger btn-sm">Unlink</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
                     </tbody>
                 </table>
             </div>
