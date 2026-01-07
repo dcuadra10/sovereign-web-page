@@ -58,7 +58,7 @@ function findColumnIndex(headers, possibleNames) {
   return -1;
 }
 
-// Parse Excel data with dynamic headers
+// Parse Excel data - more lenient, uses defaults for missing columns
 function parseExcelData(buffer) {
   const workbook = xlsx.read(buffer, { type: 'buffer' });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -67,42 +67,56 @@ function parseExcelData(buffer) {
   if (data.length < 2) throw new Error('Excel file is empty or has no data rows');
   
   const headers = data[0].map(h => h ? h.toString() : '');
+  console.log('Excel Headers:', headers);
   
-  // Find column indices by header names
+  // Find column indices - all optional except we need at least an ID
   const cols = {
-    governorId: findColumnIndex(headers, ['Character ID', 'Governor ID', 'ID']),
-    username: findColumnIndex(headers, ['Username', 'Name', 'Player']),
-    highestPower: findColumnIndex(headers, ['Highest Power', 'Max Power']),
-    t5Deaths: findColumnIndex(headers, ['T5 Deaths', 'T5 Dead']),
-    t4Deaths: findColumnIndex(headers, ['T4 Deaths', 'T4 Dead']),
-    killPoints: findColumnIndex(headers, ['Total Kill Points', 'Kill Points', 'Kills']),
-    resources: findColumnIndex(headers, ['Resources Gathered', 'Resources', 'RSS'])
+    governorId: findColumnIndex(headers, ['Character ID', 'Governor ID', 'ID', 'Gov ID']),
+    username: findColumnIndex(headers, ['Username', 'Name', 'Player', 'Nickname']),
+    highestPower: findColumnIndex(headers, ['Highest Power', 'Max Power', 'Peak Power']),
+    t5Deaths: findColumnIndex(headers, ['T5 Deaths', 'T5 Dead', 'T5']),
+    t4Deaths: findColumnIndex(headers, ['T4 Deaths', 'T4 Dead', 'T4']),
+    killPoints: findColumnIndex(headers, ['Total Kill Points', 'Kill Points', 'Kills', 'KP']),
+    resources: findColumnIndex(headers, ['Resources Gathered', 'Resources', 'RSS', 'Gathered'])
   };
   
-  console.log('Found columns:', cols);
-  console.log('Headers:', headers);
+  console.log('Found column indices:', cols);
   
-  if (cols.governorId === -1) throw new Error('Could not find Governor ID column');
-  if (cols.username === -1) throw new Error('Could not find Username column');
+  // If no Governor ID column found, use first column
+  if (cols.governorId === -1) {
+    console.log('No ID column found, using first column');
+    cols.governorId = 0;
+  }
+  
+  // If no username column found, use second column or N/A
+  if (cols.username === -1 && headers.length > 1) {
+    cols.username = 1;
+  }
   
   const records = [];
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
-    if (!row[cols.governorId]) continue;
     
-    const t5Deaths = cols.t5Deaths !== -1 ? parseInt(row[cols.t5Deaths]) || 0 : 0;
-    const t4Deaths = cols.t4Deaths !== -1 ? parseInt(row[cols.t4Deaths]) || 0 : 0;
+    // Skip empty rows
+    if (!row || row.length === 0) continue;
+    
+    const governorId = row[cols.governorId];
+    if (!governorId) continue; // Skip if no ID
+    
+    const t5Deaths = cols.t5Deaths !== -1 && row[cols.t5Deaths] !== undefined ? parseInt(row[cols.t5Deaths]) || 0 : 0;
+    const t4Deaths = cols.t4Deaths !== -1 && row[cols.t4Deaths] !== undefined ? parseInt(row[cols.t4Deaths]) || 0 : 0;
     
     records.push({
-      governorId: String(row[cols.governorId]),
-      username: row[cols.username] || '',
-      highestPower: cols.highestPower !== -1 ? parseInt(row[cols.highestPower]) || 0 : 0,
+      governorId: String(governorId),
+      username: cols.username !== -1 && row[cols.username] ? String(row[cols.username]) : 'N/A',
+      highestPower: cols.highestPower !== -1 && row[cols.highestPower] !== undefined ? parseInt(row[cols.highestPower]) || 0 : 0,
       deads: t5Deaths + t4Deaths,
-      killPoints: cols.killPoints !== -1 ? parseInt(row[cols.killPoints]) || 0 : 0,
-      resources: cols.resources !== -1 ? parseInt(row[cols.resources]) || 0 : 0
+      killPoints: cols.killPoints !== -1 && row[cols.killPoints] !== undefined ? parseInt(row[cols.killPoints]) || 0 : 0,
+      resources: cols.resources !== -1 && row[cols.resources] !== undefined ? parseInt(row[cols.resources]) || 0 : 0
     });
   }
   
+  console.log(`Parsed ${records.length} records`);
   return records;
 }
 
@@ -185,11 +199,10 @@ app.post('/admin/upload/creation', isAuthenticated, isAdmin, upload.single('file
     if (!req.file) return res.status(400).send('No file uploaded');
     
     const records = parseExcelData(req.file.buffer);
+    if (records.length === 0) return res.status(400).send('No valid records found in file');
     
-    // Clear all existing stats
     await clearAllStats();
     
-    // Insert new records
     for (const record of records) {
       await upsertStats(
         record.governorId, record.username, record.highestPower,
@@ -210,6 +223,7 @@ app.post('/admin/upload/update', isAuthenticated, isAdmin, upload.single('file')
     if (!req.file) return res.status(400).send('No file uploaded');
     
     const records = parseExcelData(req.file.buffer);
+    if (records.length === 0) return res.status(400).send('No valid records found in file');
     
     for (const record of records) {
       await upsertStats(
