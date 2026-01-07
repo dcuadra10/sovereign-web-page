@@ -118,10 +118,11 @@ app.get('/stats', async (req, res) => {
         const tiers = await getAllTiers(); 
         const sp = await calculateProgress(s, tiers); 
         
-        // SORTING: By Kills Gained (Primary) then Deads Gained (Secondary)
+        // SORTING: KP + (Deaths * 2)
         sp.sort((a,b) => {
-            if (b.killsGained !== a.killsGained) return b.killsGained - a.killsGained;
-            return b.deadsGained - a.deadsGained;
+            const scoreA = a.killsGained + (a.deadsGained * 2);
+            const scoreB = b.killsGained + (b.deadsGained * 2);
+            return scoreB - scoreA;
         });
 
         const k = await getConfig('current_kvk') || 'Unknown'; 
@@ -146,7 +147,7 @@ app.get('/auth/discord/callback', async (req, res) => {
 });
 app.get('/logout', (req, res) => { res.clearCookie('auth_token'); res.redirect('/'); });
 
-// Link Account ... (No changes here)
+// Link Account ...
 app.post('/link-account', isAuthenticated, async (req, res) => {
   try {
     const guildId = await getConfig('discord_guild_id');
@@ -175,7 +176,7 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
   } catch (e){ res.status(500).send('Error loading dashboard: ' + e.message); } 
 });
 
-// Admin ... (No changes here)
+// Admin ...
 app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
   try { 
     const s = await getAllStats(); const t = await getAllTiers(); const a = await getAdmins(); const backups = await getBackups() || []; 
@@ -198,7 +199,7 @@ app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { try { co
 app.post('/admin/tier/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteTier(req.body.id); res.redirect('/admin'); });
 app.post('/admin/backup/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteBackup(req.body.id); res.redirect('/admin?ok=del_backup'); });
 
-// Upload Routes (No changes)
+// Upload Routes...
 app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).send('No file');
@@ -223,7 +224,7 @@ app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'),
     } catch (e) { res.status(500).send(e.message); }
 });
 
-// Reports - SORT BY GROWTH (Kills + Deads)
+// Reports - SORT BY GROWTH (Kills + Deads*2)
 app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res) => { 
     const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); 
     res.json(sp.filter(x=>!x.isCompliant).map(x=>`${x.governor_id} ${x.username}`)); 
@@ -232,9 +233,12 @@ app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res)
 app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => { 
     const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); 
     
-    // Sort logic: Total Gained Activity (KP + Deaths) descending
-    // Since users can define their own criteria, this is a safe default for "Top Contributors"
-    sp.sort((a,b) => (b.killsGained + b.deadsGained) - (a.killsGained + a.deadsGained)); 
+    // Sort logic: Score = KP Gained + (Deads Gained * 2)
+    sp.sort((a,b) => {
+        const scoreA = a.killsGained + (a.deadsGained * 2);
+        const scoreB = b.killsGained + (b.deadsGained * 2);
+        return scoreB - scoreA;
+    });
 
     res.json(sp.slice(0, parseInt(req.query.limit)||10).map((x,i)=>`Top ${i+1}: ${x.governor_id} ${x.username}`)); 
 });
