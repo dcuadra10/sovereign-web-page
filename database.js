@@ -4,10 +4,14 @@ const sql = neon(process.env.DATABASE_URL);
 
 async function initDB() {
   try {
+    // Users Table
     await sql`CREATE TABLE IF NOT EXISTS users (discord_id TEXT PRIMARY KEY, username TEXT, avatar TEXT, governor_id TEXT)`;
+    // MIGRATION: Ensure governor_id exists for older DBs
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS governor_id TEXT`;
+
     await sql`CREATE TABLE IF NOT EXISTS config (key TEXT PRIMARY KEY, value TEXT)`;
     
-    // Ensure stats table exists
+    // Stats Table
     await sql`
       CREATE TABLE IF NOT EXISTS stats (
         governor_id TEXT PRIMARY KEY, username TEXT, kingdom TEXT,
@@ -16,21 +20,25 @@ async function initDB() {
       )
     `;
 
-    // MIGRATION: Add missing columns if table already existed
+    // MIGRATION: Check stats columns
     await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS kingdom TEXT`;
     await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_power BIGINT DEFAULT 0`;
     await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_deads BIGINT DEFAULT 0`;
     await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_kill_points BIGINT DEFAULT 0`;
     
+    // Tiers Table
     await sql`
         CREATE TABLE IF NOT EXISTS tiers (
             id SERIAL PRIMARY KEY, name TEXT NOT NULL, min_power BIGINT NOT NULL, max_power BIGINT NOT NULL,
             kill_multiplier DECIMAL(5,2) DEFAULT 1.00, death_multiplier DECIMAL(5,4) DEFAULT 0.0000
         )
     `;
+    
+    // Admins Table
     await sql`CREATE TABLE IF NOT EXISTS admins (discord_id TEXT PRIMARY KEY, note TEXT)`;
     await sql`INSERT INTO admins (discord_id, note) VALUES ('1211770249200795734', 'Super Admin') ON CONFLICT DO NOTHING`;
     
+    // Backups Table
     await sql`
         CREATE TABLE IF NOT EXISTS backups (
             id SERIAL PRIMARY KEY,
