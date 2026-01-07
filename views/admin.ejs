@@ -146,6 +146,16 @@
 
         <div class="section">
             <h2> Upload Stats</h2>
+            
+            <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:6px; margin-bottom:15px; font-size:0.9rem;">
+                <div style="opacity:0.6; font-size:0.8rem;">Previous Scan Info:</div>
+                <div style="margin-top:5px;">
+                    Last Kingdom: <strong style="color:#4ade80"><%= lastK ? lastK : 'N/A' %></strong>
+                    <span style="opacity:0.3; margin:0 8px;">|</span>
+                    Last End Date: <strong style="color:#4ade80"><%= lastD ? lastD : 'N/A' %></strong>
+                </div>
+            </div>
+
             <form id="uploadForm">
                 <input type="file" id="fileInput" class="form-control" accept=".xlsx,.xls">
                 <div class="progress-bar-bg" style="height:5px; background:rgba(255,255,255,0.1); margin:10px 0;"><div id="bar" style="height:100%; width:0%; background:#4ade80;"></div></div>

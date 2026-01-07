@@ -130,7 +130,18 @@ app.post('/link-account', isAuthenticated, async (req, res) => {
 app.get('/dashboard', isAuthenticated, async (req, res) => { try { const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); const k = await getConfig('current_kvk'); const u = await getUser(req.user.discordId); const a = await getAdmins(); res.render('dashboard', { user: {...req.user, ...u}, stats: sp, totals: t, tiers, currentKvK: k, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId) }); } catch { res.status(500).send('Error'); } });
 
 // Admin
-app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { try { const s = await getAllStats(); const t = await getAllTiers(); const a = await getAdmins(); const backups = await getBackups(); const g = await getConfig('discord_guild_id'); const k = await getConfig('current_kvk'); res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, guildId: g, currentKvK: k }); } catch { res.status(500).send('Error'); } });
+app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
+  try { 
+    const s = await getAllStats(); const t = await getAllTiers(); const a = await getAdmins(); const backups = await getBackups(); 
+    const g = await getConfig('discord_guild_id'); 
+    const k = await getConfig('current_kvk');
+    const lastK = await getConfig('last_scan_kingdom');
+    const lastD = await getConfig('last_scan_end_date');
+    
+    res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, guildId: g, currentKvK: k, lastK, lastD }); 
+  } catch { res.status(500).send('Error'); } 
+});
+
 app.post('/admin/config', isAuthenticated, isAdmin, async (req, res) => { await setConfig('discord_guild_id', req.body.guildId); res.redirect('/admin'); });
 app.post('/admin/kvk', isAuthenticated, isAdmin, async (req, res) => {
     const kvk = await getConfig('current_kvk');
