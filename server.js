@@ -221,14 +221,16 @@ app.post('/admin/upload/update', isAuthenticated, isAdmin, upload.single('file')
 // Reports API with more filtering options
 app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res) => {
     const stats = await getAllStats(); const tiers = await getAllTiers(); const sp = await calculateProgress(stats, tiers);
-    const list = sp.filter(s => !s.isCompliant).map(s => `${s.username} [${s.governor_id}] - Kills: ${s.killProgress}%, Deaths: ${s.deathProgress}%`);
+    // Updated Format: ID Username
+    const list = sp.filter(s => !s.isCompliant).map(s => `${s.governor_id} ${s.username} - Kills: ${s.killProgress}% | Deaths: ${s.deathProgress}%`);
     res.json(list);
 });
 app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const stats = await getAllStats(); const tiers = await getAllTiers(); const sp = await calculateProgress(stats, tiers);
     sp.sort((a,b) => (b.rawKillProgress + b.rawDeathProgress) - (a.rawKillProgress + a.rawDeathProgress));
-    const list = sp.slice(0, limit).map(s => `Top ${sp.indexOf(s)+1}: ${s.username} - Total Score: ${(s.killProgress+s.deathProgress).toFixed(1)}%`);
+    // Updated Format
+    const list = sp.slice(0, limit).map(s => `Top ${sp.indexOf(s)+1}: ${s.governor_id} ${s.username} - Score: ${(s.killProgress+s.deathProgress).toFixed(1)}%`);
     res.json(list);
 });
 
