@@ -1,166 +1,207 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sovereign Empire</title>
+  <link rel="icon" href="/Logo.jpg" type="image/jpg" />
+  <link rel="stylesheet" href="/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/script.js" defer></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
+    /* Additions for Stats Buttons */
+    .stats-actions {
+      margin: 30px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-      color: white;
-      text-align: center;
-      overflow-x: hidden;
-    }
-    
-    .background-effects {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
-    
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.4;
-      animation: float 8s ease-in-out infinite;
-    }
-    
-    .orb-1 { width: 400px; height: 400px; background: linear-gradient(45deg, #667eea, #764ba2); top: -100px; left: -100px; }
-    .orb-2 { width: 300px; height: 300px; background: linear-gradient(45deg, #f093fb, #f5576c); bottom: -50px; right: -50px; animation-delay: -4s; }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-30px) rotate(10deg); }
-    }
-
-    .container {
+      gap: 15px;
+      z-index: 10;
       position: relative;
-      z-index: 1;
-      max-width: 800px;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
-
-    h1 {
-      font-size: 3.5rem;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    p {
+    
+    .view-stats-btn {
+      background: linear-gradient(135deg, #a78bfa 0%, #f093fb 100%);
+      color: white;
+      padding: 16px 40px;
+      border-radius: 50px;
       font-size: 1.2rem;
-      color: rgba(255, 255, 255, 0.7);
-      margin-bottom: 40px;
-      line-height: 1.6;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 15px 30px;
-      border-radius: 12px;
-      font-weight: 600;
-      text-decoration: none;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(167, 139, 250, 0.4);
       transition: all 0.3s ease;
-      font-size: 1.1rem;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 10px;
     }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 30px rgba(102, 126, 234, 0.5);
+    
+    .view-stats-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(167, 139, 250, 0.6);
     }
     
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-3px);
+    .auth-options {
+      display: flex;
+      gap: 15px;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: all 0.3s ease;
+      height: 0;
+      overflow: hidden;
     }
     
-    .btn-discord {
-        background: #5865F2;
-        color: white;
+    .stats-actions:hover .auth-options, 
+    .stats-actions.active .auth-options {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+      height: auto;
+      margin-top: 15px;
     }
-    .btn-discord:hover {
-        background: #4752c4;
-        transform: translateY(-3px);
+    
+    .action-btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-
-    footer {
-      margin-top: 60px;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.9rem;
-    }
-
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+    
+    .btn-login { background: #5865F2; }
+    .btn-public { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); }
+    
+    .action-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
   </style>
 </head>
+
 <body>
-  <div class="background-effects">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-  </div>
+  <main class="main">
+    <section class="hero">
+      <h1>Sovereign Empire</h1>
+      <p class="subtitle"> Sovereign Empire</p>
+      
+      <!-- STATS ACTION SECTION -->
+      <div class="stats-actions" onclick="this.classList.toggle('active')">
+        <button class="view-stats-btn">
+           View Stats & Progress
+        </button>
+        <div class="auth-options">
+          <a href="/login" class="action-btn btn-login"> Member Login</a>
+          <a href="/stats" class="action-btn btn-public"> Public Stats</a>
+        </div>
+      </div>
+      
+      <div class="tags">
+        <span> ROK</span>
+        <span> Organized</span>
+        <span> Spenders</span>
+        <span> Veterans</span>
+        <span> 2027</span>
+      </div>
+      <p class="launch"> Launching February 1, 2027</p>
+    </section>
 
-  <div class="container">
-    <div style="font-size: 4rem; margin-bottom: 20px;"></div>
-    <h1>Sovereign Empire</h1>
-    <p>
-      Welcome to the official Sovereign Empire tracking system.<br>
-      Manage your stats, track your progress, and conquer the kingdom.
-    </p>
+    <section class="countdown">
+      <div class="countdown-box"><span id="days">00</span><label> Days</label></div>
+      <div class="countdown-box"><span id="hours">00</span><label> Hours</label></div>
+      <div class="countdown-box"><span id="minutes">00</span><label> Minutes</label></div>
+      <div class="countdown-box"><span id="seconds">00</span><label> Seconds</label></div>
+    </section>
 
-    <div class="btn-group">
-      <a href="/login" class="btn btn-primary">
-         Login to Dashboard
+    <section class="panels">
+      <div class="panel small">
+        <h2> Current Members</h2>
+        <p id="member-count"> Loading...</p>
+      </div>
+      <div class="panel small">
+        <h2> Goal</h2>
+        <p> 4000+ Members United</p>
+      </div>
+      <div class="panel small">
+        <h2> Identity</h2>
+        <p> 100% Fighters. No Farmers.</p>
+      </div>
+    </section>
+
+    <section class="discord">
+      <a href="https://discord.gg/BY2f2vPM4G" class="discord-button" target="_blank">
+         Join Our Discord
       </a>
-      <a href="/stats" class="btn btn-secondary">
-         Public Stats
-      </a>
-      <a href="https://discord.gg/BY2f2vPM4G" target="_blank" class="btn btn-discord">
-         Join Discord
-      </a>
-    </div>
+    </section>
+
+    <section class="sovereign-empire">
+      <div class="sovereign-grid">
+        <div class="sovereign-card">
+          <h3> Our Goals</h3>
+          <ul>
+            <li>4000+ Active Members</li>
+            <li>Become an Imperium kingdom</li>
+            <li>Dominate KvK 1 & KvK 2</li>
+            <li>Become the Best Project of all ROK</li>
+          </ul>
+        </div>
+
+        <div class="sovereign-card">
+          <h3> What We Offer</h3>
+          <ul>
+            <li>Leaders with high experience</li>
+            <li>Applications available for R4 & R5</li>
+            <li>Professional Discord server</li>
+          </ul>
+        </div>
+
+        <div class="sovereign-card">
+          <h3> Who We are Looking For</h3>
+          <ul>
+            <li>F2P and P2W Players</li>
+            <li>Real Fighters Not Farmers</li>
+            <li>Active & Professional Members</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sovereign-footer">
+        <div class="sovereign-contact">
+          <h3> Contact Details</h3>
+          <div class="contact-buttons-row">
+            <a href="https://discord.com/users/1211770249200795734" target="_blank" class="mini-contact-btn">@dcuadra</a>
+            <a href="https://discord.com/users/989242012450553856" target="_blank" class="mini-contact-btn">@Catcher</a>
+          </div>
+        </div>
+        <blockquote class="sovereign-quote">
+          While everyone is reaching for the stars  we reach for what is beyond.
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="bottom-panels">
+      <div class="bottom-panel">
+        <h2> Server Status</h2>
+        <div id="server-status-content">
+          <p><strong>Status:</strong> <span style="color:#22c55e;">Online</span></p>
+          <p><strong>Region:</strong> Global</p>
+        </div>
+      </div>
+      <div class="bottom-panel contact-block">
+        <h2> Contact Us</h2>
+        <div class="contact-list">
+          <a href="https://discord.com/users/1211770249200795734" class="contact-button" target="_blank"> dcuadra</a>
+        </div>
+      </div>
+    </section>
 
     <footer>
-      <p>&copy; 2027 Sovereign Empire. All rights reserved.</p>
-      <p style="margin-top: 10px; font-size: 0.8rem;">Questions? Contact @dcuadra on Discord</p>
+      <p> 2027 Sovereign Empire.  All rights reserved.</p>
     </footer>
-  </div>
+  </main>
 </body>
 </html>
