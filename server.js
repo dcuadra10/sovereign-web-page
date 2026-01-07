@@ -59,6 +59,17 @@ app.get('/', (req, res) => {
   res.render('login');
 });
 
+// Public stats page (no login required)
+app.get('/stats', async (req, res) => {
+  try {
+    const stats = await getAllStats();
+    res.render('stats', { stats });
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).send('Error loading stats');
+  }
+});
+
 app.get('/auth/discord', passport.authenticate('discord'));
 
 app.get('/auth/discord/callback',
@@ -104,23 +115,21 @@ app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), async
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
     
-    // Skip header row
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       if (row[0]) {
-        // Combine T5 Deaths (index 4) + T4 Deaths (index 5) into deads
         const t5Deaths = parseInt(row[4]) || 0;
         const t4Deaths = parseInt(row[5]) || 0;
         const deads = t5Deaths + t4Deaths;
         
         await upsertStats(
-          String(row[0]),       // governorId
-          row[1] || '',         // username
-          parseInt(row[2]) || 0, // power
-          parseInt(row[3]) || 0, // highestPower
-          deads,                 // deads (T4 + T5)
-          parseInt(row[6]) || 0, // totalKillPoints
-          parseInt(row[7]) || 0  // resourcesGathered
+          String(row[0]),
+          row[1] || '',
+          parseInt(row[2]) || 0,
+          parseInt(row[3]) || 0,
+          deads,
+          parseInt(row[6]) || 0,
+          parseInt(row[7]) || 0
         );
       }
     }
@@ -132,7 +141,6 @@ app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), async
   }
 });
 
-// API endpoint for stats
 app.get('/api/stats', async (req, res) => {
   try {
     const stats = await getAllStats();
@@ -142,7 +150,6 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
-// Start server (only for local development)
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
