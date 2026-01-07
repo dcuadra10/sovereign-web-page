@@ -8,47 +8,52 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; }
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; }
     .nav-links { display: flex; gap: 20px; }
-    .btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; border: none; cursor: pointer; font-size: 1rem; }
+    .btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s; border: none; cursor: pointer; font-size: 1rem; }
     .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
     .btn-danger { background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); color: white; }
-    .btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+    .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+    .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 40px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
     .page-header { margin-bottom: 40px; }
     .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .page-header p { color: rgba(255, 255, 255, 0.6); }
-    .upload-section { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; margin-bottom: 40px; }
-    .upload-section h2 { margin-bottom: 10px; font-size: 1.5rem; }
-    .upload-section p { color: rgba(255, 255, 255, 0.5); margin-bottom: 20px; font-size: 0.9rem; }
-    .upload-form { display: flex; flex-direction: column; gap: 20px; }
+    .page-header p { color: rgba(255,255,255,0.6); }
+    .section { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; margin-bottom: 30px; }
+    .section h2 { margin-bottom: 20px; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+    .form-control { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; font-size: 1rem; }
+    .form-control:focus { outline: none; border-color: #a78bfa; }
+    .tier-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+    .tier-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .tier-name { font-weight: 600; font-size: 1.1rem; }
+    .tier-details { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
     .file-input { display: none; }
-    .file-label { display: inline-flex; align-items: center; gap: 10px; padding: 20px 30px; background: rgba(255, 255, 255, 0.1); border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; }
-    .file-label:hover { border-color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
-    .file-name { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin-top: 10px; }
-    .upload-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+    .file-label { display: inline-flex; align-items: center; gap: 10px; padding: 20px 30px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 12px; cursor: pointer; }
+    .file-label:hover { border-color: #a78bfa; }
+    .file-name { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 10px; }
+    .upload-buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
     .progress-container { display: none; margin-top: 20px; }
     .progress-container.show { display: block; }
-    .progress-bar-bg { width: 100%; height: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
-    .progress-bar { height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; transition: width 0.3s ease; width: 0%; }
-    .progress-text { text-align: center; margin-top: 10px; color: rgba(255, 255, 255, 0.8); }
+    .progress-bar-bg { width: 100%; height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; transition: width 0.3s; width: 0%; }
+    .progress-text { text-align: center; margin-top: 10px; color: rgba(255,255,255,0.8); }
     .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
-    .alert-success { background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #22c55e; }
-    .alert-error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; }
-    .alert-warning { background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.5); color: #eab308; }
-    .stats-table-container { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; }
-    .stats-table-header { padding: 25px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
-    .stats-table-header h2 { font-size: 1.3rem; }
-    .stats-count { background: rgba(167, 139, 250, 0.2); color: #a78bfa; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
+    .alert-success { background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.5); color: #22c55e; }
+    .alert-error { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); color: #ef4444; }
+    .alert-warning { background: rgba(234,179,8,0.2); border: 1px solid rgba(234,179,8,0.5); color: #eab308; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-    th { background: rgba(255, 255, 255, 0.03); color: rgba(255, 255, 255, 0.6); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; }
-    tr:hover { background: rgba(255, 255, 255, 0.03); }
-    .table-wrapper { max-height: 500px; overflow-y: auto; }
-    .empty-table { text-align: center; padding: 60px; color: rgba(255, 255, 255, 0.5); }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
+    .table-wrapper { max-height: 400px; overflow-y: auto; }
+    .empty-state { text-align: center; padding: 40px; color: rgba(255,255,255,0.5); }
   </style>
 </head>
 <body>
@@ -66,17 +71,79 @@
   <div class="container">
     <div class="page-header">
       <h1> Admin Panel</h1>
-      <p>Upload and manage kingdom statistics</p>
+      <p>Configure tiers, requirements, and upload stats</p>
     </div>
     
     <div id="alertContainer"></div>
     
-    <div class="upload-section">
-      <h2> Upload Stats File</h2>
-      <p>Select an Excel file (.xlsx) with columns: Character ID, Username, Highest Power, T5 Deaths, T4 Deaths, Total Kill Points, Resources Gathered</p>
+    <div class="grid-2">
+      <!-- TIER CONFIGURATION -->
+      <div class="section">
+        <h2> Tier Requirements</h2>
+        <p style="color: rgba(255,255,255,0.5); margin-bottom: 20px; font-size: 0.9rem;">
+          Configure kill requirements based on power tiers. Kill Multiplier is the % of initial power required as kill points.
+        </p>
+        
+        <form action="/admin/tier" method="POST">
+          <input type="hidden" name="id" id="tierId">
+          <div class="form-group">
+            <label>Tier Name</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. 100M Tier" required id="tierName">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Min Power</label>
+              <input type="number" name="minPower" class="form-control" placeholder="100000000" required id="tierMin">
+            </div>
+            <div class="form-group">
+              <label>Max Power</label>
+              <input type="number" name="maxPower" class="form-control" placeholder="200000000" required id="tierMax">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Kill Multiplier (e.g. 1.0 = 100%)</label>
+              <input type="number" step="0.01" name="killMultiplier" class="form-control" placeholder="1.00" required id="tierKill">
+            </div>
+            <div class="form-group">
+              <label>Death Requirement</label>
+              <input type="number" name="deathRequirement" class="form-control" placeholder="500000" required id="tierDeath">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success"> Save Tier</button>
+        </form>
+        
+        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+        
+        <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Current Tiers</h3>
+        <% if (tiers.length === 0) { %>
+          <div class="empty-state">No tiers configured yet</div>
+        <% } else { %>
+          <% tiers.forEach(tier => { %>
+            <div class="tier-card">
+              <div class="tier-header">
+                <span class="tier-name"><%= tier.name %></span>
+                <div>
+                  <button class="btn btn-secondary btn-sm" onclick="editTier(<%= tier.id %>, '<%= tier.name %>', <%= tier.min_power %>, <%= tier.max_power %>, <%= tier.kill_multiplier %>, <%= tier.death_requirement %>)"></button>
+                  <form action="/admin/tier/delete" method="POST" style="display: inline;">
+                    <input type="hidden" name="id" value="<%= tier.id %>">
+                    <button class="btn btn-danger btn-sm" onclick="return confirm('Delete this tier?')"></button>
+                  </form>
+                </div>
+              </div>
+              <div class="tier-details">
+                Power: <%= Number(tier.min_power).toLocaleString() %> - <%= Number(tier.max_power).toLocaleString() %><br>
+                Kill Req: <%= (tier.kill_multiplier * 100).toFixed(0) %>% of power | Death Req: <%= Number(tier.death_requirement).toLocaleString() %>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
       
-      <form id="uploadForm" class="upload-form">
-        <div>
+      <!-- FILE UPLOAD -->
+      <div class="section">
+        <h2> Upload Stats</h2>
+        <form id="uploadForm">
           <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls" required>
           <label for="fileInput" class="file-label">
             <span style="font-size: 2rem;"></span>
@@ -86,62 +153,50 @@
             </div>
           </label>
           <div class="file-name" id="fileName">No file selected</div>
-        </div>
+          
+          <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="progress-text" id="progressText">Uploading... 0%</div>
+          </div>
+          
+          <div class="upload-buttons">
+            <button type="button" class="btn btn-danger" onclick="uploadFile('creation')"> Creation</button>
+            <button type="button" class="btn btn-primary" onclick="uploadFile('update')"> Update</button>
+          </div>
+        </form>
         
-        <div class="progress-container" id="progressContainer">
-          <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
-          <div class="progress-text" id="progressText">Uploading... 0%</div>
+        <div class="alert alert-warning" style="margin-top: 20px;">
+           <strong>Creation</strong>: Deletes all & saves initial values for progress tracking<br>
+           <strong>Update</strong>: Updates current stats, calculates progress from initial
         </div>
-        
-        <div class="upload-buttons">
-          <button type="button" class="btn btn-danger" id="creationBtn" onclick="uploadFile('creation')">
-             Creation (Replace All)
-          </button>
-          <button type="button" class="btn btn-primary" id="updateBtn" onclick="uploadFile('update')">
-             Update (Add/Modify)
-          </button>
-        </div>
-      </form>
-      
-      <div class="alert alert-warning" style="margin-top: 20px;">
-         <strong>Creation</strong> will DELETE all existing stats and upload fresh data.<br>
-         <strong>Update</strong> will add new entries and update existing ones (keeps old data).
       </div>
     </div>
     
-    <div class="stats-table-container">
-      <div class="stats-table-header">
-        <h2> Current Stats</h2>
-        <span class="stats-count"><%= stats.length %> members</span>
-      </div>
-      
+    <!-- STATS TABLE -->
+    <div class="section">
+      <h2> Current Stats <span style="font-size: 0.9rem; color: #a78bfa;">(<%= stats.length %> members)</span></h2>
       <% if (stats.length === 0) { %>
-        <div class="empty-table">
-          <div style="font-size: 3rem; margin-bottom: 15px;"></div>
-          <div>No stats uploaded yet. Upload an Excel file to get started.</div>
-        </div>
+        <div class="empty-state">No stats uploaded yet</div>
       <% } else { %>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>Governor ID</th>
+                <th>ID</th>
                 <th>Username</th>
                 <th>Highest Power</th>
-                <th> Deads</th>
+                <th>Deads</th>
                 <th>Kill Points</th>
-                <th>Resources</th>
               </tr>
             </thead>
             <tbody>
-              <% stats.forEach(stat => { %>
+              <% stats.forEach(s => { %>
                 <tr>
-                  <td><%= stat.governor_id %></td>
-                  <td><%= stat.username %></td>
-                  <td><%= Number(stat.highest_power || 0).toLocaleString() %></td>
-                  <td><%= Number(stat.deads || 0).toLocaleString() %></td>
-                  <td><%= Number(stat.total_kill_points || 0).toLocaleString() %></td>
-                  <td><%= Number(stat.resources_gathered || 0).toLocaleString() %></td>
+                  <td><%= s.governor_id %></td>
+                  <td><%= s.username %></td>
+                  <td><%= Number(s.highest_power || 0).toLocaleString() %></td>
+                  <td><%= Number(s.deads || 0).toLocaleString() %></td>
+                  <td><%= Number(s.total_kill_points || 0).toLocaleString() %></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -152,79 +207,63 @@
   </div>
   
   <script>
-    const fileInput = document.getElementById('fileInput');
-    const fileName = document.getElementById('fileName');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const alertContainer = document.getElementById('alertContainer');
-    
-    fileInput.addEventListener('change', (e) => {
-      fileName.textContent = e.target.files.length > 0 ? e.target.files[0].name : 'No file selected';
+    document.getElementById('fileInput').addEventListener('change', e => {
+      document.getElementById('fileName').textContent = e.target.files[0]?.name || 'No file selected';
     });
     
+    function editTier(id, name, min, max, kill, death) {
+      document.getElementById('tierId').value = id;
+      document.getElementById('tierName').value = name;
+      document.getElementById('tierMin').value = min;
+      document.getElementById('tierMax').value = max;
+      document.getElementById('tierKill').value = kill;
+      document.getElementById('tierDeath').value = death;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
     function uploadFile(type) {
-      const file = fileInput.files[0];
-      if (!file) {
-        showAlert('Please select a file first', 'error');
-        return;
-      }
-      
-      if (type === 'creation') {
-        if (!confirm(' This will DELETE ALL existing stats and upload fresh data. Are you sure?')) {
-          return;
-        }
-      }
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return alert('Select a file first');
+      if (type === 'creation' && !confirm(' This will DELETE ALL existing stats. Continue?')) return;
       
       const formData = new FormData();
       formData.append('file', file);
       
-      progressContainer.classList.add('show');
-      document.getElementById('creationBtn').disabled = true;
-      document.getElementById('updateBtn').disabled = true;
+      const prog = document.getElementById('progressContainer');
+      const bar = document.getElementById('progressBar');
+      const txt = document.getElementById('progressText');
+      prog.classList.add('show');
       
       const xhr = new XMLHttpRequest();
-      
-      xhr.upload.addEventListener('progress', (e) => {
+      xhr.upload.onprogress = e => {
         if (e.lengthComputable) {
-          const percent = Math.round((e.loaded / e.total) * 100);
-          progressBar.style.width = percent + '%';
-          progressText.textContent = `Uploading... ${percent}%`;
+          const pct = Math.round((e.loaded / e.total) * 100);
+          bar.style.width = pct + '%';
+          txt.textContent = 'Uploading... ' + pct + '%';
         }
-      });
-      
-      xhr.addEventListener('load', () => {
+      };
+      xhr.onload = () => {
         if (xhr.status === 200) {
-          progressBar.style.width = '100%';
-          progressText.textContent = 'Complete!';
-          showAlert(xhr.responseText, 'success');
+          bar.style.width = '100%';
+          txt.textContent = 'Complete!';
+          document.getElementById('alertContainer').innerHTML = '<div class="alert alert-success"> ' + xhr.responseText + '</div>';
           setTimeout(() => location.reload(), 1500);
         } else {
-          showAlert('Upload failed: ' + xhr.responseText, 'error');
-          resetProgress();
+          document.getElementById('alertContainer').innerHTML = '<div class="alert alert-error"> ' + xhr.responseText + '</div>';
+          prog.classList.remove('show');
         }
-      });
-      
-      xhr.addEventListener('error', () => {
-        showAlert('Upload failed. Please try again.', 'error');
-        resetProgress();
-      });
-      
-      xhr.open('POST', `/admin/upload/${type}`);
+      };
+      xhr.onerror = () => {
+        document.getElementById('alertContainer').innerHTML = '<div class="alert alert-error"> Upload failed</div>';
+        prog.classList.remove('show');
+      };
+      xhr.open('POST', '/admin/upload/' + type);
       xhr.send(formData);
     }
     
-    function showAlert(message, type) {
-      alertContainer.innerHTML = `<div class="alert alert-${type}">${type === 'success' ? '' : ''} ${message}</div>`;
-    }
-    
-    function resetProgress() {
-      progressContainer.classList.remove('show');
-      progressBar.style.width = '0%';
-      progressText.textContent = 'Uploading... 0%';
-      document.getElementById('creationBtn').disabled = false;
-      document.getElementById('updateBtn').disabled = false;
-    }
+    const params = new URLSearchParams(location.search);
+    if (params.get('success')) document.getElementById('alertContainer').innerHTML = '<div class="alert alert-success"> ' + params.get('success') + '</div>';
+    if (params.get('error')) document.getElementById('alertContainer').innerHTML = '<div class="alert alert-error"> ' + decodeURIComponent(params.get('error')) + '</div>';
   </script>
 </body>
 </html>
