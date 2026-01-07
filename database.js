@@ -20,7 +20,7 @@ async function initDB() {
       )
     `;
 
-    // MIGRATION: Check stats columns
+    // MIGRATION: Check stats columns (Idempotent)
     await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS kingdom TEXT`;
     await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_power BIGINT DEFAULT 0`;
     await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_deads BIGINT DEFAULT 0`;
@@ -67,11 +67,55 @@ async function getConfig(key) { const r = await sql`SELECT value FROM config WHE
 
 async function getAllStats() { return await sql`SELECT * FROM stats ORDER BY highest_power DESC`; }
 async function getKingdomTotals() { const r = await sql`SELECT COUNT(*) as count, SUM(highest_power) as total_power, SUM(total_kill_points) as total_kills, SUM(deads) as total_deads FROM stats`; return r[0]; }
+
+// MODIFIED: upsertStats now sets initial values ON INSERT, but does NOT update them on conflict.
+// This ensures that if a user is new (mid-season), their current stats become their baseline.
+// If they already exist, their baseline is preserved.
 async function upsertStats(govId, name, kingdom, power, deads, kills, rss) {
-  await sql`INSERT INTO stats (governor_id, username, kingdom, highest_power, deads, total_kill_points, resources_gathered) VALUES (${govId}, ${name}, ${kingdom}, ${power}, ${deads}, ${kills}, ${rss}) ON CONFLICT (governor_id) DO UPDATE SET username = EXCLUDED.username, kingdom = EXCLUDED.kingdom, highest_power = EXCLUDED.highest_power, deads = EXCLUDED.deads, total_kill_points = EXCLUDED.total_kill_points, resources_gathered = EXCLUDED.resources_gathered`;
+  await sql`
+    INSERT INTO stats (
+        governor_id, username, kingdom, 
+        highest_power, deads, total_kill_points, resources_gathered,
+        initial_power, initial_deads, initial_kill_points
+    ) VALUES (
+        ${govId}, ${name}, ${kingdom}, 
+        ${power}, ${deads}, ${kills}, ${rss},
+        ${power}, ${deads}, ${kills}
+    ) 
+    ON CONFLICT (governor_id) DO UPDATE SET 
+        username = EXCLUDED.username, 
+        kingdom = EXCLUDED.kingdom, 
+        highest_power = EXCLUDED.highest_power, 
+        deads = EXCLUDED.deads, 
+        total_kill_points = EXCLUDED.total_kill_points, 
+        resources_gathered = EXCLUDED.resources_gathered
+    -- Note: initial_* columns are NOT in the UPDATE set, preserving original values.
+  `;
 }
+
+// createStatsWithInitial: Used for "Creation/Reset" uploads. Force resets everything including initials.
 async function createStatsWithInitial(govId, name, kingdom, power, deads, kills, rss) {
-  await sql`INSERT INTO stats (governor_id, username, kingdom, highest_power, deads, total_kill_points, resources_gathered, initial_power, initial_deads, initial_kill_points) VALUES (${govId}, ${name}, ${kingdom}, ${power}, ${deads}, ${kills}, ${rss}, ${power}, ${deads}, ${kills}) ON CONFLICT (governor_id) DO UPDATE SET username = EXCLUDED.username, kingdom = EXCLUDED.kingdom, highest_power = EXCLUDED.highest_power, deads = EXCLUDED.deads, total_kill_points = EXCLUDED.total_kill_points, resources_gathered = EXCLUDED.resources_gathered, initial_power = EXCLUDED.initial_power, initial_deads = EXCLUDED.initial_deads, initial_kill_points = EXCLUDED.initial_kill_points`;
+  await sql`
+    INSERT INTO stats (
+        governor_id, username, kingdom, 
+        highest_power, deads, total_kill_points, resources_gathered, 
+        initial_power, initial_deads, initial_kill_points
+    ) VALUES (
+        ${govId}, ${name}, ${kingdom}, 
+        ${power}, ${deads}, ${kills}, ${rss}, 
+        ${power}, ${deads}, ${kills}
+    ) 
+    ON CONFLICT (governor_id) DO UPDATE SET 
+        username = EXCLUDED.username, 
+        kingdom = EXCLUDED.kingdom, 
+        highest_power = EXCLUDED.highest_power, 
+        deads = EXCLUDED.deads, 
+        total_kill_points = EXCLUDED.total_kill_points, 
+        resources_gathered = EXCLUDED.resources_gathered, 
+        initial_power = EXCLUDED.initial_power, 
+        initial_deads = EXCLUDED.initial_deads, 
+        initial_kill_points = EXCLUDED.initial_kill_points
+  `;
 }
 async function clearAllStats() { await sql`DELETE FROM stats`; }
 
