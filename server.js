@@ -28,6 +28,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Configure multer for memory storage (works better on serverless)
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
+
 // Get user from JWT cookie
 function getUserFromToken(req) {
   try {
@@ -58,19 +64,13 @@ function isAdmin(req, res, next) {
   res.status(403).send('Forbidden');
 }
 
-// File upload
-const upload = multer({ dest: '/tmp/uploads/' });
-
 // Routes
 app.get('/', (req, res) => {
   const user = getUserFromToken(req);
-  if (user) {
-    return res.redirect('/dashboard');
-  }
+  if (user) return res.redirect('/dashboard');
   res.render('login');
 });
 
-// Public stats
 app.get('/stats', async (req, res) => {
   try {
     const stats = await getAllStats();
@@ -80,7 +80,6 @@ app.get('/stats', async (req, res) => {
   }
 });
 
-// Discord OAuth - redirect to Discord
 app.get('/auth/discord', (req, res) => {
   const clientId = process.env.DISCORD_CLIENT_ID;
   const redirectUri = encodeURIComponent(process.env.DISCORD_CALLBACK_URL);
@@ -88,15 +87,11 @@ app.get('/auth/discord', (req, res) => {
   res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`);
 });
 
-// Discord OAuth callback
 app.get('/auth/discord/callback', async (req, res) => {
   const code = req.query.code;
-  if (!code) {
-    return res.redirect('/?error=no_code');
-  }
+  if (!code) return res.redirect('/?error=no_code');
 
   try {
-    // Exchange code for token
     const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -115,16 +110,13 @@ app.get('/auth/discord/callback', async (req, res) => {
       return res.redirect('/?error=token_failed');
     }
 
-    // Get user info
     const userResponse = await fetch('https://discord.com/api/users/@me', {
       headers: { Authorization: `Bearer ${tokenData.access_token}` }
     });
     const userData = await userResponse.json();
 
-    // Save to database
     await upsertUser(userData.id, userData.username, userData.avatar);
 
-    // Create JWT token
     const token = jwt.sign({
       discordId: userData.id,
       username: userData.username,
@@ -132,7 +124,6 @@ app.get('/auth/discord/callback', async (req, res) => {
       isAdmin: userData.id === ADMIN_ID
     }, JWT_SECRET, { expiresIn: '7d' });
 
-    // Set cookie
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -174,12 +165,19 @@ app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
   }
 });
 
+// Fixed upload endpoint - uses memory storage
 app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
   try {
-    const workbook = xlsx.readFile(req.file.path);
+    if (!req.file) {
+      return res.status(400).send('No file uploaded');
+    }
+
+    // Read Excel from buffer
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
     
+    let processed = 0;
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       if (row[0]) {
@@ -196,12 +194,14 @@ app.post('/admin/upload', isAuthenticated, isAdmin, upload.single('file'), async
           parseInt(row[6]) || 0,
           parseInt(row[7]) || 0
         );
+        processed++;
       }
     }
     
-    res.redirect('/admin?success=1');
+    res.status(200).send(`Successfully processed ${processed} records`);
   } catch (error) {
-    res.redirect('/admin?error=' + encodeURIComponent(error.message));
+    console.error('Upload error:', error);
+    res.status(500).send('Upload failed: ' + error.message);
   }
 });
 

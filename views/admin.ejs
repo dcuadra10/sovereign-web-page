@@ -7,14 +7,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
       background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
       color: #fff;
     }
-    
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -24,7 +22,6 @@
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
     .nav-brand {
       display: flex;
       align-items: center;
@@ -32,12 +29,7 @@
       font-size: 1.3rem;
       font-weight: 700;
     }
-    
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
-    
+    .nav-links { display: flex; gap: 20px; }
     .btn {
       padding: 10px 20px;
       border-radius: 8px;
@@ -48,32 +40,29 @@
       cursor: pointer;
       font-size: 1rem;
     }
-    
     .btn-primary {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
     }
-    
     .btn-secondary {
       background: rgba(255, 255, 255, 0.1);
       color: white;
     }
-    
     .btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     }
-    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 40px;
     }
-    
-    .page-header {
-      margin-bottom: 40px;
-    }
-    
+    .page-header { margin-bottom: 40px; }
     .page-header h1 {
       font-size: 2.5rem;
       margin-bottom: 10px;
@@ -82,11 +71,7 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
-    .page-header p {
-      color: rgba(255, 255, 255, 0.6);
-    }
-    
+    .page-header p { color: rgba(255, 255, 255, 0.6); }
     .upload-section {
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(10px);
@@ -95,27 +80,9 @@
       padding: 40px;
       margin-bottom: 40px;
     }
-    
-    .upload-section h2 {
-      margin-bottom: 20px;
-      font-size: 1.5rem;
-    }
-    
-    .upload-form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    
-    .file-input-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-    
-    .file-input {
-      display: none;
-    }
-    
+    .upload-section h2 { margin-bottom: 20px; font-size: 1.5rem; }
+    .upload-form { display: flex; flex-direction: column; gap: 20px; }
+    .file-input { display: none; }
     .file-label {
       display: inline-flex;
       align-items: center;
@@ -127,36 +94,54 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-    
     .file-label:hover {
       border-color: #a78bfa;
       background: rgba(167, 139, 250, 0.1);
     }
-    
     .file-name {
       color: rgba(255, 255, 255, 0.6);
       font-size: 0.9rem;
       margin-top: 10px;
     }
-    
+    .progress-container {
+      display: none;
+      margin-top: 20px;
+    }
+    .progress-container.show { display: block; }
+    .progress-bar-bg {
+      width: 100%;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+    .progress-text {
+      text-align: center;
+      margin-top: 10px;
+      color: rgba(255, 255, 255, 0.8);
+    }
     .alert {
       padding: 15px 20px;
       border-radius: 10px;
       margin-bottom: 20px;
     }
-    
     .alert-success {
       background: rgba(34, 197, 94, 0.2);
       border: 1px solid rgba(34, 197, 94, 0.5);
       color: #22c55e;
     }
-    
     .alert-error {
       background: rgba(239, 68, 68, 0.2);
       border: 1px solid rgba(239, 68, 68, 0.5);
       color: #ef4444;
     }
-    
     .stats-table-container {
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(10px);
@@ -164,7 +149,6 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       overflow: hidden;
     }
-    
     .stats-table-header {
       padding: 25px 30px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -172,11 +156,7 @@
       justify-content: space-between;
       align-items: center;
     }
-    
-    .stats-table-header h2 {
-      font-size: 1.3rem;
-    }
-    
+    .stats-table-header h2 { font-size: 1.3rem; }
     .stats-count {
       background: rgba(167, 139, 250, 0.2);
       color: #a78bfa;
@@ -184,36 +164,21 @@
       border-radius: 20px;
       font-size: 0.9rem;
     }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
+    table { width: 100%; border-collapse: collapse; }
     th, td {
       padding: 15px 20px;
       text-align: left;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    
     th {
       background: rgba(255, 255, 255, 0.03);
       color: rgba(255, 255, 255, 0.6);
       font-weight: 500;
       font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
-    
-    tr:hover {
-      background: rgba(255, 255, 255, 0.03);
-    }
-    
-    .table-wrapper {
-      max-height: 500px;
-      overflow-y: auto;
-    }
-    
+    tr:hover { background: rgba(255, 255, 255, 0.03); }
+    .table-wrapper { max-height: 500px; overflow-y: auto; }
     .empty-table {
       text-align: center;
       padding: 60px;
@@ -240,18 +205,12 @@
       <p>Upload and manage kingdom statistics</p>
     </div>
     
-    <% 
-      const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    %>
-    
-    <% if (typeof success !== 'undefined' || (typeof locals !== 'undefined' && locals.success)) { %>
-      <div class="alert alert-success"> Stats uploaded successfully!</div>
-    <% } %>
+    <div id="alertContainer"></div>
     
     <div class="upload-section">
       <h2> Upload Stats File</h2>
-      <form action="/admin/upload" method="POST" enctype="multipart/form-data" class="upload-form">
-        <div class="file-input-wrapper">
+      <form id="uploadForm" class="upload-form">
+        <div>
           <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls" required>
           <label for="fileInput" class="file-label">
             <span style="font-size: 2rem;"></span>
@@ -262,7 +221,15 @@
           </label>
           <div class="file-name" id="fileName">No file selected</div>
         </div>
-        <button type="submit" class="btn btn-primary"> Upload & Update Stats</button>
+        
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar-bg">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="progress-text" id="progressText">Uploading... 0%</div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="submitBtn"> Upload & Update Stats</button>
       </form>
     </div>
     
@@ -293,12 +260,12 @@
             <tbody>
               <% stats.forEach(stat => { %>
                 <tr>
-                  <td><%= stat.governorId %></td>
+                  <td><%= stat.governor_id %></td>
                   <td><%= stat.username %></td>
-                  <td><%= stat.power?.toLocaleString() || 0 %></td>
-                  <td><%= stat.highestPower?.toLocaleString() || 0 %></td>
-                  <td><%= stat.deads?.toLocaleString() || 0 %></td>
-                  <td><%= stat.totalKillPoints?.toLocaleString() || 0 %></td>
+                  <td><%= Number(stat.power || 0).toLocaleString() %></td>
+                  <td><%= Number(stat.highest_power || 0).toLocaleString() %></td>
+                  <td><%= Number(stat.deads || 0).toLocaleString() %></td>
+                  <td><%= Number(stat.total_kill_points || 0).toLocaleString() %></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -311,27 +278,79 @@
   <script>
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
+    const uploadForm = document.getElementById('uploadForm');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const submitBtn = document.getElementById('submitBtn');
+    const alertContainer = document.getElementById('alertContainer');
     
     fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        fileName.textContent = e.target.files[0].name;
-      } else {
-        fileName.textContent = 'No file selected';
-      }
+      fileName.textContent = e.target.files.length > 0 ? e.target.files[0].name : 'No file selected';
     });
     
-    // Check for success in URL
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const file = fileInput.files[0];
+      if (!file) {
+        showAlert('Please select a file', 'error');
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Show progress
+      progressContainer.classList.add('show');
+      submitBtn.disabled = true;
+      
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = percent + '%';
+          progressText.textContent = `Uploading... ${percent}%`;
+        }
+      });
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200) {
+          progressBar.style.width = '100%';
+          progressText.textContent = 'Processing complete!';
+          showAlert('Stats uploaded successfully!', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showAlert('Upload failed: ' + xhr.responseText, 'error');
+          resetProgress();
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        showAlert('Upload failed. Please try again.', 'error');
+        resetProgress();
+      });
+      
+      xhr.open('POST', '/admin/upload');
+      xhr.send(formData);
+    });
+    
+    function showAlert(message, type) {
+      alertContainer.innerHTML = `<div class="alert alert-${type}">${type === 'success' ? '' : ''} ${message}</div>`;
+    }
+    
+    function resetProgress() {
+      progressContainer.classList.remove('show');
+      progressBar.style.width = '0%';
+      progressText.textContent = 'Uploading... 0%';
+      submitBtn.disabled = false;
+    }
+    
+    // Check URL params for messages
     const params = new URLSearchParams(window.location.search);
-    if (params.get('success')) {
-      // Already handled by EJS
-    }
-    if (params.get('error')) {
-      const container = document.querySelector('.container');
-      const alert = document.createElement('div');
-      alert.className = 'alert alert-error';
-      alert.textContent = ' Error: ' + decodeURIComponent(params.get('error'));
-      container.insertBefore(alert, container.children[1]);
-    }
+    if (params.get('success')) showAlert('Stats uploaded successfully!', 'success');
+    if (params.get('error')) showAlert('Error: ' + decodeURIComponent(params.get('error')), 'error');
   </script>
 </body>
 </html>
