@@ -6,6 +6,8 @@ async function initDB() {
   try {
     await sql`CREATE TABLE IF NOT EXISTS users (discord_id TEXT PRIMARY KEY, username TEXT, avatar TEXT, governor_id TEXT)`;
     await sql`CREATE TABLE IF NOT EXISTS config (key TEXT PRIMARY KEY, value TEXT)`;
+    
+    // Ensure stats table exists
     await sql`
       CREATE TABLE IF NOT EXISTS stats (
         governor_id TEXT PRIMARY KEY, username TEXT, kingdom TEXT,
@@ -13,6 +15,13 @@ async function initDB() {
         initial_power BIGINT DEFAULT 0, initial_deads BIGINT DEFAULT 0, initial_kill_points BIGINT DEFAULT 0
       )
     `;
+
+    // MIGRATION: Add missing columns if table already existed
+    await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS kingdom TEXT`;
+    await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_power BIGINT DEFAULT 0`;
+    await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_deads BIGINT DEFAULT 0`;
+    await sql`ALTER TABLE stats ADD COLUMN IF NOT EXISTS initial_kill_points BIGINT DEFAULT 0`;
+    
     await sql`
         CREATE TABLE IF NOT EXISTS tiers (
             id SERIAL PRIMARY KEY, name TEXT NOT NULL, min_power BIGINT NOT NULL, max_power BIGINT NOT NULL,
@@ -20,9 +29,8 @@ async function initDB() {
         )
     `;
     await sql`CREATE TABLE IF NOT EXISTS admins (discord_id TEXT PRIMARY KEY, note TEXT)`;
-    await sql`Insert INTO admins (discord_id, note) VALUES ('1211770249200795734', 'Super Admin') ON CONFLICT DO NOTHING`;
+    await sql`INSERT INTO admins (discord_id, note) VALUES ('1211770249200795734', 'Super Admin') ON CONFLICT DO NOTHING`;
     
-    // New Backups Table
     await sql`
         CREATE TABLE IF NOT EXISTS backups (
             id SERIAL PRIMARY KEY,
@@ -34,7 +42,7 @@ async function initDB() {
         )
     `;
 
-    console.log('Database initialized');
+    console.log('Database initialized and migrated');
   } catch (error) { console.error('DB init error:', error); }
 }
 
@@ -65,10 +73,9 @@ async function getAdmins() { return await sql`SELECT * FROM admins`; }
 async function addAdmin(discordId, note) { await sql`INSERT INTO admins (discord_id, note) VALUES (${discordId}, ${note}) ON CONFLICT (discord_id) DO UPDATE SET note = EXCLUDED.note`; }
 async function removeAdmin(discordId) { await sql`DELETE FROM admins WHERE discord_id = ${discordId}`; }
 
-// Backup Functions
 async function createBackup(name, kvk, filename) {
     const stats = await getAllStats();
-    if (stats.length === 0) return; // Don't backup empty
+    if (stats.length === 0) return;
     await sql`INSERT INTO backups (name, data, kvk_season, filename) VALUES (${name}, ${JSON.stringify(stats)}, ${kvk}, ${filename})`;
 }
 async function getBackups() { return await sql`SELECT id, name, created_at, kvk_season, filename, jsonb_array_length(data) as count FROM backups ORDER BY created_at DESC`; }
