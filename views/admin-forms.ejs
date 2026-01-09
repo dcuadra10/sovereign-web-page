@@ -20,9 +20,9 @@
         .card { background:#1e293b; padding:25px; border-radius:12px; margin-bottom:20px; border:1px solid #334155; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); }
         .btn { padding:10px 20px; border-radius:8px; border:none; color:white; cursor:pointer; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
         .btn-primary { background:#7c3aed; }
-        .btn-primary:hover { background:#6d28d9; }
         .btn-danger { background:#ef4444; }
         .btn-success { background:#22c55e; }
+        .btn-secondary { background:#475569; }
         
         table { width:100%; border-collapse:collapse; margin-top:15px; }
         th, td { text-align:left; padding:12px; border-bottom:1px solid #334155; }
@@ -30,10 +30,7 @@
         
         input, select, textarea { width:100%; padding:10px; background:#0f172a; border:1px solid #334155; border-radius:6px; color:white; margin-bottom:15px; }
         label { display:block; margin-bottom:5px; color:#cbd5e1; font-size:0.9rem; }
-
         .role-badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:0.85rem; font-weight:600; color:black; }
-        
-        /* Form Builder Simple Styles */
         .field-row { display:flex; gap:10px; align-items:center; background:#0f172a; padding:10px; border-radius:6px; margin-bottom:10px; border:1px solid #334155; }
         .remove-field { background:#ef4444; color:white; width:30px; height:30px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
     </style>
@@ -51,15 +48,27 @@
 
     <!-- FORMS TAB -->
     <div id="forms" class="tab-content active">
+        <div class="card" style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3);">
+            <h3> Onboarding Configuration</h3>
+            <p style="margin-bottom:15px; opacity:0.8;">Select a form that new users MUST complete before accessing the dashboard.</p>
+            <form action="/admin/onboarding" method="POST" style="display:flex; gap:10px;">
+                <select name="formId" style="margin:0;">
+                    <option value="">-- None (Disable Onboarding) --</option>
+                    <% forms.forEach(f => { %>
+                        <option value="<%= f.id %>" <%= (typeof onboardingId !== 'undefined' && onboardingId == f.id) ? 'selected' : '' %>><%= f.title %></option>
+                    <% }) %>
+                </select>
+                <button class="btn btn-primary">Save Setting</button>
+            </form>
+        </div>
+
         <div class="card">
             <h2>Create New Form</h2>
             <form action="/admin/forms/create" method="POST" onsubmit="prepareSchema()">
                 <label>Form Title</label>
                 <input type="text" name="title" required placeholder="e.g. KvK 1 Application">
-                
                 <label>Description</label>
                 <textarea name="description" rows="3" placeholder="Explain the purpose..."></textarea>
-                
                 <label>Assign Role on Completion (Optional)</label>
                 <select name="assignRoleId">
                     <option value="">-- No Role Assigned --</option>
@@ -67,11 +76,9 @@
                         <option value="<%= r.id %>"><%= r.name %></option>
                     <% }) } %>
                 </select>
-
                 <h3>Form Fields</h3>
                 <div id="fields-container"></div>
-                <button type="button" onclick="addField()" class="btn btn-secondary" style="background:#475569; margin-bottom:20px;">+ Add Field</button>
-                
+                <button type="button" onclick="addField()" class="btn btn-secondary" style="margin-bottom:20px;">+ Add Field</button>
                 <input type="hidden" name="schema" id="schema-input">
                 <br>
                 <button type="submit" class="btn btn-primary">Create Form</button>
@@ -85,11 +92,9 @@
                 <tbody>
                     <% forms.forEach(f => { %>
                     <tr>
-                        <td><%= f.title %></td>
+                        <td><%= f.title %> <%= (typeof onboardingId !== 'undefined' && onboardingId == f.id) ? ' (Onboarding)' : '' %></td>
                         <td>
-                            <% if (f.assign_role_name) { %>
-                                <span class="role-badge" style="background:#ddd"><%= f.assign_role_name %></span>
-                            <% } else { %> - <% } %>
+                            <% if (f.assign_role_name) { %> <span class="role-badge" style="background:#ddd"><%= f.assign_role_name %></span> <% } else { %> - <% } %>
                         </td>
                         <td>
                             <form action="/admin/forms/toggle" method="POST" style="display:inline;">
@@ -161,7 +166,6 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // Simple Form Builder Logic
         let fields = [];
         
         function renderFields() {
@@ -196,7 +200,7 @@
 
         function updateField(idx, key, val) {
             fields[idx][key] = val;
-            if(key === 'type') renderFields(); // Re-render if type changes to show/hide options input
+            if(key === 'type') renderFields(); // Re-render if type changes
         }
 
         function prepareSchema() {

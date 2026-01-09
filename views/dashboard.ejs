@@ -50,16 +50,26 @@
 
         .info-box { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; line-height: 1.6; }
 
-        /* Toast Styles */
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 10px; color: white; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards; max-width: 90%; }
-        .toast-error { background: rgba(220, 38, 38, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
-        .toast-success { background: rgba(22, 163, 74, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
-        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
-        
         .role-pill { display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:bold; color:black; margin:2px; }
 
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+        /* CHAT CSS */
+        #chat-widget { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 500px; background: #1e293b; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #334155; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s; transform: translateY(110%); }
+        #chat-widget.open { transform: translateY(0); }
+        .chat-header { padding: 15px; background: #334155; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 600; cursor: pointer; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #0f172a; }
+        .chat-input-area { padding: 10px; border-top: 1px solid #334155; display: flex; gap: 10px; }
+        .msg { font-size: 0.9rem; padding: 8px 12px; border-radius: 10px; background: #334155; max-width: 85%; align-self: flex-start; }
+        .msg.mine { background: #7c3aed; align-self: flex-end; }
+        .msg strong { display: block; font-size: 0.75rem; opacity: 0.7; margin-bottom: 2px; }
+        #chat-toggle { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #7c3aed; border-radius: 50%; box-shadow: 0 10px 20px rgba(124, 58, 237, 0.4); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; cursor: pointer; z-index: 2001; transition: transform 0.2s; }
+        #chat-toggle:hover { transform: scale(1.1); }
+
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 10px; color: white; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards; max-width: 90%; }
+        .toast-error { background: rgba(220, 38, 38, 0.9); } .toast-success { background: rgba(22, 163, 74, 0.9); }
+        
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } #chat-widget { width: 90%; right: 5%; bottom: 20px; } }
     </style>
 </head>
 <body>
@@ -75,7 +85,7 @@
     </nav>
 
     <div class="container">
-        <!-- SIDEBAR: PROFILE & LINKING -->
+        <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="card profile-card">
                 <img src="<%= user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" class="avatar">
@@ -95,24 +105,14 @@
                 <% } else { %>
                      <div class="status-badge status-unlinked">Not Linked</div>
                      <form action="/link-account" method="POST" style="margin-top:15px;">
-                        <div class="form-group">
-                            <input type="number" name="governorId" class="form-control" placeholder="Enter Governor ID" required>
-                        </div>
-                        <button class="btn btn-secondary" style="width:100%; background: linear-gradient(135deg, #667eea, #764ba2);">Link Account</button>
+                        <input type="number" name="governorId" class="form-control" placeholder="Enter Governor ID" required>
+                        <button class="btn btn-secondary" style="width:100%; margin-top:10px;">Link Account</button>
                      </form>
                 <% } %>
             </div>
             
-            <% if (!statsVisible) { %>
-            <div class="card" style="border: 1px solid #f87171; background: rgba(220, 38, 38, 0.1);">
-                <h3 style="color:#f87171; margin-bottom:10px;"> Stats Hidden</h3>
-                <p style="font-size:0.9rem; opacity:0.8;">The public leaderboard and personal stats are currently unavailable. Check back later.</p>
-            </div>
-            <% } %>
-
-            <!-- CONTACT LEADERS BUTTON -->
             <div class="card">
-                <button onclick="document.getElementById('contactList').style.display = document.getElementById('contactList').style.display === 'none' ? 'flex' : 'none'" class="btn btn-secondary" style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px;">
+                <button onclick="document.getElementById('contactList').style.display = document.getElementById('contactList').style.display === 'none' ? 'flex' : 'none'" class="btn btn-secondary" style="width:100%;">
                      Contact Leadership
                 </button>
                 <div id="contactList" style="display:none; flex-direction:column; gap:12px; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
@@ -120,18 +120,17 @@
                        adminList.forEach(admin => { %>
                         <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); padding:8px; border-radius:6px;">
                             <img src="<%= admin.avatar ? (admin.avatar.startsWith('http') ? admin.avatar : `https://cdn.discordapp.com/avatars/${admin.discord_id}/${admin.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
-                            <div style="flex:1;">
-                               <div style="font-weight:600; font-size:0.9rem;"><%= admin.username || 'Unknown User' %></div>
+                            <div>
+                               <div style="font-weight:600; font-size:0.9rem;"><%= admin.username || 'Unknown' %></div>
                                <div style="font-size:0.75rem; opacity:0.6;"><%= admin.note || 'Admin' %></div>
                             </div>
                         </div>
                     <% }); } else { %>
-                        <div style="opacity:0.6; font-size:0.9rem; text-align:center;">No public contacts listed.</div>
+                        <div style="text-align:center; opacity:0.6;">No contacts listed.</div>
                     <% } %>
                 </div>
             </div>
 
-            <!-- AVAILABLE FORMS -->
             <% if (typeof forms !== 'undefined' && forms.length > 0) { %>
             <div class="card">
                 <h3 style="margin-bottom:15px; font-size:1.1rem; color:#a78bfa;"> Available Apps</h3>
@@ -139,7 +138,7 @@
                     <% forms.forEach(f => { %>
                         <a href="/forms/<%= f.id %>" class="btn btn-secondary" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
                             <span><%= f.title %></span>
-                            <span style="font-size:1.2rem;">&rsaquo;</span>
+                            <span>&rsaquo;</span>
                         </a>
                     <% }) %>
                 </div>
@@ -149,11 +148,9 @@
 
         <!-- MAIN CONTENT -->
         <div class="main-content">
-            <!-- PROJECT INFO & ANNOUNCEMENTS -->
             <% if (projectInfo || (announcements && announcements.length > 0)) { %>
             <div class="card">
-                <h2 style="margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;"> News & Information</h2>
-                
+                <h2 style="margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;"> News</h2>
                 <% if (announcements && announcements.length > 0) { %>
                     <div class="announcements-box">
                         <% announcements.forEach(a => { %>
@@ -162,101 +159,138 @@
                                     <h4><%- a.title %></h4>
                                     <% if(a.target_role_id) { %> <span style="font-size:0.7rem; background:#f472b6; padding:2px 6px; border-radius:4px; color:black;">Role Targeted</span> <% } %>
                                 </div>
-                                <div style="margin-top:5px;"><%- a.content %></div>
+                                <div><%- a.content %></div>
                                 <span class="date-tag"><%= new Date(a.created_at).toLocaleDateString() %></span>
                             </div>
                         <% }) %>
                     </div>
                 <% } %>
-                
                 <% if (projectInfo) { %>
-                    <div class="info-box">
-                        <h3 style="margin-bottom:10px; color:#a78bfa;">ℹ Project Information</h3>
-                        <div style="line-height:1.6;"><%- projectInfo %></div>
-                    </div>
+                    <div class="info-box"><h3 style="color:#a78bfa;">ℹ Info</h3><div style="line-height:1.6;"><%- projectInfo %></div></div>
                 <% } %>
             </div>
             <% } %>
 
-            <!-- PERSONAL STATS -->
             <% 
                let myStats = null;
-               if (user.governor_id && stats) {
-                   myStats = stats.find(s => s.governor_id === user.governor_id);
-               }
+               if (user.governor_id && stats) { myStats = stats.find(s => s.governor_id === user.governor_id); }
             %>
-
             <% if (myStats && statsVisible) { %>
                 <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2>Your Statistics <span style="font-size:0.9rem; opacity:0.6; font-weight:400;">(Season: <%= currentKvK || 'N/A' %>)</span></h2>
+                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h2>Your Stats <span style="font-size:0.9rem; opacity:0.6;">(Season: <%= currentKvK || 'N/A' %>)</span></h2>
                         <span class="status-badge" style="<%= myStats.isCompliant ? 'background:rgba(74,222,128,0.2); color:#4ade80' : 'background:rgba(248,113,113,0.2); color:#f87171' %>">
                             Status: <%= myStats.isCompliant ? 'COMPLIANT' : 'RISK' %>
                         </span>
                     </div>
-
-                     <!-- Formatter Script -->
-                    <script>
-                        function fmt(n) {
-                            if (!n && n !== 0) return '0'; n = Number(n);
-                            if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
-                            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-                            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-                            return n.toLocaleString();
-                        }
-                    </script>
-
+                    <script>function fmt(n) { if (!n && n !== 0) return '0'; n = Number(n); if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B'; if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M'; if (n >= 1000) return (n / 1000).toFixed(1) + 'K'; return n.toLocaleString(); }</script>
                     <div class="stat-grid">
-                        <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.highest_power %>))</script></span><span class="stat-lbl">Current Power</span></div>
-                         <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.killsGained %>))</script></span><span class="stat-lbl">KP Gained (Season)</span></div>
-                         <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.deadsGained %>))</script></span><span class="stat-lbl">Deaths (Season)</span></div>
-                         <div class="stat-box"><span class="stat-val"><%= myStats.tier ? myStats.tier.name : 'Unknown' %></span><span class="stat-lbl">Current Tier</span></div>
+                        <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.highest_power %>))</script></span><span class="stat-lbl">Power</span></div>
+                         <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.killsGained %>))</script></span><span class="stat-lbl">KP Gained</span></div>
+                         <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.deadsGained %>))</script></span><span class="stat-lbl">Deaths</span></div>
+                         <div class="stat-box"><span class="stat-val"><%= myStats.tier ? myStats.tier.name : 'Unknown' %></span><span class="stat-lbl">Tier</span></div>
                     </div>
-
-                    <div style="margin-top:15px; text-align:right; font-size:0.8rem; opacity:0.6;">
-                        Comparing against Season Start Date: <%= seasonStart || 'Unknown' %>
-                    </div>
-
                     <div class="progress-bar-container">
-                        <h3>Season Progress</h3>
+                        <h3>Progress</h3>
                         <div style="margin-top:15px;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
-                                <span>Kill Points Goal (<script>document.write(fmt(<%= myStats.killReq %>))</script>)</span>
-                                <span><%= myStats.killProgress %>%</span>
-                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;"><span>KP Goal (<script>document.write(fmt(<%= myStats.killReq %>))</script>)</span><span><%= myStats.killProgress %>%</span></div>
                             <div class="bar-bg"><div class="bar-fill <%= myStats.killProgress >= 100 ? 'bar-success' : '' %>" style="width: <%= Math.min(myStats.killProgress, 100) %>%"></div></div>
                         </div>
-
                         <div style="margin-top:15px;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
-                                <span>Deaths Goal (<script>document.write(fmt(<%= myStats.deathReq %>))</script>)</span>
-                                <span><%= myStats.deathProgress %>%</span>
-                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;"><span>Deaths Goal (<script>document.write(fmt(<%= myStats.deathReq %>))</script>)</span><span><%= myStats.deathProgress %>%</span></div>
                             <div class="bar-bg"><div class="bar-fill <%= myStats.deathProgress >= 100 ? 'bar-success' : (myStats.deathProgress < 50 ? 'bar-warning' : '') %>" style="width: <%= Math.min(myStats.deathProgress, 100) %>%"></div></div>
                         </div>
                     </div>
                 </div>
-            <% } else if (user.governor_id && statsVisible) { %>
-                <div class="card" style="text-align:center; padding:40px;">
-                    <h3>Processing Stats...</h3>
-                    <p style="opacity:0.7;">Your ID is linked, but we haven't found your stats in the latest scan yet. Please check back later or contact an admin if you recently migrated.</p>
-                </div>
-            <% } else if (statsVisible) { %>
-                <div class="card" style="text-align:center; padding:50px;">
-                    <img src="https://img.icons8.com/fluency/96/link.png" style="opacity:0.8; margin-bottom:20px;">
-                    <h2>Link Your Account</h2>
-                    <p style="opacity:0.7; max-width:400px; margin:0 auto;">Please enter your Governor ID in the sidebar to view your personalized season statistics and progress.</p>
-                </div>
-            <% } %>
-            
-            <% if (statsVisible) { %>
-            <a href="/stats" class="btn btn-secondary" style="text-align:center; padding:15px; margin-top:10px;">View Full Season Leaderboard</a>
             <% } %>
         </div>
     </div>
 
-    <!-- Toast Script -->
+    <!-- CHAT WIDGET -->
+    <div id="chat-toggle" onclick="toggleChat()"></div>
+    <div id="chat-widget">
+        <div class="chat-header" onclick="toggleChat()">
+            <span>Global Kingdom Chat</span>
+            <span>&times;</span>
+        </div>
+        <div class="chat-messages" id="chat-box">
+            <!-- Messages go here -->
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="form-control" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button class="btn btn-primary" onclick="sendChat()">&rarr;</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Init Chat
+        const chatWidget = document.getElementById('chat-widget');
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatBox = document.getElementById('chat-box');
+        let socket = null;
+
+        try {
+            socket = io();
+            console.log('Socket connecting...');
+
+            socket.on('history', (msgs) => {
+                chatBox.innerHTML = '';
+                msgs.forEach(addMessageToUI);
+                scrollToBottom();
+            });
+
+            socket.on('message', (msg) => {
+                addMessageToUI(msg);
+                scrollToBottom();
+            });
+        } catch (e) {
+            console.warn('Socket.io not found or failed. Chat disabled.');
+            chatToggle.style.display = 'none';
+        }
+
+        function toggleChat() {
+            chatWidget.classList.toggle('open');
+            if (chatWidget.classList.contains('open')) {
+                chatToggle.style.display = 'none';
+                scrollToBottom();
+            } else {
+                chatToggle.style.display = 'flex';
+            }
+        }
+        
+        // Hide toggle initially if open, show if closed logic handled above roughly.
+        // Better logic: clicking X closes widget and shows toggle. Clicking toggle opens widget and hides toggle.
+
+        const myUserId = "<%= user.discordId || user.email %>";
+
+        function addMessageToUI(msg) {
+            const div = document.createElement('div');
+            const isMe = msg.user_id === myUserId;
+            div.className = 'msg ' + (isMe ? 'mine' : '');
+            div.innerHTML = `<strong>${msg.username}</strong> ${msg.message}`;
+            chatBox.appendChild(div);
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const txt = input.value.trim();
+            if (!txt || !socket) return;
+            
+            socket.emit('chatMessage', {
+                userId: myUserId,
+                username: "<%= user.username %>",
+                avatar: "<%= user.avatar %>",
+                message: txt
+            });
+            input.value = '';
+        }
+
+        // --- Toasts ---
         const params = new URLSearchParams(window.location.search);
         function showToast(msg, type = 'success') {
             const t = document.createElement('div'); t.className = `toast toast-${type}`;
