@@ -18,7 +18,6 @@
     .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
     
     .btn.active-btn { background: #fff; color: #302b63; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
-    /* New Icon Button Style */
     .btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; }
     
     .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
@@ -83,7 +82,6 @@
                 <button class="btn btn-primary">Save Config</button>
             </form>
 
-            <!-- Public Stats Toggle -->
             <form action="/admin/toggle-stats" method="POST" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
                 <div>
                     <strong>Public Stats Visibility</strong><br>
@@ -107,7 +105,39 @@
                 </div>
             </form>
         </div>
+        
+        <!-- COMMUNICATION SECTION -->
+        <div class="section">
+            <h2> Communication & Info</h2>
+            <div style="margin-bottom:20px;">
+                <h3>Post Announcement</h3>
+                <form action="/admin/announcement" method="POST">
+                    <input type="text" name="title" class="form-control" placeholder="Title" required style="margin-bottom:5px;">
+                    <textarea name="content" class="form-control" placeholder="Announcement content..." required style="height:80px; resize:vertical; margin-bottom:5px;"></textarea>
+                    <button type="submit" name="action" value="create" class="btn btn-success">Post</button>
+                </form>
+            </div>
+            <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                <% if(announcements && announcements.length > 0) { %>
+                    <% announcements.forEach(a => { %>
+                        <div style="border-bottom:1px solid rgba(255,255,255,0.1); padding:10px 0; display:flex; justify-content:space-between;">
+                            <div><strong><%= a.title %></strong><br><span style="font-size:0.8rem; opacity:0.7;"><%= new Date(a.created_at).toLocaleDateString() %></span></div>
+                            <form action="/admin/announcement" method="POST" onsubmit="return confirm('Delete?')"><input type="hidden" name="id" value="<%= a.id %>"><button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Del</button></form>
+                        </div>
+                    <% }) %>
+                <% } else { %><p style="opacity:0.5; font-size:0.9rem;">No active announcements</p><% } %>
+            </div>
+            
+            <h3 style="margin-top:20px;">ℹ Edit Project Info</h3>
+            <form action="/admin/project-info" method="POST">
+                <textarea name="content" class="form-control" style="height:150px; margin-bottom:5px;" placeholder="Markdown/HTML supported..."><%= projectInfo || '' %></textarea>
+                <button class="btn btn-primary">Update Info</button>
+            </form>
+        </div>
+    </div>
 
+
+    <div class="grid-2">
         <!-- LINKED USERS & ADMINS -->
         <div class="section">
              <h2> Linked Users</h2>
@@ -150,37 +180,37 @@
                 <% }) %>
             </div>
         </div>
-    </div>
-
-    <!-- BACKUPS -->
-    <div class="section">
-        <h2> Backups / History</h2>
-        <div style="max-height: 250px; overflow-y: auto;">
-            <table>
-                <thead><tr><th>Name</th><th>Date</th><th>KvK / File</th><th>Size</th><th>Action</th></tr></thead>
-                <tbody>
-                    <% if (backups.length === 0) { %><tr><td colspan="5" style="text-align:center; opacity:0.5;">No backups found</td></tr><% } %>
-                    <% backups.forEach(b => { %>
-                        <tr>
-                            <td><%= b.name %></td>
-                            <td><%= new Date(b.created_at).toLocaleDateString() %></td>
-                            <td><%= b.kvk_season %> <span style="font-size:0.7em; opacity:0.6;"><%= b.filename %></span></td>
-                            <td><%= b.count %> records</td>
-                            <td style="display:flex; gap:5px;">
-                                <a href="/admin/backup/download/<%= b.id %>" class="btn btn-primary btn-sm btn-icon" target="_blank" title="Download">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                </a>
-                                <form action="/admin/backup/delete" method="POST" onsubmit="return confirm('Delete this backup permanently?')">
-                                    <input type="hidden" name="id" value="<%= b.id %>">
-                                    <button class="btn btn-danger btn-sm btn-icon" title="Delete">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+    
+        <!-- BACKUPS -->
+        <div class="section">
+            <h2> Backups / History</h2>
+            <div style="max-height: 250px; overflow-y: auto;">
+                <table>
+                    <thead><tr><th>Name</th><th>Date</th><th>KvK / File</th><th>Size</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <% if (backups.length === 0) { %><tr><td colspan="5" style="text-align:center; opacity:0.5;">No backups found</td></tr><% } %>
+                        <% backups.forEach(b => { %>
+                            <tr>
+                                <td><%= b.name %></td>
+                                <td><%= new Date(b.created_at).toLocaleDateString() %></td>
+                                <td><%= b.kvk_season %> <span style="font-size:0.7em; opacity:0.6;"><%= b.filename %></span></td>
+                                <td><%= b.count %> records</td>
+                                <td style="display:flex; gap:5px;">
+                                    <a href="/admin/backup/download/<%= b.id %>" class="btn btn-primary btn-sm btn-icon" target="_blank" title="Download">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    </a>
+                                    <form action="/admin/backup/delete" method="POST" onsubmit="return confirm('Delete this backup permanently?')">
+                                        <input type="hidden" name="id" value="<%= b.id %>">
+                                        <button class="btn btn-danger btn-sm btn-icon" title="Delete">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -330,6 +360,8 @@
         if (params.get('ok') === 'del_backup') msg = 'Backup Deleted';
         if (params.get('ok') === 'unlink') msg = 'User Unlinked';
         if (params.get('ok') === 'visibility_toggle') msg = 'Stats Visibility Updated';
+        if (params.get('ok') === 'announcement') msg = 'Announcement Updated';
+        if (params.get('ok') === 'info_upd') msg = 'Project Info Updated';
         showToast(msg, 'success');
         window.history.replaceState({}, document.title, window.location.pathname);
     }

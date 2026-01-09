@@ -4,10 +4,16 @@ const sql = neon(process.env.DATABASE_URL);
 
 async function initDB() {
   try {
-    // Users Table
-    await sql`CREATE TABLE IF NOT EXISTS users (discord_id TEXT PRIMARY KEY, username TEXT, avatar TEXT, governor_id TEXT)`;
-    // MIGRATION: Ensure governor_id exists for older DBs
+    // Users Table Update
+    await sql`CREATE TABLE IF NOT EXISTS users (discord_id TEXT UNIQUE, username TEXT, avatar TEXT, governor_id TEXT)`;
     await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS governor_id TEXT`;
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT UNIQUE`;
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT`;
+    // Ensure ID is generic enough (discord_id was PK, but we might need a generic ID or stick with discord_id/email as keys)
+    // For simplicity, we keep discord_id nullable if user registers via email, 
+    // BUT current PK is discord_id. We need to allow it to be flexible.
+    // Changing PK is hard. We will treat 'discord_id' as 'user_id' string for email users (random UUID) or modify schema.
+    // simpler: Let's trust discord_id column can hold a UUID for non-discord users.
 
     await sql`CREATE TABLE IF NOT EXISTS config (key TEXT PRIMARY KEY, value TEXT)`;
     
@@ -36,6 +42,7 @@ async function initDB() {
     
     // Admins Table
     await sql`CREATE TABLE IF NOT EXISTS admins (discord_id TEXT PRIMARY KEY, note TEXT)`;
+    // For email admins, we use their User UUID (stored in discord_id column)
     await sql`INSERT INTO admins (discord_id, note) VALUES ('1211770249200795734', 'Super Admin') ON CONFLICT DO NOTHING`;
     
     // Backups Table
@@ -50,17 +57,35 @@ async function initDB() {
         )
     `;
 
+    // Announcements Table
+    await sql`
+        CREATE TABLE IF NOT EXISTS announcements (
+            id SERIAL PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW()
+        )
+    `;
+
     console.log('Database initialized and migrated');
   } catch (error) { console.error('DB init error:', error); }
 }
 
-async function upsertUser(discordId, username, avatar) {
-  await sql`INSERT INTO users (discord_id, username, avatar) VALUES (${discordId}, ${username}, ${avatar}) ON CONFLICT (discord_id) DO UPDATE SET username = EXCLUDED.username, avatar = EXCLUDED.avatar`;
+async function upsertUser(id, username, avatar, email=null, passHash=null) {
+  // If email provided, update it. If discord login, id is discordId. If email login, id is UUID.
+  if (email) {
+      await sql`INSERT INTO users (discord_id, username, avatar, email, password_hash) VALUES (${id}, ${username}, ${avatar}, ${email}, ${passHash}) 
+      ON CONFLICT (discord_id) DO UPDATE SET username=EXCLUDED.username, avatar=EXCLUDED.avatar, email=EXCLUDED.email, password_hash=EXCLUDED.password_hash`;
+  } else {
+      await sql`INSERT INTO users (discord_id, username, avatar) VALUES (${id}, ${username}, ${avatar}) 
+      ON CONFLICT (discord_id) DO UPDATE SET username = EXCLUDED.username, avatar = EXCLUDED.avatar`;
+  }
 }
-async function linkGovernor(discordId, governorId) { await sql`UPDATE users SET governor_id = ${governorId} WHERE discord_id = ${discordId}`; }
-async function getUser(discordId) { const r = await sql`SELECT * FROM users WHERE discord_id = ${discordId}`; return r[0] || null; }
+async function linkGovernor(userId, governorId) { await sql`UPDATE users SET governor_id = ${governorId} WHERE discord_id = ${userId}`; }
+async function getUser(id) { const r = await sql`SELECT * FROM users WHERE discord_id = ${id}`; return r[0] || null; }
+async function getUserByEmail(email) { const r = await sql`SELECT * FROM users WHERE email = ${email}`; return r[0] || null; }
 async function getLinkedUsers() { return await sql`SELECT * FROM users WHERE governor_id IS NOT NULL`; }
-async function unlinkUser(discordId) { await sql`UPDATE users SET governor_id = NULL WHERE discord_id = ${discordId}`; }
+async function unlinkUser(id) { await sql`UPDATE users SET governor_id = NULL WHERE discord_id = ${id}`; }
 
 async function setConfig(key, value) { await sql`INSERT INTO config (key, value) VALUES (${key}, ${value}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`; }
 async function getConfig(key) { const r = await sql`SELECT value FROM config WHERE key = ${key}`; return r[0]?.value || null; }
@@ -68,7 +93,6 @@ async function getConfig(key) { const r = await sql`SELECT value FROM config WHE
 async function getAllStats() { return await sql`SELECT * FROM stats ORDER BY highest_power DESC`; }
 async function getKingdomTotals() { const r = await sql`SELECT COUNT(*) as count, SUM(highest_power) as total_power, SUM(total_kill_points) as total_kills, SUM(deads) as total_deads FROM stats`; return r[0]; }
 
-// MODIFIED: upsertStats now sets initial values ON INSERT, but does NOT update them on conflict.
 async function upsertStats(govId, name, kingdom, power, deads, kills, rss) {
   await sql`
     INSERT INTO stats (
@@ -129,13 +153,20 @@ async function createBackup(name, kvk, filename) {
     await sql`INSERT INTO backups (name, data, kvk_season, filename) VALUES (${name}, ${JSON.stringify(stats)}, ${kvk}, ${filename})`;
 }
 async function getBackups() { return await sql`SELECT id, name, created_at, kvk_season, filename, jsonb_array_length(data) as count FROM backups ORDER BY created_at DESC`; }
-// NEW FUNCTION
 async function getBackupById(id) { const r = await sql`SELECT * FROM backups WHERE id = ${id}`; return r[0]; }
 async function deleteBackup(id) { await sql`DELETE FROM backups WHERE id = ${id}`; }
 
+// Announcements CRUD
+async function createAnnouncement(title, content) { await sql`INSERT INTO announcements (title, content) VALUES (${title}, ${content})`; }
+async function getAnnouncements() { return await sql`SELECT * FROM announcements ORDER BY created_at DESC`; }
+async function deleteAnnouncement(id) { await sql`DELETE FROM announcements WHERE id = ${id}`; }
+async function getProjectInfo() { return await getConfig('project_info_text'); }
+async function setProjectInfo(text) { await setConfig('project_info_text', text); }
+
 module.exports = {
-  sql, initDB, upsertUser, getUser, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig,
+  sql, initDB, upsertUser, getUser, getUserByEmail, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig,
   getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, clearAllStats, getAllTiers, upsertTier, deleteTier,
   getAdmins, addAdmin, removeAdmin,
-  createBackup, getBackups, getBackupById, deleteBackup
+  createBackup, getBackups, getBackupById, deleteBackup,
+  createAnnouncement, getAnnouncements, deleteAnnouncement, getProjectInfo, setProjectInfo
 };
