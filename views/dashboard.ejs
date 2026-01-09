@@ -94,9 +94,28 @@
             <% if (!statsVisible) { %>
             <div class="card" style="border: 1px solid #f87171; background: rgba(220, 38, 38, 0.1);">
                 <h3 style="color:#f87171; margin-bottom:10px;"> Stats Hidden</h3>
-                <p style="font-size:0.9rem; opacity:0.8;">The public leaderboard is currently hidden by administrators. You can still see your personal progress here.</p>
+                <p style="font-size:0.9rem; opacity:0.8;">The public leaderboard is currently hidden. You can still see your personal progress and announcements here.</p>
             </div>
             <% } %>
+
+            <!-- CONTACT LEADERS SECTION -->
+            <div class="card">
+                <h3 style="margin-bottom:15px; color:#a78bfa;"> Contact Leadership</h3>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <% if(typeof adminList !== 'undefined' && adminList.length > 0) { 
+                       adminList.forEach(admin => { %>
+                        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); padding:8px; border-radius:6px;">
+                            <img src="<%= admin.avatar ? (admin.avatar.startsWith('http') ? admin.avatar : `https://cdn.discordapp.com/avatars/${admin.discord_id}/${admin.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+                            <div style="flex:1;">
+                               <div style="font-weight:600; font-size:0.9rem;"><%= admin.username || 'Unknown User' %></div>
+                               <div style="font-size:0.75rem; opacity:0.6;"><%= admin.note || 'Admin' %></div>
+                            </div>
+                        </div>
+                    <% }); } else { %>
+                        <div style="opacity:0.6; font-size:0.9rem;">No public contacts listed.</div>
+                    <% } %>
+                </div>
+            </div>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -129,9 +148,8 @@
 
             <!-- PERSONAL STATS (IF LINKED) -->
             <% 
-               // Find user stats in the processed stats array
                let myStats = null;
-               if (user.governor_id) {
+               if (user.governor_id && stats) {
                    myStats = stats.find(s => s.governor_id === user.governor_id);
                }
             %>
@@ -200,7 +218,9 @@
                 </div>
             <% } %>
             
+            <% if (statsVisible) { %>
             <a href="/stats" class="btn btn-secondary" style="text-align:center; padding:15px; margin-top:10px;">View Full Season Leaderboard</a>
+            <% } %>
         </div>
     </div>
 

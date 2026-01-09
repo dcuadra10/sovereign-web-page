@@ -7,7 +7,7 @@ const xlsx = require('xlsx');
 const crypto = require('crypto');
 require('dotenv').config();
 
-const { initDB, getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, upsertUser, getUser, getUserByEmail, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig, clearAllStats, getAllTiers, upsertTier, deleteTier, getAdmins, addAdmin, removeAdmin, createBackup, getBackups, getBackupById, deleteBackup, createAnnouncement, getAnnouncements, deleteAnnouncement, getProjectInfo, setProjectInfo } = require('./database');
+const { initDB, getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, upsertUser, getUser, getUserByEmail, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig, clearAllStats, getAllTiers, upsertTier, deleteTier, getAdmins, getAdminsWithDetails, addAdmin, removeAdmin, createBackup, getBackups, getBackupById, deleteBackup, createAnnouncement, getAnnouncements, deleteAnnouncement, getProjectInfo, setProjectInfo } = require('./database');
 
 const app = express();
 const JWT_SECRET = process.env.SESSION_SECRET || 'super-secret-key';
@@ -127,8 +127,6 @@ async function calculateProgress(stats, tiers) {
 }
 
 // --- ROUTES ---
-
-// ROOT ROUTE: Dynamic Index
 app.get('/', async (req, res) => {
     try {
         const isVisible = await getConfig('public_stats_visible');
@@ -175,7 +173,6 @@ app.post('/login', async (req, res) => {
     } catch(e) { res.redirect('/login?err=1'); }
 });
 
-// OAuth ...
 app.get('/auth/discord', (req, res) => res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK_URL)}&response_type=code&scope=identify guilds guilds.members.read`));
 app.get('/auth/discord/callback', async (req, res) => {
   const code = req.query.code; if (!code) return res.redirect('/login');
@@ -200,14 +197,14 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
     const k = await getConfig('current_kvk'); 
     const u = await getUser(req.user.discordId); 
     const a = await getAdmins(); 
+    const adminList = await getAdminsWithDetails();
     const lastStart = await getConfig('season_start_date');
     const announcements = await getAnnouncements();
     const projectInfo = await getProjectInfo();
-    res.render('dashboard', { user: {...req.user, ...(u||{})}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId), statsVisible: isVisible !== 'false', announcements, projectInfo }); 
+    res.render('dashboard', { user: {...req.user, ...(u||{})}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId), statsVisible: isVisible !== 'false', announcements, projectInfo, adminList }); 
   } catch (e){ res.status(500).send('Error loading dashboard: ' + e.message); } 
 });
 
-// Admin Route and Actions...
 app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
   try { 
     const s = await getAllStats(); const t = await getAllTiers(); const a = await getAdmins(); const backups = await getBackups() || []; 
@@ -232,7 +229,7 @@ app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { try { co
 app.post('/admin/tier/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteTier(req.body.id); res.redirect('/admin'); });
 app.post('/admin/backup/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteBackup(req.body.id); res.redirect('/admin?ok=del_backup'); });
 app.get('/admin/backup/download/:id', isAuthenticated, isAdmin, async (req, res) => { try { const b = await getBackupById(req.params.id); if (!b) return res.status(404).send('Backup not found'); res.setHeader('Content-Disposition', `attachment; filename="backup-${b.kvk_season}-${b.id}.json"`); res.setHeader('Content-Type', 'application/json'); res.send(JSON.stringify(b.data, null, 2)); } catch(e) { res.status(500).send(e.message); } });
-app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => { /* Same upload logic */ try { if (!req.file) return res.status(400).send('No file'); const r = parseExcelData(req.file.buffer); if (!r.length) return res.status(400).send('No records'); const filename = req.file.originalname; const match = filename.match(/^(\d+)-(\d{4}-\d{2}-\d{2})-(\d{4}-\d{2}-\d{2})/); const force = req.query.force === 'true'; if (req.params.type === 'update' && match && !force) { const newKingdom = match[1]; const newStart = match[2]; const oldKindgom = await getConfig('last_scan_kingdom'); const oldEnd = await getConfig('last_scan_end_date'); if (oldKindgom && oldKindgom !== newKingdom) { return res.status(409).json({ warning: `Kingdom mismatch! Previous: ${oldKindgom}, File: ${newKingdom}. Use same Kingdom?` }); } if (oldEnd && oldEnd !== newStart) { return res.status(409).json({ warning: `Date gap! Previous ended: ${oldEnd}, File starts: ${newStart}. Recommendation: Match start date with previous end date.` }); } } if (req.params.type === 'creation') { const kvk = await getConfig('current_kvk'); await createBackup(`Auto-Backup (New List ${kvk})`, kvk, filename); await clearAllStats(); for (const x of r) await createStatsWithInitial(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources); if (match) await setConfig('season_start_date', match[2]); } else { for (const x of r) await upsertStats(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources); } if (match) { await setConfig('last_scan_kingdom', match[1]); await setConfig('last_scan_end_date', match[3]); } res.status(200).send(`Done: ${r.length}`); } catch (e) { res.status(500).send(e.message); } });
+app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => { try { if (!req.file) return res.status(400).send('No file'); const r = parseExcelData(req.file.buffer); if (!r.length) return res.status(400).send('No records'); const filename = req.file.originalname; const match = filename.match(/^(\d+)-(\d{4}-\d{2}-\d{2})-(\d{4}-\d{2}-\d{2})/); const force = req.query.force === 'true'; if (req.params.type === 'update' && match && !force) { const newKingdom = match[1]; const newStart = match[2]; const oldKindgom = await getConfig('last_scan_kingdom'); const oldEnd = await getConfig('last_scan_end_date'); if (oldKindgom && oldKindgom !== newKingdom) { return res.status(409).json({ warning: `Kingdom mismatch! Previous: ${oldKindgom}, File: ${newKingdom}. Use same Kingdom?` }); } if (oldEnd && oldEnd !== newStart) { return res.status(409).json({ warning: `Date gap! Previous ended: ${oldEnd}, File starts: ${newStart}. Recommendation: Match start date with previous end date.` }); } } if (req.params.type === 'creation') { const kvk = await getConfig('current_kvk'); await createBackup(`Auto-Backup (New List ${kvk})`, kvk, filename); await clearAllStats(); for (const x of r) await createStatsWithInitial(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources); if (match) await setConfig('season_start_date', match[2]); } else { for (const x of r) await upsertStats(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources); } if (match) { await setConfig('last_scan_kingdom', match[1]); await setConfig('last_scan_end_date', match[3]); } res.status(200).send(`Done: ${r.length}`); } catch (e) { res.status(500).send(e.message); } });
 app.post('/link-account', isAuthenticated, async (req, res) => { try { const guildId = await getConfig('discord_guild_id'); const roleId = await getConfig('discord_role_id'); const s = await getAllStats(); if (!s.find(x => x.governor_id === req.body.governorId)) { return res.redirect('/dashboard?error=Governor ID not found in the stats list.'); } if (req.user.accessToken) { if (!guildId) return res.redirect('/dashboard?error=Guild Config Missing'); const memberReq = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, { headers: { Authorization: `Bearer ${req.user.accessToken}` } }); if (!memberReq.ok) return res.redirect('/dashboard?error=Verify Failed'); const member = await memberReq.json(); if (roleId && (!member.roles || !member.roles.includes(roleId))) return res.redirect('/dashboard?error=Missing Role'); } await linkGovernor(req.user.discordId, req.body.governorId); res.redirect('/dashboard?success=Account Linked'); } catch(e) { res.redirect('/dashboard?error=' + encodeURIComponent(e.message)); } });
 
 app.get('/stats', async (req, res) => { try { const isVisible = await getConfig('public_stats_visible'); if (isVisible === 'false') { return res.send('<!DOCTYPE html><html lang="en"><head><title>Maintenance</title><style>body{background:#0f0c29;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><div style="text-align:center;"><h1> Stats Temporarily Unavailable</h1><p>We are updating the data. Please check back later.</p><a href="/" style="color:#a78bfa;">Return Home</a></div></body></html>'); } const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); sp.sort((a,b) => { const scoreA = a.killsGained + (a.deadsGained * 2); const scoreB = b.killsGained + (b.deadsGained * 2); return scoreB - scoreA; }); const k = await getConfig('current_kvk') || 'Unknown'; res.render('stats', { stats: sp, totals: t, tiers, currentKvK: k }); } catch { res.status(500).send('Error'); } });
