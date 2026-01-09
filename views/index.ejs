@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sovereign Empire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root { --primary: #7c3aed; --secondary: #db2777; --bg: #0f172a; --text: #f8fafc; --accent: #8b5cf6; } 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; } 
@@ -71,33 +72,35 @@
       We are building a legacy. A data-driven, highly organized, and combat-focused community for Rise of Kingdoms. Prepare for the future.
     </p>
 
+    <!-- Dynamic Main Button -->
     <% if (user) { %>
         <a href="/dashboard" class="cta-button" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Go to Dashboard &rarr;</a>
     <% } else if (statsVisible) { %>
+         <!-- Stats enabled: Show stats button -->
         <a href="/stats" class="cta-button" style="padding: 1rem 2.5rem; font-size: 1.1rem;">View Stats & Progress</a>
     <% } else { %>
+         <!-- Stats disabled: Show Register button as primary action -->
         <a href="/register" class="cta-button" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Join the Project</a>
     <% } %>
 
     <p class="launch">Launching February 1, 2027</p>
   </section>
 
-  <% if (statsVisible) { %>
-      <div class="features">
-        <div class="feature-card">
-          <h3 style="margin-bottom:1rem"> Data Driven</h3>
-          <p style="color:#94a3b8">We track every metric. From power growth to kill points, our custom dashboard ensures fair rewards and accountability.</p>
-        </div>
-        <div class="feature-card">
-          <h3 style="margin-bottom:1rem"> Fair Leadership</h3>
-          <p style="color:#94a3b8">Transparent rules and tier-based requirements mean everyone knows what is expected. No favoritism.</p>
-        </div>
-        <div class="feature-card">
-          <h3 style="margin-bottom:1rem"> Elite Performance</h3>
-          <p style="color:#94a3b8">Focused on KVK dominance. We are gathering the best fighters and strategists for an unstoppable alliance.</p>
-        </div>
-      </div>
-  <% } %>
+  <!-- FEATURES SECTION (Always Visible now, as per "antigua pagina") -->
+  <div class="features">
+    <div class="feature-card">
+      <h3 style="margin-bottom:1rem"> Data Driven</h3>
+      <p style="color:#94a3b8">We track every metric. From power growth to kill points, our custom dashboard ensures fair rewards and accountability.</p>
+    </div>
+    <div class="feature-card">
+      <h3 style="margin-bottom:1rem"> Fair Leadership</h3>
+      <p style="color:#94a3b8">Transparent rules and tier-based requirements mean everyone knows what is expected. No favoritism.</p>
+    </div>
+    <div class="feature-card">
+      <h3 style="margin-bottom:1rem"> Elite Performance</h3>
+      <p style="color:#94a3b8">Focused on KVK dominance. We are gathering the best fighters and strategists for an unstoppable alliance.</p>
+    </div>
+  </div>
 
   <footer>
     &copy; 2026 Sovereign Empire. All rights reserved.
