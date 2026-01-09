@@ -82,6 +82,18 @@
                 </div>
                 <button class="btn btn-primary">Save Config</button>
             </form>
+
+            <!-- Public Stats Toggle -->
+            <form action="/admin/toggle-stats" method="POST" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <strong>Public Stats Visibility</strong><br>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">Currently: <span style="color: <%= statsVisible ? '#4ade80' : '#f87171' %>"><%= statsVisible ? 'VISIBLE' : 'HIDDEN' %></span></span>
+                </div>
+                <button class="btn <%= statsVisible ? 'btn-danger' : 'btn-success' %>">
+                    <%= statsVisible ? 'Disable (Hide)' : 'Enable (Show)' %>
+                </button>
+            </form>
+
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
             <h3> KvK Season Management</h3>
             <form action="/admin/kvk" method="POST" onsubmit="return confirmAction(this)">
@@ -317,6 +329,7 @@
         if (params.get('ok') === 'kvk') msg = 'Season Updated';
         if (params.get('ok') === 'del_backup') msg = 'Backup Deleted';
         if (params.get('ok') === 'unlink') msg = 'User Unlinked';
+        if (params.get('ok') === 'visibility_toggle') msg = 'Stats Visibility Updated';
         showToast(msg, 'success');
         window.history.replaceState({}, document.title, window.location.pathname);
     }

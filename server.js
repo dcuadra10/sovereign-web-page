@@ -117,6 +117,21 @@ app.get('/login', (req, res) => { const user = getUserFromToken(req); if (user) 
 // STATS PAGE (Public Leaderboard)
 app.get('/stats', async (req, res) => { 
     try { 
+        // CHECK VISIBILITY
+        const isVisible = await getConfig('public_stats_visible');
+        if (isVisible === 'false') {
+             // If user is admin, they can still see it? Maybe not strictly necessary to block admins, 
+             // but let's block everyone for simplicity or add admin check if requested.
+             // For now: Block everyone on public route.
+             return res.send(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head><title>Maintenance</title><style>body{background:#0f0c29;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head>
+                <body><div style="text-align:center;"><h1> Stats Temporarily Unavailable</h1><p>We are updating the data. Please check back later.</p><a href="/" style="color:#a78bfa;">Return Home</a></div></body>
+                </html>
+             `);
+        }
+
         const s = await getAllStats(); 
         const t = await getKingdomTotals(); 
         const tiers = await getAllTiers(); 
@@ -164,12 +179,18 @@ app.post('/link-account', isAuthenticated, async (req, res) => {
 
 app.get('/dashboard', isAuthenticated, async (req, res) => { 
   try { 
+    // VISIBILITY CHECK FOR DASHBOARD TOO?
+    // Usually personal stats are fine, but if stats are disabled, maybe show a warning.
+    const isVisible = await getConfig('public_stats_visible');
+    
     const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); 
     const k = await getConfig('current_kvk'); 
     const u = await getUser(req.user.discordId); 
     const a = await getAdmins(); 
     const lastStart = await getConfig('season_start_date');
-    res.render('dashboard', { user: {...req.user, ...u}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId) }); 
+    
+    // Pass isVisible to dashboard to show a banner if hidden
+    res.render('dashboard', { user: {...req.user, ...u}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId), statsVisible: isVisible !== 'false' }); 
   } catch (e){ res.status(500).send('Error loading dashboard: ' + e.message); } 
 });
 
@@ -180,8 +201,18 @@ app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
     const g = await getConfig('discord_guild_id') || ''; const r = await getConfig('discord_role_id') || '';
     const k = await getConfig('current_kvk') || ''; const lastK = await getConfig('last_scan_kingdom'); const lastD = await getConfig('last_scan_end_date');
     const linked = await getLinkedUsers() || [];
-    res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, lastK, lastD }); 
+    
+    const statsVisible = await getConfig('public_stats_visible');
+
+    res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, lastK, lastD, statsVisible: statsVisible !== 'false' }); 
   } catch (e) { console.error(e); res.status(500).send('Admin Panel Error: ' + e.message); } 
+});
+
+app.post('/admin/toggle-stats', isAuthenticated, isAdmin, async (req, res) => {
+    const current = await getConfig('public_stats_visible');
+    const newState = current === 'false' ? 'true' : 'false';
+    await setConfig('public_stats_visible', newState);
+    res.redirect('/admin?ok=visibility_toggle');
 });
 
 app.post('/admin/unlink', isAuthenticated, isAdmin, async (req, res) => { await unlinkUser(req.body.discordId); res.redirect('/admin?ok=unlink'); });
