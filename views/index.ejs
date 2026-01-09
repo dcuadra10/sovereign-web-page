@@ -1,76 +1,207 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sovereign Empire</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/Logo.jpg" type="image/jpg" />
+  <link rel="stylesheet" href="/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/script.js" defer></script>
   <style>
-    :root { --primary: #7c3aed; --secondary: #db2777; --bg: #0f172a; --text: #f8fafc; } 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; } 
-    body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(circle at top center, #1e1b4b 0%, #0f172a 60%); } 
-    
-    header { padding: 2rem 5%; display: flex; justify-content: space-between; align-items: center; width: 100%; position: fixed; top: 0; left: 0; z-index: 10; } 
-    .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; color: white; } 
-    
-    .cta-button { background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); padding: 0.8rem 1.8rem; border-radius: 9999px; font-weight: 600; color: white; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; border: none; font-size: 0.95rem; } 
-    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.5); } 
-    
-    .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 1rem; margin-top: -2rem; } 
-    
-    .tags { display: flex; gap: 0.8rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; } 
-    .tag { background: rgba(255, 255, 255, 0.05); padding: 0.5rem 1.2rem; border-radius: 9999px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; } 
-    
-    h1 { font-size: clamp(3rem, 7vw, 6rem); line-height: 1.05; font-weight: 800; letter-spacing: -2px; margin-bottom: 1.5rem; } 
-    .gradient-text { background: linear-gradient(to right, #c084fc, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } 
-    
-    p.desc { font-size: 1.2rem; color: #94a3b8; max-width: 650px; margin-bottom: 3rem; line-height: 1.6; } 
-    
-    .launch-date { margin-top: 4rem; text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; color: #64748b; font-weight: 600; }
+    /* Stats Modal Overlay */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+      z-index: 1000; display: flex; justify-content: center; align-items: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .stats-modal {
+      background: linear-gradient(135deg, #1f1c2eb3 0%, #302b63e6 100%);
+      padding: 40px 60px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5); text-align: center;
+      transform: scale(0.9); transition: transform 0.3s ease; max-width: 500px; width: 90%;
+    }
+    .modal-overlay.active .stats-modal { transform: scale(1); }
+    .modal-title {
+      font-size: 2rem; margin-bottom: 30px;
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .modal-buttons { display: flex; flex-direction: column; gap: 20px; }
+    .modal-btn {
+      padding: 18px 30px; border-radius: 12px; font-size: 1.1rem; font-weight: 600;
+      text-decoration: none; color: white; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      border: none; cursor: pointer;
+    }
+    .btn-login-big { background: linear-gradient(135deg, #5865F2, #4752c4); box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3); }
+    .btn-public-big { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
+    .modal-btn:hover { transform: translateY(-3px); filter: brightness(1.2); }
+    .close-modal { margin-top: 20px; background: none; border: none; color: rgba(255, 255, 255, 0.5); cursor: pointer; text-decoration: underline; }
+
+    /* Stats Button Main Page - CENTERED */
+    .view-stats-container { display: flex; justify-content: center; width: 100%; margin: 30px 0; }
+    .view-stats-btn {
+      background: linear-gradient(135deg, #a78bfa 0%, #f093fb 100%);
+      color: white; padding: 16px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: 700;
+      border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(167, 139, 250, 0.4);
+      transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px;
+      z-index: 10; position: relative;
+    }
+    .view-stats-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 15px 35px rgba(167, 139, 250, 0.6); }
+
+    .sovereign-card ul { text-align: center; list-style-position: inside; padding-left: 0; }
+    .sovereign-card li { margin-bottom: 8px; }
+    .mini-contact-btn {
+      background: rgba(255, 255, 255, 0.1); padding: 5px 12px; border-radius: 20px;
+      color: white; text-decoration: none; font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.2s;
+    }
+    .mini-contact-btn:hover { background: rgba(255, 255, 255, 0.2); border-color: #a78bfa; }
   </style>
 </head>
+
 <body>
-  <header>
-    <div class="logo">Sovereign Empire</div>
-    <div>
+  <!-- MODAL (Solo visible si stats están activadas) -->
+  <% if (statsVisible) { %>
+  <div class="modal-overlay" id="statsModal">
+    <div class="stats-modal">
+      <h2 class="modal-title"> Choose Action</h2>
+      <div class="modal-buttons">
+        <a href="/login" class="modal-btn btn-login-big"><span></span> Member Dashboard Login</a>
+        <a href="/stats" class="modal-btn btn-public-big"><span></span> View Public Kingdom Stats</a>
+      </div>
+      <button class="close-modal" onclick="toggleModal()">Close</button>
+    </div>
+  </div>
+  <% } %>
+
+  <main class="main">
+    <section class="hero">
+      <a href="/" style="text-decoration:none; color:inherit; display:block;">
+        <h1>Sovereign Empire</h1>
+      </a>
+      <p class="subtitle"> Kingdom XXXX</p>
+
+      <!-- MAIN ACTION BUTTON CENTERED -->
+      <div class="view-stats-container">
         <% if (user) { %>
-            <a href="/dashboard" class="cta-button">My Dashboard</a>
+            <button class="view-stats-btn" onclick="location.href='/dashboard'">Go to Dashboard &rarr;</button>
+        <% } else if (statsVisible) { %>
+            <button class="view-stats-btn" onclick="toggleModal()">View Stats & Progress</button>
+        <% } else { %>
+            <button class="view-stats-btn" onclick="location.href='/register'">Join the Project</button>
         <% } %>
-        <!-- No Login button here if not logged in, to match the clean look of the image, or maintain register? Image showed "My Dashboard" so user was likely logged in or it was the only button. -->
-        <!-- User requested "boton de register" if stats disabled. -->
-        <% if (!user) { %>
-             <a href="/register" class="cta-button">Join / Login</a>
-        <% } %>
-    </div>
-  </header>
+      </div>
 
-  <section class="hero">
-    <div class="tags">
-        <span class="tag">ROK</span>
-        <span class="tag">Organized</span>
-        <span class="tag">Spenders</span>
-        <span class="tag">Veterans</span>
-        <span class="tag">2027</span>
-    </div>
+      <div class="tags">
+        <span> ROK</span>
+        <span> Organized</span>
+        <span> Spenders</span>
+        <span> Veterans</span>
+        <span> 2027</span>
+      </div>
+      <p class="launch"> Launching February 1, 2027</p>
+    </section>
 
-    <h1>
-      The Next Generation <br />
-      <span class="gradient-text">Kingdom Builders</span>
-    </h1>
-    
-    <p class="desc">
-      We are building a legacy. A data-driven, highly organized, and combat-focused community for Rise of Kingdoms. Prepare for the future.
-    </p>
+    <section class="countdown">
+      <div class="countdown-box"><span id="days">00</span><label> Days</label></div>
+      <div class="countdown-box"><span id="hours">00</span><label> Hours</label></div>
+      <div class="countdown-box"><span id="minutes">00</span><label> Minutes</label></div>
+      <div class="countdown-box"><span id="seconds">00</span><label> Seconds</label></div>
+    </section>
 
-    <% if (user) { %>
-        <a href="/dashboard" class="cta-button" style="padding: 1rem 3rem; font-size: 1.1rem;">Go to Dashboard &rarr;</a>
-    <% } else if (statsVisible) { %>
-        <a href="/stats" class="cta-button" style="padding: 1rem 3rem; font-size: 1.1rem;">View Stats & Progress</a>
-    <% } else { %>
-        <a href="/register" class="cta-button" style="padding: 1rem 3rem; font-size: 1.1rem;">Join the Project</a>
-    <% } %>
+    <section class="panels">
+      <div class="panel small">
+        <h2> Current Members</h2>
+        <p id="member-count"> Loading...</p>
+      </div>
+      <div class="panel small">
+        <h2> Goal</h2>
+        <p> 4000+ Members United</p>
+      </div>
+      <div class="panel small">
+        <h2> Identity</h2>
+        <p> 100% Fighters. No Farmers.</p>
+      </div>
+    </section>
 
-    <p class="launch-date">Launching February 1, 2027</p>
-  </section>
+    <section class="discord">
+      <a href="https://discord.gg/BY2f2vPM4G" class="discord-button" target="_blank">Join Our Discord</a>
+    </section>
+
+    <section class="sovereign-empire">
+      <div class="sovereign-grid">
+        <div class="sovereign-card">
+          <h3> Our Goals</h3>
+          <ul>
+            <li>4000+ Active Members</li>
+            <li>Become an Imperium kingdom</li>
+            <li>Dominate KvK 1 & KvK 2</li>
+            <li>Become the Best Project of all ROK</li>
+          </ul>
+        </div>
+        <div class="sovereign-card">
+          <h3> What We Offer</h3>
+          <ul>
+            <li>Leaders with high experience</li>
+            <li>Applications available for R4 & R5</li>
+            <li>Professional Discord server</li>
+          </ul>
+        </div>
+        <div class="sovereign-card">
+          <h3> Who We are Looking For</h3>
+          <ul>
+            <li>F2P and P2W Players</li>
+            <li>Real Fighters Not Farmers</li>
+            <li>Active & Professional Members</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sovereign-footer">
+        <div class="sovereign-contact">
+          <h3> Contact Details</h3>
+          <div class="contact-buttons-row" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <a href="https://discord.com/users/1211770249200795734" target="_blank" class="mini-contact-btn">dcuadra</a>
+            <a href="https://discord.com/users/1351027112718368851" class="mini-contact-btn" target="_blank"> Hogan</a>
+            <a href="https://discord.com/users/836712927758385182" class="mini-contact-btn" target="_blank"> laser</a>
+          </div>
+        </div>
+        <blockquote class="sovereign-quote">While everyone is reaching for the stars we reach for what is beyond.</blockquote>
+      </div>
+    </section>
+
+    <section class="bottom-panels">
+      <div class="bottom-panel">
+        <h2> Server Status</h2>
+        <div id="server-status-content">
+          <p><strong>Status:</strong> <span style="color:#22c55e;">Online</span></p>
+          <p><strong>Region:</strong> Global</p>
+        </div>
+      </div>
+      <div class="bottom-panel contact-block">
+        <h2> Contact Us</h2>
+        <div class="contact-list">
+          <a href="https://discord.com/users/1211770249200795734" class="contact-button" target="_blank"> dcuadra</a>
+          <a href="https://discord.com/users/1351027112718368851" class="contact-button" target="_blank"> Hogan</a>
+          <a href="https://discord.com/users/836712927758385182" class="contact-button" target="_blank"> laser</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p> 2027 Sovereign Empire. All rights reserved.</p>
+    </footer>
+  </main>
+
+  <script>
+    function toggleModal() {
+      const modal = document.getElementById('statsModal');
+      if (modal) modal.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>
