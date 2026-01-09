@@ -64,7 +64,9 @@
     <nav class="navbar">
         <a href="/" class="nav-brand"> Sovereign Empire</a>
         <div class="nav-links">
-            <a href="/stats" class="btn btn-secondary">Leaderboard</a>
+            <% if (statsVisible) { %>
+                <a href="/stats" class="btn btn-secondary">Leaderboard</a>
+            <% } %>
             <% if (isAdmin) { %><a href="/admin" class="btn btn-admin">Admin Panel</a><% } %>
             <a href="/logout" class="btn btn-danger">Logout</a>
         </div>
@@ -98,10 +100,12 @@
             </div>
             <% } %>
 
-            <!-- CONTACT LEADERS SECTION -->
+            <!-- CONTACT LEADERS BUTTON -->
             <div class="card">
-                <h3 style="margin-bottom:15px; color:#a78bfa;"> Contact Leadership</h3>
-                <div style="display:flex; flex-direction:column; gap:12px;">
+                <button onclick="document.getElementById('contactList').style.display = document.getElementById('contactList').style.display === 'none' ? 'flex' : 'none'" class="btn btn-secondary" style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px;">
+                     Contact Leadership
+                </button>
+                <div id="contactList" style="display:none; flex-direction:column; gap:12px; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
                     <% if(typeof adminList !== 'undefined' && adminList.length > 0) { 
                        adminList.forEach(admin => { %>
                         <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); padding:8px; border-radius:6px;">
@@ -112,7 +116,7 @@
                             </div>
                         </div>
                     <% }); } else { %>
-                        <div style="opacity:0.6; font-size:0.9rem;">No public contacts listed.</div>
+                        <div style="opacity:0.6; font-size:0.9rem; text-align:center;">No public contacts listed.</div>
                     <% } %>
                 </div>
             </div>
@@ -129,8 +133,8 @@
                     <div class="announcements-box">
                         <% announcements.forEach(a => { %>
                             <div class="announcement">
-                                <h4><%= a.title %></h4>
-                                <p><%= a.content %></p>
+                                <h4><%- a.title %></h4>
+                                <div><%- a.content %></div>
                                 <span class="date-tag"><%= new Date(a.created_at).toLocaleDateString() %></span>
                             </div>
                         <% }) %>
@@ -140,7 +144,7 @@
                 <% if (projectInfo) { %>
                     <div class="info-box">
                         <h3 style="margin-bottom:10px; color:#a78bfa;">ℹ Project Information</h3>
-                        <div style="white-space: pre-wrap;"><%= projectInfo %></div>
+                        <div style="line-height:1.6;"><%- projectInfo %></div>
                     </div>
                 <% } %>
             </div>
@@ -183,7 +187,6 @@
 
                     <div style="margin-top:15px; text-align:right; font-size:0.8rem; opacity:0.6;">
                         Comparing against Season Start Date: <%= seasonStart || 'Unknown' %>
-                        <span style="display:inline-block; margin-left:10px; cursor:help; border-bottom:1px dotted white;" title="Gains are calculated from your stats on this date. If you joined later, your initial stats were recorded then.">ℹ Info</span>
                     </div>
 
                     <div class="progress-bar-container">
@@ -229,7 +232,7 @@
         const params = new URLSearchParams(window.location.search);
         function showToast(msg, type = 'success') {
             const t = document.createElement('div'); t.className = `toast toast-${type}`;
-            t.innerHTML = (type==='error'?' ':' ') + msg + (params.get('link') ? ` <a href="${params.get('link')}" target="_blank" style="color:white; text-decoration:underline; font-weight:bold; margin-left:5px;">Join Here</a>` : '');
+            t.innerHTML = (type==='error'?' ':' ') + msg;
             document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
         }
         if (params.get('success')) showToast(decodeURIComponent(params.get('success')), 'success');

@@ -46,6 +46,20 @@ async function isAdmin(req, res, next) {
   res.status(403).send('Forbidden: Not an admin');
 }
 
+// Markdown Parser
+function parseMarkdown(text) {
+    if (!text) return '';
+    let html = text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')       // Bold
+        .replace(/__(.*?)__/g, '<u>$1</u>')                     // Underline
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')                   // Italic
+        .replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.1);padding:2px 4px;border-radius:4px;">$1</code>') // Code
+        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#a78bfa;text-decoration:underline;">$1</a>') // Links
+        .replace(/\n/g, '<br>');                                // Newlines
+    return html;
+}
+
 // ... Helpers ...
 function findColumnIndex(headers, possibleNames) {
   for (const name of possibleNames) {
@@ -199,8 +213,13 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
     const a = await getAdmins(); 
     const adminList = await getAdminsWithDetails();
     const lastStart = await getConfig('season_start_date');
-    const announcements = await getAnnouncements();
-    const projectInfo = await getProjectInfo();
+    
+    // Parse Markdown
+    let announcements = await getAnnouncements();
+    announcements = announcements.map(a => ({ ...a, content: parseMarkdown(a.content) }));
+    let projectInfo = await getProjectInfo();
+    projectInfo = parseMarkdown(projectInfo);
+
     res.render('dashboard', { user: {...req.user, ...(u||{})}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId), statsVisible: isVisible !== 'false', announcements, projectInfo, adminList }); 
   } catch (e){ res.status(500).send('Error loading dashboard: ' + e.message); } 
 });
@@ -212,8 +231,13 @@ app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
     const k = await getConfig('current_kvk') || ''; const lastK = await getConfig('last_scan_kingdom'); const lastD = await getConfig('last_scan_end_date');
     const linked = await getLinkedUsers() || [];
     const statsVisible = await getConfig('public_stats_visible');
-    const announcements = await getAnnouncements();
-    const projectInfo = await getProjectInfo();
+    
+    // Parse Markdown also for Admin view if needed, but usually admin edits raw text.
+    // We pass RAW for editing, but maybe we want to preview?
+    // For now passing raw is better for editing.
+    let announcements = await getAnnouncements();
+    let projectInfo = await getProjectInfo();
+
     res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, lastK, lastD, statsVisible: statsVisible !== 'false', announcements, projectInfo }); 
   } catch (e) { console.error(e); res.status(500).send('Admin Panel Error: ' + e.message); } 
 });
