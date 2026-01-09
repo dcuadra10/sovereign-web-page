@@ -1,374 +1,229 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel - Sovereign Empire</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; }
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; text-decoration: none; color: white; }
-    .nav-links { display: flex; gap: 20px; }
-    .btn { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-    .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-    .btn-danger { background: linear-gradient(135deg, #f5576c, #f093fb); color: white; }
-    .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
-    .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
-    
-    .btn.active-btn { background: #fff; color: #302b63; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
-    .btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; }
-    
-    .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
-    .section { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .form-group { margin-bottom: 15px; }
-    .form-control { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; }
-    .tier-card { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
-    
-    .report-chunk { margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
-    textarea.report-area { width: 100%; height: 150px; padding: 10px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-family: monospace; resize: vertical; margin-bottom: 5px; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
-    th { opacity: 0.7; font-weight: 500; }
-
-    /* TOAST STYLES */
-    .toast {
-      position: fixed;
-      top: 20px; left: 50%; transform: translateX(-50%);
-      padding: 15px 25px;
-      border-radius: 10px;
-      color: white;
-      font-weight: 500;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      z-index: 2000;
-      display: flex; align-items: center; gap: 10px;
-      animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards; /* Auto hide after 3.5s */
-      max-width: 90%;
-    }
-    .toast-error { background: rgba(220, 38, 38, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
-    .toast-success { background: rgba(22, 163, 74, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
-    .toast-warning { background: rgba(234, 179, 8, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: #000; }
-    
-    @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
-  </style>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Sovereign Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#0f172a; color:#f8fafc; padding:20px; }
+        header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; padding-bottom:20px; border-bottom:1px solid #334155; }
+        h1 { color:#a78bfa; font-size:1.8rem; }
+        h2 { font-size:1.2rem; margin-bottom:15px; color:#ddd; border-left:4px solid #a78bfa; padding-left:10px; }
+        .grid-container { display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:20px; }
+        .card { background:#1e293b; padding:20px; border-radius:12px; border:1px solid #334155; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); }
+        .form-control { width:100%; padding:10px; margin-bottom:10px; background:#0f172a; border:1px solid #475569; border-radius:6px; color:white; }
+        .btn { padding:10px 20px; border-radius:6px; border:none; cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; }
+        .btn-primary { background:#7c3aed; color:white; } .btn-primary:hover { background:#6d28d9; }
+        .btn-danger { background:#ef4444; color:white; } .btn-secondary { background:#475569; color:white; }
+        table { width:100%; border-collapse:collapse; margin-top:10px; font-size:0.9rem; }
+        th, td { text-align:left; padding:8px; border-bottom:1px solid #334155; }
+        th { color:#94a3b8; }
+        .success-msg { color:#4ade80; margin-bottom:10px; }
+        
+        /* Toast Styles */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 10px; color: white; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards; max-width: 90%; }
+        .toast-success { background: rgba(22, 163, 74, 0.9); } .toast-error { background: rgba(220, 38, 38, 0.9); }
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <a href="/" class="nav-brand"> Sovereign Empire Admin</a>
-    <div class="nav-links">
-        <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
-        <a href="/logout" class="btn btn-secondary">Logout</a>
-    </div>
-  </nav>
-  
-  <div class="container">
-    <div class="grid-2">
-        <!-- GLOBAL CONFIG -->
-        <div class="section">
-            <h2> System Config</h2>
-            <form action="/admin/config" method="POST" style="margin-bottom: 20px;">
-                <div class="form-group">
-                    <label>Discord Server ID (Guild ID)</label>
-                    <input type="text" name="guildId" class="form-control" value="<%= guildId || '' %>" required placeholder="e.g. 123456789012345678">
-                </div>
-                 <div class="form-group">
-                    <label>Required Role ID (Optional)</label>
-                    <input type="text" name="roleId" class="form-control" value="<%= roleId || '' %>" placeholder="e.g. 123456789012345678 (Leave empty for no role check)">
-                </div>
-                <button class="btn btn-primary">Save Config</button>
-            </form>
-
-            <form action="/admin/toggle-stats" method="POST" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                    <strong>Public Stats Visibility</strong><br>
-                    <span style="font-size: 0.8rem; opacity: 0.7;">Currently: <span style="color: <%= statsVisible ? '#4ade80' : '#f87171' %>"><%= statsVisible ? 'VISIBLE' : 'HIDDEN' %></span></span>
-                </div>
-                <button class="btn <%= statsVisible ? 'btn-danger' : 'btn-success' %>">
-                    <%= statsVisible ? 'Disable (Hide)' : 'Enable (Show)' %>
-                </button>
-            </form>
-
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-            <h3> KvK Season Management</h3>
-            <form action="/admin/kvk" method="POST" onsubmit="return confirmAction(this)">
-                <div class="form-group">
-                    <label>Current KvK Name</label>
-                    <input type="text" name="kvkName" class="form-control" value="<%= currentKvK %>" placeholder="e.g. KvK 1">
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" class="btn btn-primary" onclick="this.form.action.value='save'; this.form.submit()">Update Name</button>
-                    <button type="submit" name="action" value="reset" class="btn btn-danger" onclick="return confirm('WARNING: This will DELETE ALL STATS to start a new season (A Backup will be created). Continue?')">Reset All Stats (New KvK)</button>
-                </div>
-            </form>
+    <header>
+        <h1>Admin Control Panel</h1>
+        <div>
+            <a href="/admin/forms" class="btn btn-secondary" style="margin-right:10px;"> Manage Forms & Roles</a>
+            <a href="/dashboard" class="btn btn-secondary">Return to Dashboard</a>
         </div>
-        
-        <!-- COMMUNICATION SECTION -->
-        <div class="section">
-            <h2> Communication & Info</h2>
-            <div style="margin-bottom:20px;">
-                <h3>Post Announcement</h3>
-                <form action="/admin/announcement" method="POST">
-                    <input type="text" name="title" class="form-control" placeholder="Title" required style="margin-bottom:5px;">
-                    <textarea name="content" class="form-control" placeholder="Announcement content..." required style="height:80px; resize:vertical; margin-bottom:5px;"></textarea>
-                    <button type="submit" name="action" value="create" class="btn btn-success">Post</button>
-                </form>
-            </div>
-            <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
-                <% if(announcements && announcements.length > 0) { %>
+    </header>
+
+    <div class="grid-container">
+        <!-- Announcements Management -->
+        <div class="card">
+            <h2> Manage Announcements</h2>
+            <form action="/admin/announcement" method="POST" style="margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:20px;">
+                <input type="hidden" name="action" value="create">
+                <input type="text" name="title" placeholder="Announcement Title" class="form-control" required style="font-weight:bold;">
+                <textarea name="content" rows="4" placeholder="Content (Markdown supported: **bold**, *italic*, [link](url))" class="form-control" required></textarea>
+                
+                <label style="display:block; margin:10px 0 5px; font-size:0.9rem;">Target Audience (Notifications will be sent)</label>
+                <select name="roleId" class="form-control">
+                    <option value="all">All Members</option>
+                    <% if (locals.roles) { roles.forEach(r => { %>
+                        <option value="<%= r.id %>"><%= r.name %></option>
+                    <% }) } %>
+                </select>
+
+                <button class="btn btn-primary" style="margin-top:10px;">Post Announcement</button>
+            </form>
+
+            <table style="max-height:200px; overflow-y:auto; display:block;">
+                <thead><tr><th>Date</th><th>Title</th><th>Audience</th><th>Action</th></tr></thead>
+                <tbody>
                     <% announcements.forEach(a => { %>
-                        <div style="border-bottom:1px solid rgba(255,255,255,0.1); padding:10px 0; display:flex; justify-content:space-between;">
-                            <div><strong><%= a.title %></strong><br><span style="font-size:0.8rem; opacity:0.7;"><%= new Date(a.created_at).toLocaleDateString() %></span></div>
-                            <form action="/admin/announcement" method="POST" onsubmit="return confirm('Delete?')"><input type="hidden" name="id" value="<%= a.id %>"><button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Del</button></form>
-                        </div>
+                    <tr>
+                        <td><%= new Date(a.created_at).toLocaleDateString() %></td>
+                        <td><%= a.title %></td>
+                        <td><%= a.target_role_name || 'All' %></td>
+                        <td>
+                            <form action="/admin/announcement" method="POST" onsubmit="return confirm('Delete?')">
+                                <input type="hidden" name="action" value="delete"> <input type="hidden" name="id" value="<%= a.id %>">
+                                <button class="btn btn-danger" style="padding:2px 8px; font-size:0.8rem;">X</button>
+                            </form>
+                        </td>
+                    </tr>
                     <% }) %>
-                <% } else { %><p style="opacity:0.5; font-size:0.9rem;">No active announcements</p><% } %>
-            </div>
-            
-            <h3 style="margin-top:20px;">ℹ Edit Project Info</h3>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Project Info -->
+        <div class="card">
+            <h2>ℹ Project Info Text</h2>
             <form action="/admin/project-info" method="POST">
-                <textarea name="content" class="form-control" style="height:150px; margin-bottom:5px;" placeholder="Markdown/HTML supported..."><%= projectInfo || '' %></textarea>
+                <textarea name="content" rows="6" class="form-control" placeholder="Markdown supported..."><%= projectInfo || '' %></textarea>
                 <button class="btn btn-primary">Update Info</button>
             </form>
         </div>
-    </div>
 
-
-    <div class="grid-2">
-        <!-- LINKED USERS & ADMINS -->
-        <div class="section">
-             <h2> Linked Users</h2>
-             <div style="max-height: 250px; overflow-y: auto; margin-bottom:20px;">
-                <table>
-                    <thead><tr><th>Discord User</th><th>Governor ID</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <% if (!linkedUsers || linkedUsers.length === 0) { %><tr><td colspan="3" style="text-align:center;">No linked users</td></tr><% } else { %>
-                            <% linkedUsers.forEach(u => { %>
-                                <tr>
-                                    <td><%= u.username %></td>
-                                    <td><%= u.governor_id %></td>
-                                    <td>
-                                        <form action="/admin/unlink" method="POST" onsubmit="return confirm('Unlink this user?')">
-                                            <input type="hidden" name="discordId" value="<%= u.discord_id %>">
-                                            <button class="btn btn-danger btn-sm">Unlink</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-
-            <h2> Manage Admins</h2>
-            <form action="/admin/manage-admins" method="POST" style="margin-bottom: 20px; display: flex; gap: 10px;">
-                <input type="text" name="discordId" class="form-control" placeholder="Discord User ID" required>
-                <input type="text" name="note" class="form-control" placeholder="Note (e.g. Leader)">
-                <button type="submit" name="action" value="add" class="btn btn-success">Add</button>
-            </form>
-            <div style="max-height: 150px; overflow-y: auto;">
-                <% admins.forEach(a => { %>
-                    <div class="tier-card">
-                        <div><strong><%= a.note || 'Admin' %></strong><br><span style="font-size: 0.8rem; opacity: 0.7;"><%= a.discord_id %></span></div>
-                        <% if (a.discord_id !== user.discordId) { %>
-                            <form action="/admin/manage-admins" method="POST"><input type="hidden" name="discordId" value="<%= a.discord_id %>"><button type="submit" name="action" value="remove" class="btn btn-danger btn-sm">Remove</button></form>
-                        <% } else { %><span style="font-size: 0.8rem; color: #4ade80;">You</span><% } %>
-                    </div>
-                <% }) %>
-            </div>
-        </div>
-    
-        <!-- BACKUPS -->
-        <div class="section">
-            <h2> Backups / History</h2>
-            <div style="max-height: 250px; overflow-y: auto;">
-                <table>
-                    <thead><tr><th>Name</th><th>Date</th><th>KvK / File</th><th>Size</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <% if (backups.length === 0) { %><tr><td colspan="5" style="text-align:center; opacity:0.5;">No backups found</td></tr><% } %>
-                        <% backups.forEach(b => { %>
-                            <tr>
-                                <td><%= b.name %></td>
-                                <td><%= new Date(b.created_at).toLocaleDateString() %></td>
-                                <td><%= b.kvk_season %> <span style="font-size:0.7em; opacity:0.6;"><%= b.filename %></span></td>
-                                <td><%= b.count %> records</td>
-                                <td style="display:flex; gap:5px;">
-                                    <a href="/admin/backup/download/<%= b.id %>" class="btn btn-primary btn-sm btn-icon" target="_blank" title="Download">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    </a>
-                                    <form action="/admin/backup/delete" method="POST" onsubmit="return confirm('Delete this backup permanently?')">
-                                        <input type="hidden" name="id" value="<%= b.id %>">
-                                        <button class="btn btn-danger btn-sm btn-icon" title="Delete">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- TIERS & UPLOAD -->
-    <div class="grid-2">
-        <div class="section">
-            <h2> Tier Requirements</h2>
-            <form action="/admin/tier" method="POST">
-                <input type="hidden" name="id" id="tierId">
-                <div class="form-group"><input type="text" name="name" class="form-control" placeholder="Tier Name" id="tierName" required></div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <input type="text" name="minPower" class="form-control" placeholder="Min Power (e.g. 10m, 1b)" id="tierMin" required>
-                    <input type="text" name="maxPower" class="form-control" placeholder="Max Power (e.g. 10m, 1b)" id="tierMax" required>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
-                    <input type="number" step="0.01" name="killMultiplier" class="form-control" placeholder="Kill Mult (1.0)" id="tierKill" required>
-                    <input type="number" step="0.0001" name="deathMultiplier" class="form-control" placeholder="Death Mult (0.05)" id="tierDeath" required>
-                </div>
-                <button class="btn btn-success" style="margin-top:10px;">Save Tier</button>
-            </form>
-            <div style="margin-top:20px; max-height:300px; overflow-y:auto;">
-                <% tiers.forEach(t => { %>
-                    <div class="tier-card">
-                        <div><strong><%= t.name %></strong> <span style="font-size:0.8rem">(<%= Number(t.min_power)/1000000 %>M - <%= Number(t.max_power)/1000000 %>M)</span><br><span style="font-size:0.8rem">Kill: <%= t.kill_multiplier %>x | Death: <%= t.death_multiplier %>x</span></div>
-                        <button class="btn btn-secondary btn-sm" onclick="editTier(<%= JSON.stringify(t) %>)">Edit</button>
-                    </div>
-                <% }) %>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2> Upload Stats</h2>
+        <!-- Excel Upload -->
+        <div class="card">
+            <h2> Upload Stats (Excel)</h2>
+            <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:15px;">Filename must contain dates: 'Kingdom#-StartDate-EndDate.xlsx'</p>
             
-            <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:6px; margin-bottom:15px; font-size:0.9rem;">
-                <div style="opacity:0.6; font-size:0.8rem;">Previous Scan Info:</div>
-                <div style="margin-top:5px;">
-                    Last Kingdom: <strong style="color:#4ade80"><%= lastK ? lastK : 'N/A' %></strong>
-                    <span style="opacity:0.3; margin:0 8px;">|</span>
-                    Last End Date: <strong style="color:#4ade80"><%= lastD ? lastD : 'N/A' %></strong>
-                </div>
+            <div style="margin-bottom:15px;">
+                <label>Update Existing Stats</label>
+                <form id="uploadUpdateForm" style="display:flex; gap:10px;">
+                    <input type="file" name="file" accept=".xlsx" class="form-control" required>
+                    <button type="button" onclick="uploadFile('update')" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+            
+            <div style="border-top:1px solid #334155; padding-top:15px;">
+                <label style="color:#ef4444;"> New Scan (Resets Current Data)</label>
+                <form id="uploadCreationForm" style="display:flex; gap:10px;">
+                    <input type="file" name="file" accept=".xlsx" class="form-control" required>
+                    <button type="button" onclick="uploadFile('creation')" class="btn btn-danger">New Scan</button>
+                </form>
+            </div>
+            <div id="progress" style="height:4px; background:#334155; margin-top:10px; border-radius:2px; overflow:hidden;"><div id="bar" style="width:0%; height:100%; background:#22c55e; transition:width 0.3s;"></div></div>
+        </div>
+
+        <!-- Config -->
+        <div class="card">
+            <h2> Configuration</h2>
+            <form action="/admin/config" method="POST">
+                <label>Discord Guild ID</label>
+                <input type="text" name="guildId" value="<%= guildId %>" class="form-control">
+                <label>Verified Role ID</label>
+                <input type="text" name="roleId" value="<%= roleId %>" class="form-control">
+                <button class="btn btn-secondary">Save Config</button>
+            </form>
+            
+            <div style="margin-top:20px; border-top:1px solid #334155; padding-top:15px;">
+                <h3>KvK Season</h3>
+                <form action="/admin/kvk" method="POST" style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" name="kvkName" value="<%= currentKvK %>" class="form-control" placeholder="e.g. Season 1">
+                    <button class="btn btn-primary">Set Name</button>
+                </form>
+                 <form action="/admin/kvk" method="POST" onsubmit="return confirm('WARNING: This will backup current data and WIPE all stats for a new season start. Confirm?')">
+                    <input type="hidden" name="action" value="reset">
+                    <input type="hidden" name="kvkName" value="New Season"> <!-- Placeholder -->
+                    <button class="btn btn-danger" style="width:100%;"> End Season & Reset Stats </button>
+                </form>
             </div>
 
-            <form id="uploadForm">
-                <input type="file" id="fileInput" class="form-control" accept=".xlsx,.xls">
-                <div class="progress-bar-bg" style="height:5px; background:rgba(255,255,255,0.1); margin:10px 0;"><div id="bar" style="height:100%; width:0%; background:#4ade80;"></div></div>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" class="btn btn-danger" onclick="upload('creation')">New List (Wipe Old)</button>
-                    <button type="button" class="btn btn-primary" onclick="upload('update')">Update Progress</button>
-                </div>
-            </form>
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 25px 0;">
-            <h2> One-Click Reports</h2>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 20px;">
-                <button class="btn btn-secondary report-btn" onclick="generateReport('non-compliant', this)">Copy Non-Compliant List</button>
-                <div style="display:flex; align-items:center;">
-                    <input type="number" id="topLimit" value="10" style="width:60px; padding:8px; border-radius:6px 0 0 6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:white;">
-                    <button class="btn btn-secondary report-btn" style="border-radius:0 6px 6px 0;" onclick="generateReport('top', this)">Copy Top Contributors</button>
-                </div>
+            <div style="margin-top:20px; border-top:1px solid #334155; padding-top:15px;">
+                <h3>Public Stats Visibility</h3>
+                <form action="/admin/toggle-stats" method="POST">
+                    <button class="btn" style="width:100%; background: <%= statsVisible ? '#22c55e' : '#ef4444' %>">
+                        <%= statsVisible ? 'Stats are VISIBLE (Click to Hide)' : 'Stats are HIDDEN (Click to Show)' %>
+                    </button>
+                </form>
             </div>
-            <div id="reportContainer"><textarea class="report-area" placeholder="Report output..." readonly></textarea></div>
+        </div>
+        
+        <!-- Backups -->
+        <div class="card" style="grid-column: span 2;">
+            <h2> Backups</h2>
+            <table>
+                <thead><tr><th>Name</th><th>Season</th><th>Date</th><th>Filename</th><th>Size</th><th>Action</th></tr></thead>
+                <tbody>
+                    <% backups.forEach(b => { %>
+                    <tr>
+                        <td><%= b.name %></td>
+                        <td><%= b.kvk_season %></td>
+                        <td><%= new Date(b.created_at).toLocaleString() %></td>
+                        <td><%= b.filename %></td>
+                        <td><%= b.count %></td>
+                        <td style="display:flex; gap:5px;">
+                            <a href="/admin/backup/download/<%= b.id %>" class="btn btn-primary btn-sm" target="_blank" style="padding:5px;"></a>
+                            <form action="/admin/backup/delete" method="POST" onsubmit="return confirm('Delete this backup permanently?')">
+                                <input type="hidden" name="id" value="<%= b.id %>">
+                                <button class="btn btn-danger btn-sm" style="padding:5px;"></button>
+                            </form>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
         </div>
     </div>
-  </div>
 
-  <script>
-    function showToast(msg, type = 'success') {
-        const t = document.createElement('div');
-        t.className = `toast toast-${type}`;
-        t.innerHTML = '<span>' + (type==='success'?' ':' ') + msg + '</span>';
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 4000);
-    }
+    <!-- Scripts -->
+    <script>
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.innerHTML = '<span>' + (type==='success'?' ':' ') + msg + '</span>';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 4000);
+        }
 
-    function editTier(t) {
-        document.getElementById('tierId').value = t.id;
-        document.getElementById('tierName').value = t.name;
-        document.getElementById('tierMin').value = t.min_power;
-        document.getElementById('tierMax').value = t.max_power;
-        document.getElementById('tierKill').value = t.kill_multiplier;
-        document.getElementById('tierDeath').value = t.death_multiplier;
-    }
-    
-    function upload(type, force = false) {
-        const file = document.getElementById('fileInput').files[0];
-        if(!file) return showToast('Please select a file first', 'error');
-        if(type==='creation' && !confirm('Delete existing stats? This will create a backup first.')) return;
-        
-        const fd = new FormData(); fd.append('file', file);
-        const xhr = new XMLHttpRequest();
-        xhr.upload.onprogress = e => document.getElementById('bar').style.width = (e.loaded/e.total*100) + '%';
-        xhr.onload = () => {
-            if (xhr.status === 409) {
-                const resp = JSON.parse(xhr.responseText);
-                if (confirm(resp.warning + "\n\nDo you want to proceed anyway?")) {
-                    upload(type, true); // Retry with force
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('ok')) showToast('Action successful!', 'success');
+        if (params.get('err')) showToast(decodeURIComponent(params.get('err')), 'error');
+
+        function uploadFile(type) {
+            const form = document.getElementById(type === 'update' ? 'uploadUpdateForm' : 'uploadCreationForm');
+            const fileInput = form.querySelector('input[type="file"]');
+            if (!fileInput.files.length) return alert('Select a file');
+            
+            const fd = new FormData();
+            fd.append('file', fileInput.files[0]);
+            
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/admin/upload/' + type);
+            
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const pct = (e.loaded / e.total) * 100;
+                    document.getElementById('bar').style.width = pct + '%';
+                }
+            };
+            
+            xhr.onload = () => {
+                if (xhr.status === 409) {
+                     const resp = JSON.parse(xhr.responseText);
+                     if (confirm(resp.warning + "\n\nDo you want to force proceed?")) {
+                         // Retry with force
+                         const xhr2 = new XMLHttpRequest();
+                         xhr2.open('POST', '/admin/upload/' + type + '?force=true');
+                         xhr2.onload = () => { if(xhr2.status===200) { showToast('Forced Upload Success', 'success'); setTimeout(()=>location.reload(), 2000); } else showToast('Error: ' + xhr2.responseText, 'error'); };
+                         xhr2.send(fd);
+                     } else {
+                         document.getElementById('bar').style.width = '0%';
+                     }
+                } else if (xhr.status===200) {
+                     showToast('Upload Successful! Page reloading...', 'success');
+                     setTimeout(() => location.reload(), 2000);
                 } else {
-                    showToast('Upload cancelled', 'warning');
+                     showToast('Error: ' + xhr.responseText, 'error');
                      document.getElementById('bar').style.width = '0%';
                 }
-            } else if (xhr.status===200) {
-                 showToast('Upload Successful! Page reloading...', 'success');
-                 setTimeout(() => location.reload(), 2000);
-            } else {
-                 showToast('Error: ' + xhr.responseText, 'error');
-                 document.getElementById('bar').style.width = '0%';
-            }
-        };
-        xhr.onerror = () => showToast('Network Error', 'error');
-        xhr.open('POST', '/admin/upload/'+type + (force ? '?force=true' : '')); xhr.send(fd);
-    }
-    
-    async function generateReport(type, btn) {
-        document.querySelectorAll('.report-btn').forEach(b => b.classList.remove('active-btn')); btn.classList.add('active-btn');
-        const limit = document.getElementById('topLimit').value;
-        const url = type === 'top' ? '/api/reports/top?limit=' + limit : '/api/reports/non-compliant';
-        try {
-            const res = await fetch(url); const list = await res.json();
-            const container = document.getElementById('reportContainer'); container.innerHTML = '';
-            if (list.length === 0) { container.innerHTML = '<p style="opacity:0.6">No records found.</p>'; return; }
-            const MAX_CHARS = 1900; let currentChunk = ''; let chunks = [];
-            list.forEach(line => { if ((currentChunk.length + line.length + 1) > MAX_CHARS) { chunks.push(currentChunk); currentChunk = ''; } currentChunk += line + '\n'; });
-            if (currentChunk) chunks.push(currentChunk);
-            chunks.forEach((chunk, index) => {
-                const div = document.createElement('div'); div.className = 'report-chunk';
-                div.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Part ${index + 1} / ${chunks.length}</span><button class="btn btn-success btn-sm" onclick="copyText(this)">Copy</button></div><textarea class="report-area" readonly>${chunk}</textarea>`;
-                container.appendChild(div);
-            });
-            showToast('Report Generated Successfully', 'success');
-        } catch(e) { showToast('Error generating report', 'error'); }
-    }
-    
-    function copyText(btn) { 
-        const area = btn.parentElement.nextElementSibling; 
-        area.select(); 
-        document.execCommand('copy'); 
-        const original = btn.innerText; 
-        btn.innerText = 'Copied!'; 
-        setTimeout(() => btn.innerText = original, 1000);
-         showToast('Copied to clipboard', 'success');
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('ok')) {
-        let msg = 'Action Completed';
-        if (params.get('ok') === 'tier') msg = 'Tier Saved';
-        if (params.get('ok') === 'kvk') msg = 'Season Updated';
-        if (params.get('ok') === 'del_backup') msg = 'Backup Deleted';
-        if (params.get('ok') === 'unlink') msg = 'User Unlinked';
-        if (params.get('ok') === 'visibility_toggle') msg = 'Stats Visibility Updated';
-        if (params.get('ok') === 'announcement') msg = 'Announcement Updated';
-        if (params.get('ok') === 'info_upd') msg = 'Project Info Updated';
-        showToast(msg, 'success');
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    if (params.get('err')) {
-        showToast(decodeURIComponent(params.get('err')), 'error');
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  </script>
+            };
+            xhr.send(fd);
+        }
+    </script>
 </body>
 </html>

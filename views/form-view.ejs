@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= form.title %> - Sovereign Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh; }
+        .container { background: #1e293b; max-width: 600px; width: 100%; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #334155; }
+        h1 { margin-bottom: 10px; color: #a78bfa; }
+        p.desc { margin-bottom: 30px; opacity: 0.8; line-height: 1.5; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.95rem; }
+        input[type="text"], textarea, select, input[type="file"] {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #020617; color: white; font-size: 1rem;
+        }
+        input:focus, textarea:focus, select:focus { outline: 2px solid #7c3aed; border-color: transparent; }
+        .btn { background: linear-gradient(135deg, #7c3aed, #db2777); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; float: right; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .back-link { display: inline-block; margin-top: 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><%= form.title %></h1>
+        <p class="desc"><%= form.description %></p>
+
+        <form action="/forms/<%= form.id %>/submit" method="POST" enctype="multipart/form-data">
+            
+            <% 
+            const schema = form.schema; 
+            schema.forEach(field => { 
+            %>
+                <div class="form-group">
+                    <label><%= field.label %></label>
+                    
+                    <% if (field.type === 'textarea') { %>
+                        <textarea name="<%= field.label %>" rows="4" required></textarea>
+                    
+                    <% } else if (field.type === 'select') { %>
+                        <select name="<%= field.label %>">
+                            <% field.options.split(',').forEach(opt => { %>
+                                <option value="<%= opt.trim() %>"><%= opt.trim() %></option>
+                            <% }) %>
+                        </select>
+                    
+                    <% } else if (field.type === 'file') { %>
+                        <input type="file" name="<%= field.label %>" required>
+                        <small style="display:block; margin-top:5px; color:#cbd5e1; font-size:0.8rem;">Allowed: Images, PDF. Max 10MB.</small>
+                    
+                    <% } else { %>
+                        <input type="text" name="<%= field.label %>" required>
+                    <% } %>
+                </div>
+            <% }) %>
+
+            <div style="margin-top:30px;">
+                <a href="/dashboard" class="back-link">Cancel</a>
+                <button type="submit" class="btn">Submit Form</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

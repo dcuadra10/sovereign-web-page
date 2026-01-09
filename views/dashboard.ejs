@@ -56,6 +56,8 @@
         .toast-success { background: rgba(22, 163, 74, 0.9); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
         @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        
+        .role-pill { display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:bold; color:black; margin:2px; }
 
         @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
     </style>
@@ -79,6 +81,14 @@
                 <img src="<%= user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" class="avatar">
                 <h2 class="user-name"><%= user.username %></h2>
                 <div class="user-id">ID: <%= user.discordId || 'Email User' %></div>
+                
+                <% if(locals.userRoles && userRoles.length > 0) { %>
+                    <div style="margin-bottom:15px;">
+                        <% userRoles.forEach(r => { %>
+                            <span class="role-pill" style="background:<%= r.color %>"><%= r.name %></span>
+                        <% }) %>
+                    </div>
+                <% } %>
                 
                 <% if (user.governor_id) { %>
                      <div class="status-badge status-linked">Linked: <%= user.governor_id %></div>
@@ -120,6 +130,21 @@
                     <% } %>
                 </div>
             </div>
+
+            <!-- AVAILABLE FORMS -->
+            <% if (typeof forms !== 'undefined' && forms.length > 0) { %>
+            <div class="card">
+                <h3 style="margin-bottom:15px; font-size:1.1rem; color:#a78bfa;"> Available Apps</h3>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <% forms.forEach(f => { %>
+                        <a href="/forms/<%= f.id %>" class="btn btn-secondary" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                            <span><%= f.title %></span>
+                            <span style="font-size:1.2rem;">&rsaquo;</span>
+                        </a>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -132,9 +157,12 @@
                 <% if (announcements && announcements.length > 0) { %>
                     <div class="announcements-box">
                         <% announcements.forEach(a => { %>
-                            <div class="announcement">
-                                <h4><%- a.title %></h4>
-                                <div><%- a.content %></div>
+                            <div class="announcement" style="<%= a.target_role_id ? 'border-left-color:#f472b6' : '' %>">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <h4><%- a.title %></h4>
+                                    <% if(a.target_role_id) { %> <span style="font-size:0.7rem; background:#f472b6; padding:2px 6px; border-radius:4px; color:black;">Role Targeted</span> <% } %>
+                                </div>
+                                <div style="margin-top:5px;"><%- a.content %></div>
                                 <span class="date-tag"><%= new Date(a.created_at).toLocaleDateString() %></span>
                             </div>
                         <% }) %>
@@ -150,7 +178,7 @@
             </div>
             <% } %>
 
-            <!-- PERSONAL STATS (IF LINKED AND VISIBLE) -->
+            <!-- PERSONAL STATS -->
             <% 
                let myStats = null;
                if (user.governor_id && stats) {
@@ -158,7 +186,6 @@
                }
             %>
 
-            <!-- AQUI APLICO EL CAMBIO: Solo mostrar si myStats existe Y statsVisible es true -->
             <% if (myStats && statsVisible) { %>
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">

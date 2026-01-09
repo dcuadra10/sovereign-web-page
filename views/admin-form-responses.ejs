@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Responses: <%= form.title %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background:#0f172a; color:#fff; padding:40px; font-family:'Inter'; }
+        table { width:100%; border-collapse:collapse; background:#1e293b; color:#fff; }
+        th, td { padding:12px; border:1px solid #334155; text-align:left; vertical-align:top; }
+        img.preview { max-width: 100px; max-height: 100px; border-radius: 4px; border: 1px solid #555; }
+        .back-link { color:#a78bfa; margin-bottom:20px; display:inline-block; }
+    </style>
+</head>
+<body>
+    <a href="/admin/forms" class="back-link">&larr; Back to Forms</a>
+    <h1>Responses for "<%= form.title %>"</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Submitted At</th>
+                <th>Answers</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% responses.forEach(r => { %>
+            <tr>
+                <td>
+                    <strong><%= r.username %></strong><br>
+                    <small style="opacity:0.6"><%= r.user_id %></small>
+                </td>
+                <td><%= new Date(r.submitted_at).toLocaleString() %></td>
+                <td>
+                    <div style="display:grid; grid-template-columns: auto 1fr; gap:10px;">
+                        <% for (const [key, val] of Object.entries(r.answers)) { %>
+                            <% if (!key.endsWith('_name')) { %>
+                                <div style="font-weight:600; color:#94a3b8;"><%= key %>:</div>
+                                <div>
+                                    <% if (typeof val === 'string' && val.startsWith('data:image')) { %>
+                                        <img src="<%= val %>" class="preview"><br>
+                                        <a href="<%= val %>" download="upload" style="color:#a78bfa; font-size:0.8rem;">Download Image</a>
+                                    <% } else if (typeof val === 'string' && val.startsWith('data:')) { %>
+                                        <a href="<%= val %>" download="file" style="color:#a78bfa;">Download File</a>
+                                    <% } else { %>
+                                        <%= val %>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        <% } %>
+                    </div>
+                </td>
+            </tr>
+            <% }) %>
+            <% if(responses.length === 0) { %>
+                <tr><td colspan="3" style="text-align:center; padding:20px;">No responses yet.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+</html>
