@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sovereign Empire</title>
+  <style>
+    :root { --primary: #7c3aed; --secondary: #db2777; --bg: #0f172a; --text: #f8fafc; --accent: #8b5cf6; } 
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; } 
+    body { background-color: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; } 
+    .gradient-text { background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; } 
+    header { position: fixed; width: 100%; padding: 1.5rem 5%; z-index: 100; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); } 
+    .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; display: flex; gap: 0.5rem; align-items: center; } 
+    .nav-links { display: flex; gap: 2rem; align-items: center; } 
+    .nav-links a { text-decoration: none; color: #94a3b8; font-weight: 500; transition: color 0.3s ease; font-size: 0.95rem; } 
+    .nav-links a:hover { color: white; } 
+    .cta-button { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 600; color: white; border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; display: inline-block; } 
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.5); } 
+    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 1rem; position: relative; overflow: hidden; } 
+    .hero::before { content: ''; position: absolute; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%); top: -20%; left: 50%; transform: translateX(-50%); z-index: -1; animation: pulse 8s ease-in-out infinite alternate; } 
+    .hero h1 { font-size: clamp(3rem, 6vw, 5rem); line-height: 1.1; margin-bottom: 1.5rem; font-weight: 800; letter-spacing: -2px; } 
+    .hero p { font-size: 1.25rem; color: #94a3b8; max-width: 600px; margin-bottom: 2.5rem; } 
+    .tags { display: flex; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; justify-content: center; } 
+    .tags span { background: rgba(255, 255, 255, 0.05); padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.1); } 
+    .launch { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; color: #64748b; margin-top: 4rem; font-weight: 600; } 
+    
+    @keyframes pulse { 0% { opacity: 0.5; transform: translateX(-50%) scale(0.8); } 100% { opacity: 1; transform: translateX(-50%) scale(1.2); } } 
+    
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); padding: 4rem 5%; gap: 2rem; max-width: 1200px; margin: 0 auto; } 
+    .feature-card { background: rgba(255, 255, 255, 0.02); padding: 2rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.3s; } 
+    .feature-card:hover { background: rgba(255, 255, 255, 0.05); }
+    
+    /* Footer */
+    footer { text-align: center; padding: 2rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; color: #64748b; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span></span> Sovereign Empire
+    </div>
+    <nav class="nav-links">
+      <% if (statsVisible) { %>
+        <a href="/stats">Leaderboard</a>
+      <% } %>
+      
+      <% if (user) { %>
+         <a href="/dashboard" class="cta-button">My Dashboard</a>
+      <% } else { %>
+         <a href="/login">Login</a>
+         <a href="/register" class="cta-button">Join Project</a>
+      <% } %>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="tags">
+        <span> ROK</span>
+        <span> Organized</span>
+        <span> Spenders</span>
+        <span> Veterans</span>
+        <span> 2027</span>
+    </div>
+
+    <h1>
+      The Next Generation <br />
+      <span class="gradient-text">Kingdom Builders</span>
+    </h1>
+    
+    <p>
+      We are building a legacy. A data-driven, highly organized, and combat-focused community for Rise of Kingdoms. Prepare for the future.
+    </p>
+
+    <% if (user) { %>
+        <a href="/dashboard" class="cta-button" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Go to Dashboard &rarr;</a>
+    <% } else if (statsVisible) { %>
+        <a href="/stats" class="cta-button" style="padding: 1rem 2.5rem; font-size: 1.1rem;">View Stats & Progress</a>
+    <% } else { %>
+        <a href="/register" class="cta-button" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Join the Project</a>
+    <% } %>
+
+    <p class="launch">Launching February 1, 2027</p>
+  </section>
+
+  <% if (statsVisible) { %>
+      <div class="features">
+        <div class="feature-card">
+          <h3 style="margin-bottom:1rem"> Data Driven</h3>
+          <p style="color:#94a3b8">We track every metric. From power growth to kill points, our custom dashboard ensures fair rewards and accountability.</p>
+        </div>
+        <div class="feature-card">
+          <h3 style="margin-bottom:1rem"> Fair Leadership</h3>
+          <p style="color:#94a3b8">Transparent rules and tier-based requirements mean everyone knows what is expected. No favoritism.</p>
+        </div>
+        <div class="feature-card">
+          <h3 style="margin-bottom:1rem"> Elite Performance</h3>
+          <p style="color:#94a3b8">Focused on KVK dominance. We are gathering the best fighters and strategists for an unstoppable alliance.</p>
+        </div>
+      </div>
+  <% } %>
+
+  <footer>
+    &copy; 2026 Sovereign Empire. All rights reserved.
+  </footer>
+</body>
+</html>
