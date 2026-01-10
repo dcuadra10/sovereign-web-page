@@ -2,228 +2,328 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - Sovereign Empire</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Center - Sovereign Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-        body { background:#0f172a; color:#f8fafc; padding:20px; }
-        header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; padding-bottom:20px; border-bottom:1px solid #334155; }
-        h1 { color:#a78bfa; font-size:1.8rem; }
-        h2 { font-size:1.2rem; margin-bottom:15px; color:#ddd; border-left:4px solid #a78bfa; padding-left:10px; }
-        .grid-container { display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:20px; }
-        .card { background:#1e293b; padding:20px; border-radius:12px; border:1px solid #334155; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); }
-        .form-control { width:100%; padding:10px; margin-bottom:10px; background:#0f172a; border:1px solid #475569; border-radius:6px; color:white; }
-        .btn { padding:10px 20px; border-radius:6px; border:none; cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; }
-        .btn-primary { background:#7c3aed; color:white; } .btn-primary:hover { background:#6d28d9; }
-        .btn-danger { background:#ef4444; color:white; } .btn-secondary { background:#475569; color:white; }
-        table { width:100%; border-collapse:collapse; margin-top:10px; font-size:0.9rem; }
-        th, td { text-align:left; padding:8px; border-bottom:1px solid #334155; }
-        th { color:#94a3b8; }
-        .success-msg { color:#4ade80; margin-bottom:10px; }
+        :root {
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --bg-dark: #0f0c29;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .page-title h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(to right, #fff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 5px; }
+
+        .header-actions { display: flex; gap: 15px; }
+        .btn { 
+            padding: 10px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .btn-primary { background: linear-gradient(135deg, #7c3aed, #db2777); color: white; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+
+        /* Grid Layout */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 25px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .card-title { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
+        .card-icon { width: 32px; height: 32px; background: rgba(124, 58, 237, 0.15); color: #a78bfa; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+        /* Sections */
+        .col-span-12 { grid-column: span 12; }
+        .col-span-8 { grid-column: span 8; }
+        .col-span-4 { grid-column: span 4; }
+        .col-span-6 { grid-column: span 6; }
         
-        /* Toast Styles */
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 10px; color: white; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards; max-width: 90%; }
-        .toast-success { background: rgba(22, 163, 74, 0.9); } .toast-error { background: rgba(220, 38, 38, 0.9); }
-        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        @media (max-width: 1200px) { .col-span-8, .col-span-4 { grid-column: span 12; } }
+        @media (max-width: 768px) { .col-span-6 { grid-column: span 12; } }
+
+        /* Forms */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        input, select, textarea {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: white; transition: 0.2s;
+        }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: rgba(0,0,0,0.5); }
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .file-input-wrapper:hover { border-color: var(--primary); background: rgba(124, 58, 237, 0.05); }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-weight: 500; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        td { color: #f1f5f9; }
+        tr:last-child td { border-bottom: none; }
+
+        /* Helpers */
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .bg-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .bg-orange { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+
+        /* Toggle Switch */
+        .toggle-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; }
     </style>
 </head>
 <body>
+    
+    <!-- HEADER -->
     <header>
-        <h1>Admin Control Panel</h1>
-        <div>
-            <a href="/admin/forms" class="btn btn-secondary" style="margin-right:10px;"> Manage Forms & Roles</a>
-            <a href="/dashboard" class="btn btn-secondary">Return to Dashboard</a>
+        <div class="page-title">
+            <h1>Admin Control Center</h1>
+            <p>System Management & Data Overview</p>
+        </div>
+        <div class="header-actions">
+            <a href="/dashboard" class="btn btn-ghost">&larr; Dashboard</a>
+            <a href="/admin/forms" class="btn btn-primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);"> Manage Forms & Roles</a>
         </div>
     </header>
 
-    <div class="grid-container">
-        <!-- Announcements Management -->
-        <div class="card">
-            <h2> Manage Announcements</h2>
-            <form action="/admin/announcement" method="POST" style="margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:20px;">
+    <!-- TOAST NOTIFICATION SCRIPT -->
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('ok')) {
+             const div = document.createElement('div');
+             div.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#22c55e; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;";
+             div.innerHTML = " Action Completed Successfully";
+             document.body.appendChild(div);
+        }
+        if (params.get('err') || params.get('error')) {
+             const div = document.createElement('div');
+             div.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#ef4444; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;";
+             div.innerHTML = " Error: " + (params.get('err') || params.get('error'));
+             document.body.appendChild(div);
+        }
+        document.body.insertAdjacentHTML('beforeend', '<style>@keyframes fadeOut { 0% {top:-50px; opacity:0;} 10% {top:20px; opacity:1;} 80% {opacity:1;} 100% {opacity:0; pointer-events:none;} }</style>');
+    </script>
+
+    <div class="admin-grid">
+
+        <!-- 1. ANNOUNCEMENTS (Large Area) -->
+        <div class="card col-span-8">
+            <div class="card-header">
+                <div class="card-title"><div class="card-icon"></div> Manage Announcements</div>
+            </div>
+            <form action="/admin/announcement" method="POST">
                 <input type="hidden" name="action" value="create">
-                <input type="text" name="title" placeholder="Announcement Title" class="form-control" required style="font-weight:bold;">
-                <textarea name="content" rows="4" placeholder="Content (Markdown supported: **bold**, *italic*, [link](url))" class="form-control" required></textarea>
-                
-                <label style="display:block; margin:10px 0 5px; font-size:0.9rem;">Target Audience (Notifications will be sent)</label>
-                <select name="roleId" class="form-control">
-                    <option value="all">All Members</option>
-                    <% if (locals.roles) { roles.forEach(r => { %>
-                        <option value="<%= r.id %>"><%= r.name %></option>
-                    <% }) } %>
-                </select>
-
-                <button class="btn btn-primary" style="margin-top:10px;">Post Announcement</button>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                         <label>Title</label>
+                         <input type="text" name="title" placeholder="Important Update..." required>
+                    </div>
+                    <div>
+                         <label>Target Audience (Email Notification)</label>
+                         <select name="roleId">
+                             <option value="all">All Members</option>
+                             <% locals.roles && roles.forEach(r => { %>
+                                 <option value="<%= r.id %>"><%= r.name %></option>
+                             <% }) %>
+                         </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Content (Enhanced Markdown Supported)</label>
+                    <textarea name="content" rows="4" placeholder="Use **bold**, # headers, - lists, or ```code blocks``` for ASCII art..." required></textarea>
+                </div>
+                <button class="btn btn-primary" style="width:100%;">Post Announcement</button>
             </form>
 
-            <table style="max-height:200px; overflow-y:auto; display:block;">
-                <thead><tr><th>Date</th><th>Title</th><th>Audience</th><th>Action</th></tr></thead>
-                <tbody>
-                    <% announcements.forEach(a => { %>
-                    <tr>
-                        <td><%= new Date(a.created_at).toLocaleDateString() %></td>
-                        <td><%= a.title %></td>
-                        <td><%= a.target_role_name || 'All' %></td>
-                        <td>
-                            <form action="/admin/announcement" method="POST" onsubmit="return confirm('Delete?')">
-                                <input type="hidden" name="action" value="delete"> <input type="hidden" name="id" value="<%= a.id %>">
-                                <button class="btn btn-danger" style="padding:2px 8px; font-size:0.8rem;">X</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+            <div style="margin-top:25px; border-top:1px solid var(--border); padding-top:15px;">
+                <h4 style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:15px;">Recent Announcements</h4>
+                <table>
+                    <thead><tr><th>Date</th><th>Title</th><th>Audience</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <% announcements.forEach(a => { %>
+                            <tr>
+                                <td><%= new Date(a.created_at).toLocaleDateString() %></td>
+                                <td style="font-weight:600;"><%= a.title %></td>
+                                <td><%= a.target_role_name || 'All Members' %></td>
+                                <td>
+                                    <form action="/admin/announcement" method="POST" style="margin:0;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<%= a.id %>">
+                                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Project Info -->
-        <div class="card">
-            <h2>ℹ Project Info Text</h2>
+        <!-- 2. PROJECT INFO & CONFIG (Side Column) -->
+        <div class="card col-span-4">
+            <div class="card-header">
+                <div class="card-title"><div class="card-icon">ℹ</div> Project Info</div>
+            </div>
             <form action="/admin/project-info" method="POST">
-                <textarea name="content" rows="6" class="form-control" placeholder="Markdown supported..."><%= projectInfo || '' %></textarea>
-                <button class="btn btn-primary">Update Info</button>
+                <div class="form-group">
+                    <textarea name="content" rows="12" style="font-family:monospace; font-size:0.8rem;"><%= projectInfo || '' %></textarea>
+                </div>
+                <button class="btn btn-primary" style="width:100%;">Update Info Text</button>
             </form>
-        </div>
-
-        <!-- Excel Upload -->
-        <div class="card">
-            <h2> Upload Stats (Excel)</h2>
-            <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:15px;">Filename must contain dates: 'Kingdom#-StartDate-EndDate.xlsx'</p>
             
-            <div style="margin-bottom:15px;">
-                <label>Update Existing Stats</label>
-                <form id="uploadUpdateForm" style="display:flex; gap:10px;">
-                    <input type="file" name="file" accept=".xlsx" class="form-control" required>
-                    <button type="button" onclick="uploadFile('update')" class="btn btn-primary">Update</button>
-                </form>
-            </div>
+            <div style="margin-top:30px;"></div>
             
-            <div style="border-top:1px solid #334155; padding-top:15px;">
-                <label style="color:#ef4444;"> New Scan (Resets Current Data)</label>
-                <form id="uploadCreationForm" style="display:flex; gap:10px;">
-                    <input type="file" name="file" accept=".xlsx" class="form-control" required>
-                    <button type="button" onclick="uploadFile('creation')" class="btn btn-danger">New Scan</button>
-                </form>
+            <div class="card-header">
+                <div class="card-title"><div class="card-icon"></div> Main Config</div>
             </div>
-            <div id="progress" style="height:4px; background:#334155; margin-top:10px; border-radius:2px; overflow:hidden;"><div id="bar" style="width:0%; height:100%; background:#22c55e; transition:width 0.3s;"></div></div>
-        </div>
-
-        <!-- Config -->
-        <div class="card">
-            <h2> Configuration</h2>
             <form action="/admin/config" method="POST">
-                <label>Discord Guild ID</label>
-                <input type="text" name="guildId" value="<%= guildId %>" class="form-control">
-                <label>Verified Role ID</label>
-                <input type="text" name="roleId" value="<%= roleId %>" class="form-control">
-                <button class="btn btn-secondary">Save Config</button>
+                <div class="form-group">
+                    <label>Discord Guild ID</label>
+                    <input type="text" name="guildId" value="<%= guildId %>">
+                </div>
+                <div class="form-group">
+                    <label>Verified Role ID</label>
+                    <input type="text" name="roleId" value="<%= roleId %>">
+                </div>
+                 <button class="btn btn-primary" style="width:100%;">Save Config</button>
             </form>
-            
-            <div style="margin-top:20px; border-top:1px solid #334155; padding-top:15px;">
-                <h3>KvK Season</h3>
-                <form action="/admin/kvk" method="POST" style="display:flex; gap:10px; margin-bottom:10px;">
-                    <input type="text" name="kvkName" value="<%= currentKvK %>" class="form-control" placeholder="e.g. Season 1">
-                    <button class="btn btn-primary">Set Name</button>
-                </form>
-                 <form action="/admin/kvk" method="POST" onsubmit="return confirm('WARNING: This will backup current data and WIPE all stats for a new season start. Confirm?')">
-                    <input type="hidden" name="action" value="reset">
-                    <input type="hidden" name="kvkName" value="New Season"> <!-- Placeholder -->
-                    <button class="btn btn-danger" style="width:100%;"> End Season & Reset Stats </button>
-                </form>
-            </div>
-
-            <div style="margin-top:20px; border-top:1px solid #334155; padding-top:15px;">
-                <h3>Public Stats Visibility</h3>
+             
+             <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border); text-align:center;">
+                <label>Public Stats Visibility</label>
                 <form action="/admin/toggle-stats" method="POST">
-                    <button class="btn" style="width:100%; background: <%= statsVisible ? '#22c55e' : '#ef4444' %>">
-                        <%= statsVisible ? 'Stats are VISIBLE (Click to Hide)' : 'Stats are HIDDEN (Click to Show)' %>
+                    <button class="btn" style="width:100%; background: <%= statsVisible ? 'rgba(34,197,94,0.2); color:#4ade80' : 'rgba(239,68,68,0.2); color:#fca5a5' %>; border:1px solid <%= statsVisible ? '#4ade80' : '#fca5a5' %>;">
+                        <%= statsVisible ? ' Stats are VISIBLE' : ' Stats are HIDDEN' %>
                     </button>
                 </form>
+             </div>
+        </div>
+
+        <!-- 3. DATA MANAGEMENT (Uploads) -->
+        <div class="card col-span-6">
+            <div class="card-header">
+                <div class="card-title"><div class="card-icon"></div> Data Management</div>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <!-- UPDATE -->
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#a78bfa; margin-bottom:10px;">Update Existing</h4>
+                    <form action="/admin/upload/update?force=true" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="file-input-wrapper">
+                                 Choose Excel File
+                                <input type="file" name="file" style="display:none;" onchange="this.parentElement.innerText = ' ' + this.files[0].name" required>
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;">Update Data</button>
+                    </form>
+                </div>
+
+                <!-- NEW SCAN -->
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#f472b6; margin-bottom:10px;">New Scan (Reset)</h4>
+                    <form action="/admin/upload/creation" method="POST" enctype="multipart/form-data" onsubmit="return confirm('WARNING: This will RESET all stats data. Continue?')">
+                        <div class="form-group">
+                            <label class="file-input-wrapper" style="border-color:#f472b6;">
+                                 Choose Excel File
+                                <input type="file" name="file" style="display:none;" onchange="this.parentElement.innerText = ' ' + this.files[0].name" required>
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" style="background:#f472b6; width:100%;">Start New Season</button>
+                    </form>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px;">
+                <form action="/admin/kvk" method="POST" style="display:flex; align-items:flex-end; gap:10px;">
+                    <div style="flex:1;">
+                        <label>Current Season Name</label>
+                        <input type="text" name="kvkName" value="<%= currentKvK %>" placeholder="e.g. KvK Season 3">
+                    </div>
+                    <button class="btn btn-ghost">Update Name</button>
+                    <button name="action" value="reset" class="btn btn-danger" onclick="return confirm('Are you absolutely sure?')">End Season & Reset</button>
+                </form>
             </div>
         </div>
-        
-        <!-- Backups -->
-        <div class="card" style="grid-column: span 2;">
-            <h2> Backups</h2>
-            <table>
-                <thead><tr><th>Name</th><th>Season</th><th>Date</th><th>Filename</th><th>Size</th><th>Action</th></tr></thead>
-                <tbody>
-                    <% backups.forEach(b => { %>
-                    <tr>
-                        <td><%= b.name %></td>
-                        <td><%= b.kvk_season %></td>
-                        <td><%= new Date(b.created_at).toLocaleString() %></td>
-                        <td><%= b.filename %></td>
-                        <td><%= b.count %></td>
-                        <td style="display:flex; gap:5px;">
-                            <a href="/admin/backup/download/<%= b.id %>" class="btn btn-primary btn-sm" target="_blank" style="padding:5px;"></a>
-                            <form action="/admin/backup/delete" method="POST" onsubmit="return confirm('Delete this backup permanently?')">
-                                <input type="hidden" name="id" value="<%= b.id %>">
-                                <button class="btn btn-danger btn-sm" style="padding:5px;"></button>
-                            </form>
-                        </td>
-                    </tr>
+
+        <!-- 4. BACKUPS & SYSTEM (Side) -->
+        <div class="card col-span-6">
+            <div class="card-header">
+                <div class="card-title"><div class="card-icon"></div> Backups</div>
+            </div>
+            <div style="max-height:300px; overflow-y:auto;">
+                <table>
+                    <thead><tr><th>Name</th><th>Season</th><th>Date</th><th>Size</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <% if(backups && backups.length) { backups.forEach(b => { %>
+                            <tr>
+                                <td><%= b.name %></td>
+                                <td><span class="badge bg-orange"><%= b.kvk_season %></span></td>
+                                <td><%= new Date(b.created_at).toLocaleDateString() %></td>
+                                <td><%= b.count %> Rows</td>
+                                <td style="display:flex; gap:5px;">
+                                    <a href="/admin/backup/download/<%= b.id %>" class="btn btn-ghost" style="padding:4px 8px;"></a>
+                                    <form action="/admin/backup/delete" method="POST" style="margin:0;">
+                                        <input type="hidden" name="id" value="<%= b.id %>">
+                                        <button class="btn btn-danger" style="padding:4px 8px;">&times;</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) } else { %>
+                            <tr><td colspan="5" style="text-align:center; padding:20px; opacity:0.5;">No backups found.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-header" style="margin-top:20px;">
+                <div class="card-title"><div class="card-icon"></div> Admin Access</div>
+            </div>
+            <div>
+                 <form action="/admin/manage-admins" method="POST" style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="hidden" name="action" value="add">
+                    <input type="text" name="discordId" placeholder="Discord ID to Promoto" required style="flex:2;">
+                    <input type="text" name="note" placeholder="Note" style="flex:1;">
+                    <button class="btn btn-primary">+</button>
+                </form>
+                <small style="opacity:0.6;">Current Admins: <%= admins.length %></small>
+                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:5px;">
+                    <% admins.forEach(a => { %>
+                         <form action="/admin/manage-admins" method="POST" onsubmit="return confirm('Remove admin?')">
+                             <input type="hidden" name="action" value="remove">
+                             <input type="hidden" name="discordId" value="<%= a.discord_id %>">
+                             <button class="badge bg-green" style="border:none; cursor:pointer;"><%= a.note || a.discord_id %> &times;</button>
+                         </form>
                     <% }) %>
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
+
     </div>
-
-    <!-- Scripts -->
-    <script>
-        function showToast(msg, type = 'success') {
-            const t = document.createElement('div');
-            t.className = `toast toast-${type}`;
-            t.innerHTML = '<span>' + (type==='success'?' ':' ') + msg + '</span>';
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 4000);
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('ok')) showToast('Action successful!', 'success');
-        if (params.get('err')) showToast(decodeURIComponent(params.get('err')), 'error');
-
-        function uploadFile(type) {
-            const form = document.getElementById(type === 'update' ? 'uploadUpdateForm' : 'uploadCreationForm');
-            const fileInput = form.querySelector('input[type="file"]');
-            if (!fileInput.files.length) return alert('Select a file');
-            
-            const fd = new FormData();
-            fd.append('file', fileInput.files[0]);
-            
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/admin/upload/' + type);
-            
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    const pct = (e.loaded / e.total) * 100;
-                    document.getElementById('bar').style.width = pct + '%';
-                }
-            };
-            
-            xhr.onload = () => {
-                if (xhr.status === 409) {
-                     const resp = JSON.parse(xhr.responseText);
-                     if (confirm(resp.warning + "\n\nDo you want to force proceed?")) {
-                         // Retry with force
-                         const xhr2 = new XMLHttpRequest();
-                         xhr2.open('POST', '/admin/upload/' + type + '?force=true');
-                         xhr2.onload = () => { if(xhr2.status===200) { showToast('Forced Upload Success', 'success'); setTimeout(()=>location.reload(), 2000); } else showToast('Error: ' + xhr2.responseText, 'error'); };
-                         xhr2.send(fd);
-                     } else {
-                         document.getElementById('bar').style.width = '0%';
-                     }
-                } else if (xhr.status===200) {
-                     showToast('Upload Successful! Page reloading...', 'success');
-                     setTimeout(() => location.reload(), 2000);
-                } else {
-                     showToast('Error: ' + xhr.responseText, 'error');
-                     document.getElementById('bar').style.width = '0%';
-                }
-            };
-            xhr.send(fd);
-        }
-    </script>
 </body>
 </html>
