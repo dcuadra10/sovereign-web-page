@@ -94,70 +94,23 @@ async function checkOnboarding(req, res, next) {
 // === NEW MARKDOWN PARSER ===
 function parseMarkdown(text) {
     if (!text) return '';
-    
-    // Initial cleanup
-    let html = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
+    let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const lines = html.split('\n');
     let output = [];
     let inCodeBlock = false;
-
     for (let line of lines) {
-        // Toggle Code Block (Preserves ASCII Art & Code)
-        if (line.trim().startsWith('```')) {
-            inCodeBlock = !inCodeBlock;
-            output.push(inCodeBlock ? '<pre style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; overflow-x:auto; font-family:monospace; line-height:1.2; border:1px solid rgba(255,255,255,0.1);">' : '</pre>');
-            continue;
-        }
-        
-        if (inCodeBlock) {
-            output.push(line); // Keep raw line inside code block
-            continue;
-        }
-
-        // Headers
-        if (line.match(/^#\s+(.*)/)) { 
-            line = line.replace(/^#\s+(.*)/, '<h2 style="color:#a78bfa; margin:15px 0 10px; font-size:1.4rem; border-bottom:1px solid rgba(167,139,250,0.3); padding-bottom:5px;">$1</h2>'); 
-        }
-        else if (line.match(/^##\s+(.*)/)) { 
-            line = line.replace(/^##\s+(.*)/, '<h3 style="color:#c4b5fd; font-size:1.2rem; margin:12px 0 8px;">$1</h3>'); 
-        }
-        else if (line.match(/^###\s+(.*)/)) { 
-            line = line.replace(/^###\s+(.*)/, '<h4 style="color:#ddd; font-size:1.1rem; margin:10px 0;">$1</h4>'); 
-        }
-        
-        // Blockquote
-        else if (line.match(/^>\s+(.*)/)) { 
-            line = line.replace(/^>\s+(.*)/, '<blockquote style="border-left:4px solid #7c3aed; background:rgba(124,58,237,0.1); padding:10px 15px; margin:10px 0; color:#e2e8f0; font-style:italic; border-radius:0 8px 8px 0;">$1</blockquote>'); 
-        }
-
-        // Lists & Subtext
-        else if (line.match(/^\s*-\s+(.*)/) || line.match(/^\s*\*\s+(.*)/)) {
-             line = line.replace(/^\s*[-*]\s+(.*)/, '<div style="display:flex; gap:8px; align-items:flex-start; margin-bottom:4px;"><span style="color:#a78bfa;"></span><span>$1</span></div>');
-        } 
-        else if (line.match(/^\s*-#\s+(.*)/)) { // Discord style subtext
-             line = line.replace(/^\s*-#\s+(.*)/, '<div style="margin-left:20px; font-size:0.85rem; opacity:0.7; font-style:italic;">$1</div>');
-        } 
-        else {
-             // Regular text line
-             if (line.trim().length > 0) line += '<br>';
-        }
-
-        // Inline Formatting
-        line = line
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/__(.*?)__/g, '<u>$1</u>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-family:monospace; color:#f472b6;">$1</code>')
-            .replace(/&lt;@(\d+)&gt;/g, '<span style="color:#a78bfa; background:rgba(124, 58, 237, 0.15); padding:2px 6px; border-radius:4px; font-weight:500;">@Member</span>') // Handle mentions
-            .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#38bdf8; text-decoration:underline;">$1</a>');
-
+        if (line.trim().startsWith('```')) { inCodeBlock = !inCodeBlock; output.push(inCodeBlock ? '<pre style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; overflow-x:auto; font-family:monospace; line-height:1.2; border:1px solid rgba(255,255,255,0.1);">' : '</pre>'); continue; }
+        if (inCodeBlock) { output.push(line); continue; }
+        if (line.match(/^#\s+(.*)/)) { line = line.replace(/^#\s+(.*)/, '<h2 style="color:#a78bfa; margin:15px 0 10px; font-size:1.4rem; border-bottom:1px solid rgba(167,139,250,0.3); padding-bottom:5px;">$1</h2>'); }
+        else if (line.match(/^##\s+(.*)/)) { line = line.replace(/^##\s+(.*)/, '<h3 style="color:#c4b5fd; font-size:1.2rem; margin:12px 0 8px;">$1</h3>'); }
+        else if (line.match(/^###\s+(.*)/)) { line = line.replace(/^###\s+(.*)/, '<h4 style="color:#ddd; font-size:1.1rem; margin:10px 0;">$1</h4>'); }
+        else if (line.match(/^>\s+(.*)/)) { line = line.replace(/^>\s+(.*)/, '<blockquote style="border-left:4px solid #7c3aed; background:rgba(124,58,237,0.1); padding:10px 15px; margin:10px 0; color:#e2e8f0; font-style:italic; border-radius:0 8px 8px 0;">$1</blockquote>'); }
+        else if (line.match(/^\s*-\s+(.*)/) || line.match(/^\s*\*\s+(.*)/)) { line = line.replace(/^\s*[-*]\s+(.*)/, '<div style="display:flex; gap:8px; align-items:flex-start; margin-bottom:4px;"><span style="color:#a78bfa;"></span><span>$1</span></div>'); } 
+        else if (line.match(/^\s*-#\s+(.*)/)) { line = line.replace(/^\s*-#\s+(.*)/, '<div style="margin-left:20px; font-size:0.85rem; opacity:0.7; font-style:italic;">$1</div>'); } 
+        else { if (line.trim().length > 0) line += '<br>'; }
+        line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/__(.*?)__/g, '<u>$1</u>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-family:monospace; color:#f472b6;">$1</code>').replace(/&lt;@(\d+)&gt;/g, '<span style="color:#a78bfa; background:rgba(124, 58, 237, 0.15); padding:2px 6px; border-radius:4px; font-weight:500;">@Member</span>').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#38bdf8; text-decoration:underline;">$1</a>');
         output.push(line);
     }
-    
     return output.join('\n');
 }
 
@@ -216,7 +169,45 @@ app.get('/dashboard', isAuthenticated, checkOnboarding, async (req, res) => {
 
 // FORM ROUTES
 app.get('/forms/:id', isAuthenticated, async (req, res) => { try { const form = await getFormById(req.params.id); if (!form || (!form.is_active && !req.user.isAdmin)) return res.status(404).send('Form unavailable'); res.render('form-view', { form, user: req.user, isOnboarding: req.query.onboarding === 'true' }); } catch(e) { res.status(500).send(e.message); } });
-app.post('/forms/:id/submit', isAuthenticated, upload.any(), async (req, res) => { try { const form = await getFormById(req.params.id); if (!form) return res.status(404).send('Form not found'); const answers = { ...req.body }; if (req.files && req.files.length) { req.files.forEach(f => { answers[f.fieldname] = `data:${f.mimetype};base64,${f.buffer.toString('base64')}`; answers[f.fieldname + '_name'] = f.originalname; }); } await submitFormResponse(form.id, req.user.discordId || req.user.email, req.user.username, answers); if (form.assign_role_id) { await assignRoleToUser(req.user.discordId, form.assign_role_id); } res.send('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="3;url=/dashboard" /><title>Submitted</title><style>body{background:#0f172a;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><h1> Submitted Successfully!</h1><p>Redirecting to dashboard...</p></body></html>'); } catch (e) { res.status(500).send(e.message); } });
+app.post('/forms/:id/submit', isAuthenticated, upload.any(), async (req, res) => { 
+    try { 
+        const form = await getFormById(req.params.id); 
+        if (!form) return res.status(404).send('Form not found'); 
+        
+        const answers = { ...req.body }; 
+        if (req.files && req.files.length) { 
+            req.files.forEach(f => { 
+                answers[f.fieldname] = `data:${f.mimetype};base64,${f.buffer.toString('base64')}`; 
+                answers[f.fieldname + '_name'] = f.originalname; 
+            }); 
+        } 
+        
+        await submitFormResponse(form.id, req.user.discordId || req.user.email, req.user.username, answers); 
+        
+        // 1. Assign Global Role (if set)
+        if (form.assign_role_id) { 
+            await assignRoleToUser(req.user.discordId, form.assign_role_id); 
+        }
+
+        // 2. Assign Answer-Specific Roles (If Configured)
+        if (form.schema && Array.isArray(form.schema)) {
+            for (const field of form.schema) {
+                if (field.roleMap && answers[field.label]) {
+                    const selectedValue = answers[field.label];
+                    const roleIdToAssign = field.roleMap[selectedValue];
+                    if (roleIdToAssign) {
+                        try {
+                            await assignRoleToUser(req.user.discordId || req.user.email /*Fallback for non-discord users logic*/, roleIdToAssign);
+                            console.log(`Assigned mapped role ${roleIdToAssign} to User for answer "${selectedValue}"`);
+                        } catch(err) { console.error('Error assigning role:', err); }
+                    }
+                }
+            }
+        }
+
+        res.send('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="3;url=/dashboard" /><title>Submitted</title><style>body{background:#0f172a;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><h1> Submitted Successfully!</h1><p>Redirecting to dashboard...</p></body></html>'); 
+    } catch (e) { res.status(500).send(e.message); } 
+});
 
 // ADMIN (Config Onboarding)
 app.post('/admin/onboarding', isAuthenticated, isAdmin, async (req, res) => { await setConfig('onboarding_form_id', req.body.formId); res.redirect('/admin/forms'); });

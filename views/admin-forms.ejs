@@ -159,6 +159,8 @@
     </div>
 
     <script>
+        const availableRoles = <%- JSON.stringify(locals.roles || []) %>;
+
         function showTab(id) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -172,24 +174,54 @@
             const c = document.getElementById('fields-container');
             c.innerHTML = '';
             fields.forEach((f, idx) => {
+                let roleMapperHtml = '';
+                
+                // If Select Type, show Role Mapper
+                if (f.type === 'select') {
+                    const opts = f.options ? f.options.split(',').map(s=>s.trim()).filter(s=>s) : [];
+                    if (opts.length > 0) {
+                        roleMapperHtml = `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:6px;">
+                            <small style="display:block; margin-bottom:5px; color:#a78bfa;"> Assign Roles to Options (Optional)</small>
+                            ${opts.map(opt => `
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                                    <span style="font-size:0.9rem;">${opt}</span>
+                                    <select onchange="updateRoleMap(${idx}, '${opt}', this.value)" style="width:150px; padding:4px; margin:0;">
+                                        <option value="">No Role</option>
+                                        ${availableRoles.map(r => `
+                                            <option value="${r.id}" ${f.roleMap && f.roleMap[opt] == r.id ? 'selected' : ''}>${r.name}</option>
+                                        `).join('')}
+                                    </select>
+                                </div>
+                            `).join('')}
+                        </div>`;
+                    }
+                }
+
                 c.innerHTML += `
-                    <div class="field-row">
-                        <select onchange="updateField(${idx}, 'type', this.value)" style="width:150px; margin:0;">
-                            <option value="text" ${f.type==='text'?'selected':''}>Short Text</option>
-                            <option value="textarea" ${f.type==='textarea'?'selected':''}>Paragraph</option>
-                            <option value="file" ${f.type==='file'?'selected':''}>File Upload</option>
-                            <option value="select" ${f.type==='select'?'selected':''}>Dropdown</option>
-                        </select>
-                        <input type="text" value="${f.label}" oninput="updateField(${idx}, 'label', this.value)" placeholder="Question Label" style="margin:0;">
-                        ${f.type === 'select' ? `<input type="text" value="${f.options||''}" oninput="updateField(${idx}, 'options', this.value)" placeholder="Options (comma separated)" style="margin:0;">` : ''}
-                        <button type="button" class="remove-field" onclick="removeField(${idx})">&times;</button>
+                    <div style="background:#0f172a; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #334155;">
+                        <div style="display:flex; gap:10px; align-items:flex-start;">
+                            <div style="flex:1; display:grid; gap:10px;">
+                                <div style="display:flex; gap:10px;">
+                                    <select onchange="updateField(${idx}, 'type', this.value)" style="width:140px; margin:0;">
+                                        <option value="text" ${f.type==='text'?'selected':''}>Short Text</option>
+                                        <option value="textarea" ${f.type==='textarea'?'selected':''}>Paragraph</option>
+                                        <option value="file" ${f.type==='file'?'selected':''}>File Upload</option>
+                                        <option value="select" ${f.type==='select'?'selected':''}>Dropdown/Cards</option>
+                                    </select>
+                                    <input type="text" value="${f.label}" oninput="updateField(${idx}, 'label', this.value)" placeholder="Question Label (e.g. Choose Class)" style="margin:0; flex:1;">
+                                </div>
+                                ${f.type === 'select' ? `<input type="text" value="${f.options||''}" oninput="updateField(${idx}, 'options', this.value)" placeholder="Options separated by commas (e.g. Infantry, Cavalry, Archer)" style="margin:0;">` : ''}
+                            </div>
+                            <button type="button" class="remove-field" onclick="removeField(${idx})" style="height:40px;">&times;</button>
+                        </div>
+                        ${roleMapperHtml}
                     </div>
                 `;
             });
         }
 
         function addField() {
-            fields.push({ type: 'text', label: '', required: true });
+            fields.push({ type: 'text', label: '', required: true, options: '', roleMap: {} });
             renderFields();
         }
 
@@ -200,7 +232,19 @@
 
         function updateField(idx, key, val) {
             fields[idx][key] = val;
-            if(key === 'type') renderFields(); // Re-render if type changes
+            if (key === 'options') {
+                // If options change, we could reset map, but keeping is safer for now
+            }
+            if (key === 'type' || key === 'options') renderFields(); 
+        }
+
+        function updateRoleMap(idx, optionText, roleId) {
+            if (!fields[idx].roleMap) fields[idx].roleMap = {};
+            if (roleId) {
+                fields[idx].roleMap[optionText] = roleId;
+            } else {
+                delete fields[idx].roleMap[optionText];
+            }
         }
 
         function prepareSchema() {
