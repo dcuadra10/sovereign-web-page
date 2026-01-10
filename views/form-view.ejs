@@ -6,39 +6,95 @@
     <title><%= form.title %> - Sovereign Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh; }
-        .container { background: #1e293b; max-width: 600px; width: 100%; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #334155; }
-        h1 { margin-bottom: 10px; color: #a78bfa; }
-        p.desc { margin-bottom: 30px; opacity: 0.8; line-height: 1.5; }
+        /* Base Styles */
+        body { margin:0; font-family:'Inter', sans-serif; background:#0f172a; color:white; min-height:100vh; display:flex; justify-content:center; align-items:center; }
         
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.95rem; }
-        input[type="text"], textarea, select, input[type="file"] {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #020617; color: white; font-size: 1rem;
-        }
-        input:focus, textarea:focus, select:focus { outline: 2px solid #7c3aed; border-color: transparent; }
-        .btn { background: linear-gradient(135deg, #7c3aed, #db2777); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; float: right; transition: opacity 0.2s; }
-        .btn:hover { opacity: 0.9; }
-        .back-link { display: inline-block; margin-top: 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; }
+        /* Discord-Like Onboarding Theme */
+        <% if (locals.isOnboarding) { %>
+            body { background: #313338; color: #dbdee1; }
+            .container { background: #2b2d31; width: 100%; max-width: 600px; padding: 40px; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.24); }
+            h1 { text-align: center; color: #f2f3f5; margin-bottom: 10px; font-size: 1.5rem; }
+            p.desc { text-align: center; color: #b5bac1; margin-bottom: 30px; font-size: 0.95rem; }
+            
+            .form-group { margin-bottom: 25px; }
+            label { display: block; font-weight: 600; font-size: 0.8rem; color: #b5bac1; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+            
+            /* Modern Inputs */
+            input[type="text"], textarea, select {
+                width: 100%; padding: 10px; background: #1e1f22; border: none; border-radius: 4px; color: #dbdee1; font-size: 1rem;
+            }
+            input:focus, textarea:focus { outline: none; background: #1e1f22; }
+
+            /* Option Cards (for Select/Radio behavior simulated) */
+            .options-grid { display: flex; flex-direction: column; gap: 8px; }
+            .option-card {
+                background: #2b2d31; border: 1px solid #4e5058; border-radius: 8px; padding: 12px 16px; 
+                cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;
+            }
+            .option-card:hover { background: #35373c; border-color: #6d6f78; }
+            .option-card.selected { background: rgba(88, 101, 242, 0.1); border-color: #5865F2; }
+            .option-checkbox { 
+                width: 20px; height: 20px; border: 2px solid #b5bac1; border-radius: 6px; 
+                display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            }
+            .option-card.selected .option-checkbox { background: #5865F2; border-color: #5865F2; }
+            .option-checkbox::after { content: ''; color: white; font-size: 14px; opacity: 0; }
+            .option-card.selected .option-checkbox::after { opacity: 1; }
+
+            .btn-submit {
+                background: #5865F2; color: white; width: 100%; border: none; padding: 12px; 
+                border-radius: 4px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s; margin-top: 20px;
+            }
+            .btn-submit:hover { background: #4752c4; }
+
+        <% } else { %>
+            /* Default Standard Theme */
+            .container { background: #1e293b; max-width: 600px; width: 100%; padding: 30px; border-radius: 12px; border: 1px solid #334155; }
+            h1 { margin-bottom: 10px; color: #a78bfa; }
+            .form-group { margin-bottom: 20px; }
+            label { display: block; margin-bottom: 8px; font-weight: 500; }
+            input, textarea, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #020617; color: white; }
+            .btn-submit { background: linear-gradient(135deg, #7c3aed, #db2777); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; float: right; }
+            .back-link { display: inline-block; margin-top: 20px; color: #94a3b8; text-decoration: none; }
+        <% } %>
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><%= form.title %></h1>
-        <p class="desc"><%= form.description %></p>
+        <% if (locals.isOnboarding) { %>
+            <div style="text-align:center; margin-bottom:20px;">
+                <img src="/logo.png" style="width:60px; height:60px; border-radius:50%; background:#1e1f22; object-fit:cover;" onerror="this.style.display='none'">
+            </div>
+            <h1>Welcome to Sovereign Empire</h1>
+            <p class="desc"><%= form.description || "Let's customize your experience." %></p>
+        <% } else { %>
+            <h1><%= form.title %></h1>
+            <p class="desc" style="opacity:0.8; margin-bottom:30px;"><%= form.description %></p>
+        <% } %>
 
-        <form action="/forms/<%= form.id %>/submit" method="POST" enctype="multipart/form-data">
+        <form action="/forms/<%= form.id %>/submit" method="POST" enctype="multipart/form-data" id="dynamicForm">
             
-            <% 
-            const schema = form.schema; 
-            schema.forEach(field => { 
-            %>
+            <% form.schema.forEach((field, index) => { %>
                 <div class="form-group">
                     <label><%= field.label %></label>
                     
                     <% if (field.type === 'textarea') { %>
-                        <textarea name="<%= field.label %>" rows="4" required></textarea>
+                        <textarea name="<%= field.label %>" rows="3" required></textarea>
                     
+                    <% } else if (field.type === 'select' && locals.isOnboarding) { %>
+                        <!-- Discord Style Cards for Select options -->
+                        <div class="options-grid" id="group-<%= index %>">
+                            <% field.options.split(',').forEach(opt => { 
+                                const val = opt.trim();
+                            %>
+                                <div class="option-card" onclick="selectOption('<%= index %>', '<%= val %>', this)">
+                                    <span style="font-weight:500;"><%= val %></span>
+                                    <div class="option-checkbox"></div>
+                                </div>
+                            <% }) %>
+                            <input type="hidden" name="<%= field.label %>" id="input-<%= index %>" required>
+                        </div>
+
                     <% } else if (field.type === 'select') { %>
                         <select name="<%= field.label %>">
                             <% field.options.split(',').forEach(opt => { %>
@@ -47,8 +103,11 @@
                         </select>
                     
                     <% } else if (field.type === 'file') { %>
-                        <input type="file" name="<%= field.label %>" required>
-                        <small style="display:block; margin-top:5px; color:#cbd5e1; font-size:0.8rem;">Allowed: Images, PDF. Max 10MB.</small>
+                        <div style="border: 2px dashed #4e5058; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;" onclick="document.getElementById('file-<%= index %>').click()">
+                            <span style="font-size:2rem;"></span>
+                            <p style="margin:5px 0 0; font-size:0.9rem;">Click to Upload File</p>
+                            <input type="file" id="file-<%= index %>" name="<%= field.label %>" style="display:none;" onchange="this.previousElementSibling.innerText = this.files[0].name">
+                        </div>
                     
                     <% } else { %>
                         <input type="text" name="<%= field.label %>" required>
@@ -56,11 +115,29 @@
                 </div>
             <% }) %>
 
-            <div style="margin-top:30px;">
-                <a href="/dashboard" class="back-link">Cancel</a>
-                <button type="submit" class="btn">Submit Form</button>
+            <div style="margin-top:30px; display:flex; justify-content:space-between; align-items:center;">
+                <% if (!locals.isOnboarding) { %>
+                    <a href="/dashboard" class="back-link">Cancel</a>
+                <% } %>
+                <button type="submit" class="btn-submit"><%= locals.isOnboarding ? "Finish & Enter" : "Submit Application" %></button>
             </div>
         </form>
     </div>
+
+    <script>
+        // Logic for Discord-style Option Cards (Single Select for now as 'select' implies one)
+        function selectOption(groupIndex, value, cardElement) {
+            // Remove selected from siblings
+            const container = document.getElementById('group-' + groupIndex);
+            const cards = container.getElementsByClassName('option-card');
+            for(let c of cards) c.classList.remove('selected');
+            
+            // Select clicked
+            cardElement.classList.add('selected');
+            
+            // Update hidden input
+            document.getElementById('input-' + groupIndex).value = value;
+        }
+    </script>
 </body>
 </html>

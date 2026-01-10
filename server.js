@@ -79,7 +79,6 @@ async function isAdmin(req, res, next) { const user = getUserFromToken(req); if 
 // ONBOARDING CHECK
 async function checkOnboarding(req, res, next) {
     if (!req.user) return next();
-    // Skip checking for admin pages or the form page itself/logout
     if (req.path.startsWith('/admin') || req.path.startsWith('/logout') || req.path.startsWith('/api') || req.path.match(/^\/forms\/\d+/)) return next();
     
     const onboardingId = await getConfig('onboarding_form_id');
@@ -92,7 +91,76 @@ async function checkOnboarding(req, res, next) {
     next();
 }
 
-function parseMarkdown(text) { if (!text) return ''; return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/__(.*?)__/g, '<u>$1</u>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.1);padding:2px 4px;border-radius:4px;">$1</code>').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>').replace(/\n/g, '<br>'); }
+// === NEW MARKDOWN PARSER ===
+function parseMarkdown(text) {
+    if (!text) return '';
+    
+    // Initial cleanup
+    let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const lines = html.split('\n');
+    let output = [];
+    let inCodeBlock = false;
+
+    for (let line of lines) {
+        // Toggle Code Block (Preserves ASCII Art & Code)
+        if (line.trim().startsWith('```')) {
+            inCodeBlock = !inCodeBlock;
+            output.push(inCodeBlock ? '<pre style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; overflow-x:auto; font-family:monospace; line-height:1.2; border:1px solid rgba(255,255,255,0.1);">' : '</pre>');
+            continue;
+        }
+        
+        if (inCodeBlock) {
+            output.push(line); // Keep raw line inside code block
+            continue;
+        }
+
+        // Headers
+        if (line.match(/^#\s+(.*)/)) { 
+            line = line.replace(/^#\s+(.*)/, '<h2 style="color:#a78bfa; margin:15px 0 10px; font-size:1.4rem; border-bottom:1px solid rgba(167,139,250,0.3); padding-bottom:5px;">$1</h2>'); 
+        }
+        else if (line.match(/^##\s+(.*)/)) { 
+            line = line.replace(/^##\s+(.*)/, '<h3 style="color:#c4b5fd; font-size:1.2rem; margin:12px 0 8px;">$1</h3>'); 
+        }
+        else if (line.match(/^###\s+(.*)/)) { 
+            line = line.replace(/^###\s+(.*)/, '<h4 style="color:#ddd; font-size:1.1rem; margin:10px 0;">$1</h4>'); 
+        }
+        
+        // Blockquote
+        else if (line.match(/^>\s+(.*)/)) { 
+            line = line.replace(/^>\s+(.*)/, '<blockquote style="border-left:4px solid #7c3aed; background:rgba(124,58,237,0.1); padding:10px 15px; margin:10px 0; color:#e2e8f0; font-style:italic; border-radius:0 8px 8px 0;">$1</blockquote>'); 
+        }
+
+        // Lists & Subtext
+        else if (line.match(/^\s*-\s+(.*)/) || line.match(/^\s*\*\s+(.*)/)) {
+             line = line.replace(/^\s*[-*]\s+(.*)/, '<div style="display:flex; gap:8px; align-items:flex-start; margin-bottom:4px;"><span style="color:#a78bfa;"></span><span>$1</span></div>');
+        } 
+        else if (line.match(/^\s*-#\s+(.*)/)) { // Discord style subtext
+             line = line.replace(/^\s*-#\s+(.*)/, '<div style="margin-left:20px; font-size:0.85rem; opacity:0.7; font-style:italic;">$1</div>');
+        } 
+        else {
+             // Regular text line
+             if (line.trim().length > 0) line += '<br>';
+        }
+
+        // Inline Formatting
+        line = line
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/__(.*?)__/g, '<u>$1</u>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-family:monospace; color:#f472b6;">$1</code>')
+            .replace(/&lt;@(\d+)&gt;/g, '<span style="color:#a78bfa; background:rgba(124, 58, 237, 0.15); padding:2px 6px; border-radius:4px; font-weight:500;">@Member</span>') // Handle mentions
+            .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#38bdf8; text-decoration:underline;">$1</a>');
+
+        output.push(line);
+    }
+    
+    return output.join('\n');
+}
+
 function findColumnIndex(headers, possibleNames) { for (const name of possibleNames) { let index = headers.findIndex(h => h && h.toString().toLowerCase() === name.toLowerCase()); if (index !== -1) return index; index = headers.findIndex(h => h && h.toString().toLowerCase().includes(name.toLowerCase())); if (index !== -1) return index; } return -1; }
 function parseNumber(str) { if (!str) return 0; if (typeof str === 'number') return str; const s = str.toString().toLowerCase().trim(); let mult = 1; if (s.endsWith('b')) mult = 1000000000; else if (s.endsWith('m')) mult = 1000000; else if (s.endsWith('k')) mult = 1000; return Math.floor(parseFloat(s.replace(/[^\d\.]/g, '')) * mult); }
 function parseExcelData(buffer) { const workbook = xlsx.read(buffer, { type: 'buffer' }); const sheet = workbook.Sheets[workbook.SheetNames[0]]; const data = xlsx.utils.sheet_to_json(sheet, { header: 1 }); if (data.length < 2) throw new Error('Excel file is empty'); const headers = data[0].map(h => h ? h.toString() : ''); const cols = { governorId: findColumnIndex(headers, ['Character ID', 'Governor ID', 'ID']), username: findColumnIndex(headers, ['Username', 'Name', 'Player']), kingdom: findColumnIndex(headers, ['Kingdom', 'Origin', 'Server']), power: findColumnIndex(headers, ['Power', 'Current Power']), t5Deaths: findColumnIndex(headers, ['T5 Deaths', 'T5 Dead']), t4Deaths: findColumnIndex(headers, ['T4 Deaths', 'T4 Dead']), killPoints: findColumnIndex(headers, ['Total Kill Points', 'Kill Points', 'Kills']), resources: findColumnIndex(headers, ['Resources Gathered', 'Resources', 'RSS']) }; if (cols.power === -1) { cols.power = findColumnIndex(headers, ['Highest Power', 'Max Power']); } if (cols.governorId === -1) cols.governorId = 0; if (cols.username === -1 && headers.length > 1) cols.username = 1; const records = []; for (let i = 1; i < data.length; i++) { const row = data[i]; if (!row || !row[cols.governorId]) continue; const t5 = cols.t5Deaths !== -1 ? parseInt(row[cols.t5Deaths]) || 0 : 0; const t4 = cols.t4Deaths !== -1 ? parseInt(row[cols.t4Deaths]) || 0 : 0; records.push({ governorId: String(row[cols.governorId]), username: cols.username !== -1 && row[cols.username] ? String(row[cols.username]) : 'N/A', kingdom: cols.kingdom !== -1 && row[cols.kingdom] ? String(row[cols.kingdom]) : '', highestPower: cols.power !== -1 ? parseInt(row[cols.power]) || 0 : 0, deads: t5 + t4, killPoints: cols.killPoints !== -1 ? parseInt(row[cols.killPoints]) || 0 : 0, resources: cols.resources !== -1 ? parseInt(row[cols.resources]) || 0 : 0 }); } return records; }
