@@ -503,10 +503,14 @@
                 </form>
 
                 <div style="margin-top:25px; border-top:1px solid var(--border); padding-top:15px;">
-                    <h4
-                        style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:15px;">
-                        Recent Announcements</h4>
-                    <table>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h4
+                            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin:0;">
+                            Recent Announcements</h4>
+                        <button type="button" onclick="copyTable('annTable')" class="btn btn-ghost"
+                            style="padding:4px 10px; font-size:0.8rem;">Copy List</button>
+                    </div>
+                    <table id="annTable">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -703,9 +707,11 @@
                                         <div class="card-title">
                                             <div class="card-icon"></div> Backups
                                         </div>
+                                        <button type="button" onclick="copyTable('backupsTable')" class="btn btn-ghost"
+                                            style="padding:4px 10px; font-size:0.8rem;">Copy List</button>
                                     </div>
                                     <div style="max-height:300px; overflow-y:auto;">
-                                        <table>
+                                        <table id="backupsTable">
                                             <thead>
                                                 <tr>
                                                     <th>Name</th>
@@ -756,6 +762,39 @@
                         </div>
 
     </div>
+
+    <!-- UTILITIES SCRIPT -->
+    <script>
+        function showToast(msg, type = 'success') {
+            const div = document.createElement('div');
+            div.style.cssText = `position:fixed; top:20px; left:50%; transform:translateX(-50%); background:${type === 'success' ? '#22c55e' : '#ef4444'}; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;`;
+            div.innerHTML = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
+        function copyTable(id) {
+            const t = document.getElementById(id);
+            if (!t) return;
+            let txt = "";
+            // Headers
+            // Slice -1 to remove Action header
+            const headers = [...t.querySelectorAll('thead th')].slice(0, -1).map(x => x.innerText).join('\t');
+            txt += headers + "\n";
+
+            // Body
+            [...t.querySelectorAll('tbody tr')].forEach(tr => {
+                if (tr.innerText.includes('No backups found')) return;
+                const cells = [...tr.children];
+                // Skip last cell (Actions)
+                const rowData = cells.slice(0, -1).map(td => td.innerText.replace(/[\n\r]/g, ' ').trim()).join('\t');
+                txt += rowData + "\n";
+            });
+
+            navigator.clipboard.writeText(txt)
+                .then(() => showToast('List Copied to Clipboard!'))
+                .catch(e => showToast('Failed to copy', 'error'));
+        }
+    </script>
 </body>
 
 </html>

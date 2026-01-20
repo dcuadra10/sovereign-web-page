@@ -1,212 +1,542 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Leaderboard - Sovereign Empire</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; }
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .nav-brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; text-decoration: none; color: white; }
-    .nav-links { display: flex; gap: 20px; }
-    .btn { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-    .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
-    .btn:hover { background: rgba(255,255,255,0.2); }
-    
-    .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
-    
-    /* Totals Banner */
-    .totals-banner {
-        background: linear-gradient(90deg, #1cb5e0 0%, #000851 100%);
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 30px;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-    }
-    .total-item { text-align: center; }
-    .total-val { font-size: 1.5rem; font-weight: 700; display: block; }
-    .total-lbl { font-size: 0.8rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Sovereign Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .stats-header { text-align: center; margin-bottom: 30px; }
-    .stats-header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #fff 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    
-    .search-box { margin-bottom: 20px; display: flex; justify-content: center; }
-    .search-input { width: 100%; max-width: 400px; padding: 12px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; text-align: center; transition: all 0.3s; }
-    .search-input:focus { outline: none; border-color: #a78bfa; background: rgba(0,0,0,0.5); width: 100%; max-width: 500px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+        }
 
-    /* Leaderboard Table */
-    .table-container { background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 15px 20px; text-align: left; }
-    th { background: rgba(0,0,0,0.3); font-weight: 600; color: rgba(255,255,255,0.8); cursor: pointer; user-select: none; position:relative; }
-    th:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    th.sort-asc::after { content: " "; font-size: 0.7em; }
-    th.sort-desc::after { content: " "; font-size: 0.7em; }
-    
-    tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
-    tr:hover { background: rgba(255,255,255,0.05); }
-    
-    .rank-cell { font-weight: 700; color: #a78bfa; width: 60px; text-align: center; }
-    .gov-cell div { font-weight: 600; }
-    .gov-cell span { font-size: 0.8rem; opacity: 0.6; }
-    .val-cell { font-family: monospace; font-size: 1rem; }
-    
-    .compliant { color: #4ade80; }
-    .non-compliant { color: #f87171; }
-    .progress-mini { width: 60px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; display: inline-block; vertical-align: middle; margin-left: 8px; }
-    .progress-mini-fill { height: 100%; background: #a78bfa; border-radius: 2px; }
-  </style>
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Totals Banner */
+        .totals-banner {
+            background: linear-gradient(90deg, #1cb5e0 0%, #000851 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .total-item {
+            text-align: center;
+        }
+
+        .total-val {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .total-lbl {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        .stats-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .stats-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #a78bfa;
+            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Leaderboard Table */
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        th.sort-asc::after {
+            content: " ";
+            font-size: 0.7em;
+        }
+
+        th.sort-desc::after {
+            content: " ";
+            font-size: 0.7em;
+        }
+
+        tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .rank-cell {
+            font-weight: 700;
+            color: #a78bfa;
+            width: 60px;
+            text-align: center;
+        }
+
+        .gov-cell div {
+            font-weight: 600;
+        }
+
+        .gov-cell span {
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        .val-cell {
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        .compliant {
+            color: #4ade80;
+        }
+
+        .non-compliant {
+            color: #f87171;
+        }
+
+        .progress-mini {
+            width: 60px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        .progress-mini-fill {
+            height: 100%;
+            background: #a78bfa;
+            border-radius: 2px;
+        }
+    </style>
 </head>
+
 <body>
-  <nav class="navbar">
-    <a href="/" class="nav-brand" style="text-decoration:none; color:white;"> Sovereign Empire Stats</a>
-    <div class="nav-links">
-        <a href="/login" class="btn btn-secondary">Login</a>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <a href="/" class="nav-brand" style="text-decoration:none; color:white;"> Sovereign Empire Stats</a>
+        <div class="nav-links">
+            <a href="/login" class="btn btn-secondary">Login</a>
+        </div>
+    </nav>
 
-  <div class="container">
-    <div class="stats-header">
-        <h1>Season Leaderboard</h1>
-        <p style="opacity: 0.7;">Live data for <%= currentKvK || 'Current Season' %></p>
-    </div>
+    <div class="container">
+        <div class="stats-header">
+            <h1>Season Leaderboard</h1>
+            <p style="opacity: 0.7;">Live data for <%= currentKvK || 'Current Season' %>
+            </p>
+        </div>
 
-    <!-- Smart Numbers Script -->
-    <script>
-        function fmt(n) {
-            if (!n && n !== 0) return '0';
-            n = Number(n);
-            if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
-            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-            return n.toLocaleString();
-        }
-    </script>
+        <!-- Smart Numbers Script -->
+        <script>
+            function fmt(n) {
+                if (!n && n !== 0) return '0';
+                n = Number(n);
+                if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
+                if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+                if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+                return n.toLocaleString();
+            }
+        </script>
 
-    <div class="totals-banner">
-        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.count %>))</script></span><span class="total-lbl">Members</span></div>
-        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.total_power %>))</script></span><span class="total-lbl">Kingdom Power</span></div>
-        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.total_kills %>))</script></span><span class="total-lbl">Season KP</span></div>
-        <div class="total-item"><span class="total-val"><script>document.write(fmt(<%= totals.total_deads %>))</script></span><span class="total-lbl">Season Deaths</span></div>
-    </div>
+        <div class="totals-banner">
+            <div class="total-item"><span class="total-val">
+                    <script>document.write(fmt(<%= totals.count %>))</script>
+                </span><span class="total-lbl">Members</span></div>
+            <div class="total-item"><span class="total-val">
+                    <script>document.write(fmt(<%= totals.total_power %>))</script>
+                </span><span class="total-lbl">Kingdom Power</span></div>
+            <div class="total-item"><span class="total-val">
+                    <script>document.write(fmt(<%= totals.total_kills %>))</script>
+                </span><span class="total-lbl">Season KP</span></div>
+            <div class="total-item"><span class="total-val">
+                    <script>document.write(fmt(<%= totals.total_deads %>))</script>
+                </span><span class="total-lbl">Season Deaths</span></div>
+        </div>
 
-    <div class="search-box">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search by Username or ID...">
-    </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by Username or ID...">
+        </div>
 
-    <div class="table-container">
-        <table id="statsTable">
-            <thead>
-                <tr>
-                    <th class="rank-cell">#</th>
-                    <th onclick="sortTable(1)">Governor</th>
-                    <th onclick="sortTable(2, true)">Power</th>
-                    <th onclick="sortTable(3, true)">KP Rised (Season)</th>
-                    <th onclick="sortTable(4, true)">Deaths (Season)</th>
-                    <th>Tier</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% stats.forEach((p, index) => { %>
-                    <tr class="stat-row" data-search="<%= p.username.toLowerCase() %> <%= p.governor_id %>">
-                        <td class="rank-cell"><%= index + 1 %></td>
-                        <td class="gov-cell">
-                            <div><%= p.username %></div>
-                            <span><%= p.governor_id %></span>
-                        </td>
-                        <td class="val-cell" data-sort="<%= p.highest_power %>"><script>document.write(fmt(<%= p.highest_power %>))</script></td>
-                        <td class="val-cell" data-sort="<%= p.killsGained %>">
-                            <script>document.write(fmt(<%= p.killsGained %>))</script>
-                            <div class="progress-mini"><div class="progress-mini-fill" style="width:<%= Math.min(p.killProgress, 100) %>%"></div></div>
-                        </td>
-                        <td class="val-cell" data-sort="<%= p.deadsGained %>">
-                            <script>document.write(fmt(<%= p.deadsGained %>))</script>
-                            <div class="progress-mini"><div class="progress-mini-fill" style="width:<%= Math.min(p.deathProgress, 100) %>%"></div></div>
-                        </td>
-                        <td><%= p.tier ? p.tier.name : '-' %></td>
-                        <td style="font-weight:bold;" class="<%= p.isCompliant ? 'compliant' : 'non-compliant' %>">
-                            <%= p.isCompliant ? 'PASS' : 'RISK' %>
-                        </td>
+        <!-- UTILITY BUTTONS -->
+        <div style="display:flex; justify-content:center; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
+            <button onclick="copySpecialList('risk')" class="btn btn-secondary"
+                style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4);">
+                📋 Copy Non-Compliant List
+            </button>
+            <button onclick="copySpecialList('top')" class="btn btn-secondary"
+                style="background:rgba(167, 139, 250, 0.2); color:#a78bfa; border:1px solid rgba(167, 139, 250, 0.4);">
+                🏆 Copy Top 300 Contributors
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table id="statsTable">
+                <thead>
+                    <tr>
+                        <th class="rank-cell">#</th>
+                        <th onclick="sortTable(1)">Governor</th>
+                        <th onclick="sortTable(2, true)">Power</th>
+                        <th onclick="sortTable(3, true)">KP Rised (Season)</th>
+                        <th onclick="sortTable(4, true)">Deaths (Season)</th>
+                        <th>Tier</th>
+                        <th>Status</th>
                     </tr>
-                <% }) %>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <% stats.forEach((p, index)=> { %>
+                        <tr class="stat-row" data-search="<%= p.username.toLowerCase() %> <%= p.governor_id %>">
+                            <td class="rank-cell">
+                                <%= index + 1 %>
+                            </td>
+                            <td class="gov-cell">
+                                <div>
+                                    <%= p.username %>
+                                </div>
+                                <span>
+                                    <%= p.governor_id %>
+                                </span>
+                            </td>
+                            <td class="val-cell" data-sort="<%= p.highest_power %>">
+                                <script>document.write(fmt(<%= p.highest_power %>))</script>
+                            </td>
+                            <td class="val-cell" data-sort="<%= p.killsGained %>">
+                                <script>document.write(fmt(<%= p.killsGained %>))</script>
+                                <div class="progress-mini">
+                                    <div class="progress-mini-fill" style="width:<%= Math.min(p.killProgress, 100) %>%">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="val-cell" data-sort="<%= p.deadsGained %>">
+                                <script>document.write(fmt(<%= p.deadsGained %>))</script>
+                                <div class="progress-mini">
+                                    <div class="progress-mini-fill"
+                                        style="width:<%= Math.min(p.deathProgress, 100) %>%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <%= p.tier ? p.tier.name : '-' %>
+                            </td>
+                            <td style="font-weight:bold;" class="<%= p.isCompliant ? 'compliant' : 'non-compliant' %>">
+                                <%= p.isCompliant ? 'PASS' : 'RISK' %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Search Filter
-    document.getElementById('searchInput').addEventListener('keyup', function(e) {
-        const term = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('.stat-row');
-        let visibleCount = 0;
-        rows.forEach(row => {
-            const text = row.getAttribute('data-search');
-            if (text.includes(term)) {
-                row.style.display = '';
-                // Re-calculate ranks for filtered view? Usually simpler to keep original ranks, 
-                // but visually it might be nice to just show them.
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    });
-
-    // Sort Function
-    let currentSort = { col: 3, asc: false }; // Default sort by KP Rised (col 3) DESC
-
-    function sortTable(colIndex, isNumeric = false) {
-        const table = document.getElementById("statsTable");
-        const tbody = table.querySelector("tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
-        const ths = table.querySelectorAll("th");
-
-        // Toggle sort direction
-        let asc = false; // Default to Descending for numbers
-        if (currentSort.col === colIndex) {
-            asc = !currentSort.asc;
+    <style>
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        currentSort = { col: colIndex, asc: asc };
 
-        // Update UI Icons
-        ths.forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
-        ths[colIndex].classList.add(asc ? 'sort-asc' : 'sort-desc');
+        .toast-success {
+            background: rgba(34, 197, 94, 0.95);
+        }
 
-        rows.sort((a, b) => {
-            let valA, valB;
-            
-            if (isNumeric) {
-                // Use data-sort attribute for raw number values
-                valA = Number(a.children[colIndex].getAttribute('data-sort')) || 0;
-                valB = Number(b.children[colIndex].getAttribute('data-sort')) || 0;
-            } else {
-                valA = a.children[colIndex].innerText.toLowerCase();
-                valB = b.children[colIndex].innerText.toLowerCase();
+        .toast-error {
+            background: rgba(239, 68, 68, 0.95);
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -50px;
+                opacity: 0;
             }
 
-            if (valA < valB) return asc ? -1 : 1;
-            if (valA > valB) return asc ? 1 : -1;
-            return 0;
+            to {
+                top: 20px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+    </style>
+    <script>
+        // Data Usage from Server (Pre-sorted by Contribution)
+        const statsData = <% - JSON.stringify(stats) %>;
+
+        function showToast(msg, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `toast toast-${type}`;
+            div.innerHTML = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
+
+        // Chunking State
+        let copyQueue = [];
+        let copyQueueType = '';
+
+        function chunkify(lines, limit = 1900) {
+            let chunks = [];
+            let current = "";
+            for (let line of lines) {
+                if (current.length + line.length + 1 > limit) {
+                    chunks.push(current);
+                    current = line;
+                } else {
+                    current = current ? (current + '\n' + line) : line;
+                }
+            }
+            if (current) chunks.push(current);
+            return chunks;
+        }
+
+        function copySpecialList(type) {
+            // Check if continuing a sequence
+            if (copyQueue.length > 0 && copyQueueType === type) {
+                const txt = copyQueue.shift();
+                const remaining = copyQueue.length;
+                navigator.clipboard.writeText(txt).then(() => {
+                    if (remaining > 0) showToast(`Copied Next Part! ${remaining} remaining. Click again! 📋`);
+                    else { showToast('Copied Final Part! Done. ✅'); copyQueueType = ''; }
+                });
+                return;
+            }
+
+            // Generate New List
+            let list = [];
+            if (type === 'risk') {
+                list = statsData.filter(s => !s.isCompliant).map(s => `${s.governor_id}\t${s.username}`);
+            } else if (type === 'top') {
+                const count = prompt("Enter number of top contributors to copy:", "300");
+                if (!count || isNaN(count)) return;
+                const n = parseInt(count);
+                list = statsData.slice(0, n).map(s => `${s.governor_id}\t${s.username}`);
+            }
+
+            if (list.length === 0) return showToast('No data found for this criteria', 'error');
+
+            // Chunk & Copy
+            const chunks = chunkify(list);
+            copyQueue = chunks;
+            copyQueueType = type;
+
+            const first = copyQueue.shift();
+            navigator.clipboard.writeText(first).then(() => {
+                if (copyQueue.length > 0) showToast(`Copied Part 1! ${copyQueue.length} parts remain. Click again to copy next! 📋`);
+                else showToast(`Copied all ${list.length} users! ✅`);
+            }).catch(e => showToast('Failed to copy', 'error'));
+        }
+
+        // Search Filter
+        document.getElementById('searchInput').addEventListener('keyup', function (e) {
+            const term = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.stat-row');
+            let visibleCount = 0;
+            rows.forEach(row => {
+                const text = row.getAttribute('data-search');
+                if (text.includes(term)) {
+                    row.style.display = '';
+                    // Re-calculate ranks for filtered view? Usually simpler to keep original ranks, 
+                    // but visually it might be nice to just show them.
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         });
 
-        // Re-append rows
-        rows.forEach((row, i) => {
-            // Update Rank # visual ONLY if not searching (optional, but cleaner)
-            // row.children[0].innerText = i + 1; 
-            tbody.appendChild(row);
-        });
-    }
+        // Sort Function
+        let currentSort = { col: 3, asc: false }; // Default sort by KP Rised (col 3) DESC
 
-    // Initialize Default Sort Visual
-    document.querySelectorAll("th")[3].classList.add('sort-desc'); // KP Rised column
-  </script>
+        function sortTable(colIndex, isNumeric = false) {
+            const table = document.getElementById("statsTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const ths = table.querySelectorAll("th");
+
+            // Toggle sort direction
+            let asc = false; // Default to Descending for numbers
+            if (currentSort.col === colIndex) {
+                asc = !currentSort.asc;
+            }
+            currentSort = { col: colIndex, asc: asc };
+
+            // Update UI Icons
+            ths.forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+            ths[colIndex].classList.add(asc ? 'sort-asc' : 'sort-desc');
+
+            rows.sort((a, b) => {
+                let valA, valB;
+
+                if (isNumeric) {
+                    // Use data-sort attribute for raw number values
+                    valA = Number(a.children[colIndex].getAttribute('data-sort')) || 0;
+                    valB = Number(b.children[colIndex].getAttribute('data-sort')) || 0;
+                } else {
+                    valA = a.children[colIndex].innerText.toLowerCase();
+                    valB = b.children[colIndex].innerText.toLowerCase();
+                }
+
+                if (valA < valB) return asc ? -1 : 1;
+                if (valA > valB) return asc ? 1 : -1;
+                return 0;
+            });
+
+            // Re-append rows
+            rows.forEach((row, i) => {
+                // Update Rank # visual ONLY if not searching (optional, but cleaner)
+                // row.children[0].innerText = i + 1; 
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize Default Sort Visual
+        document.querySelectorAll("th")[3].classList.add('sort-desc'); // KP Rised column
+    </script>
 </body>
+
 </html>
