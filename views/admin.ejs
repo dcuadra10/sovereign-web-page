@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,29 +17,94 @@
             --text-muted: #94a3b8;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; }
-        body { 
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); 
-            color: var(--text-main); 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: var(--text-main);
             min-height: 100vh;
             padding: 40px;
         }
 
         /* Header */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-        .page-title h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(to right, #fff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .page-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 5px; }
-
-        .header-actions { display: flex; gap: 15px; }
-        .btn { 
-            padding: 10px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
         }
-        .btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
-        .btn-ghost:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        .btn-primary { background: linear-gradient(135deg, #7c3aed, #db2777); color: white; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); }
-        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
-        .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+
+        .page-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            color: white;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
 
         /* Grid Layout */
         .admin-grid {
@@ -56,49 +122,242 @@
             padding: 25px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        .card-title { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
-        .card-icon { width: 32px; height: 32px; background: rgba(124, 58, 237, 0.15); color: #a78bfa; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(124, 58, 237, 0.15);
+            color: #a78bfa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
 
         /* Sections */
-        .col-span-12 { grid-column: span 12; }
-        .col-span-8 { grid-column: span 8; }
-        .col-span-4 { grid-column: span 4; }
-        .col-span-6 { grid-column: span 6; }
-        
-        @media (max-width: 1200px) { .col-span-8, .col-span-4 { grid-column: span 12; } }
-        @media (max-width: 768px) { .col-span-6 { grid-column: span 12; } }
+        .col-span-12 {
+            grid-column: span 12;
+        }
+
+        .col-span-8 {
+            grid-column: span 8;
+        }
+
+        .col-span-4 {
+            grid-column: span 4;
+        }
+
+        .col-span-6 {
+            grid-column: span 6;
+        }
+
+        @media (max-width: 1200px) {
+
+            .col-span-8,
+            .col-span-4 {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .col-span-6 {
+                grid-column: span 12;
+            }
+        }
 
         /* Forms */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-        input, select, textarea {
-            width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: white; transition: 0.2s;
+        .form-group {
+            margin-bottom: 15px;
         }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: rgba(0,0,0,0.5); }
-        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .file-input-wrapper:hover { border-color: var(--primary); background: rgba(124, 58, 237, 0.05); }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: var(--primary);
+            background: rgba(124, 58, 237, 0.05);
+        }
 
         /* Tables */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
-        th { color: var(--text-muted); font-weight: 500; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
-        td { color: #f1f5f9; }
-        tr:last-child td { border-bottom: none; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        td {
+            color: #f1f5f9;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
 
         /* Helpers */
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .bg-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .bg-orange { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .bg-green {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .bg-orange {
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+        }
 
         /* Toggle Switch */
-        .toggle-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.slider {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        .module-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
     </style>
 </head>
+
 <body>
-    
+
     <!-- HEADER -->
     <header>
         <div class="page-title">
@@ -107,7 +366,8 @@
         </div>
         <div class="header-actions">
             <a href="/dashboard" class="btn btn-ghost">&larr; Dashboard</a>
-            <a href="/admin/forms" class="btn btn-primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);"> Manage Forms & Roles</a>
+            <a href="/admin/forms" class="btn btn-primary"
+                style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);"> Manage Forms & Roles</a>
         </div>
     </header>
 
@@ -115,215 +375,371 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         if (params.get('ok')) {
-             const div = document.createElement('div');
-             div.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#22c55e; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;";
-             div.innerHTML = " Action Completed Successfully";
-             document.body.appendChild(div);
+            const div = document.createElement('div');
+            div.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#22c55e; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;";
+            div.innerHTML = " Action Completed Successfully";
+            document.body.appendChild(div);
         }
         if (params.get('err') || params.get('error')) {
-             const div = document.createElement('div');
-             div.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#ef4444; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;";
-             div.innerHTML = " Error: " + (params.get('err') || params.get('error'));
-             document.body.appendChild(div);
+            const div = document.createElement('div');
+            div.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#ef4444; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;";
+            div.innerHTML = " Error: " + (params.get('err') || params.get('error'));
+            document.body.appendChild(div);
         }
         document.body.insertAdjacentHTML('beforeend', '<style>@keyframes fadeOut { 0% {top:-50px; opacity:0;} 10% {top:20px; opacity:1;} 80% {opacity:1;} 100% {opacity:0; pointer-events:none;} }</style>');
     </script>
 
     <div class="admin-grid">
 
+        <!-- 0. MODULE CONFIGURATION -->
+        <div class="card col-span-12">
+            <div class="card-header" style="border-bottom: none; margin-bottom: 10px;">
+                <div class="card-title">
+                    <div class="card-icon" style="background:rgba(234, 179, 8, 0.15); color:#eab308;">⚙</div>
+                    Module Settings
+                </div>
+            </div>
+            <form action="/admin/modules" method="POST">
+                <div class="module-grid">
+                    <div class="module-item">
+                        <label style="margin:0; font-size:0.95rem; color:white;">Announcements</label>
+                        <label class="switch">
+                            <input type="checkbox" name="mod_announcements" <%=modules.announcements==='true'
+                                ? 'checked' : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="module-item">
+                        <label style="margin:0; font-size:0.95rem; color:white;">Project Info</label>
+                        <label class="switch">
+                            <input type="checkbox" name="mod_project_info" <%=modules.project_info==='true' ? 'checked'
+                                : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="module-item">
+                        <label style="margin:0; font-size:0.95rem; color:white;">Discord Integration</label>
+                        <label class="switch">
+                            <input type="checkbox" name="mod_discord" <%=modules.discord==='true' ? 'checked' : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="module-item">
+                        <label style="margin:0; font-size:0.95rem; color:white;">Data Management</label>
+                        <label class="switch">
+                            <input type="checkbox" name="mod_data" <%=modules.data==='true' ? 'checked' : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="module-item">
+                        <label style="margin:0; font-size:0.95rem; color:white;">Backups System</label>
+                        <label class="switch">
+                            <input type="checkbox" name="mod_backups" <%=modules.backups==='true' ? 'checked' : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <button class="btn btn-ghost" style="margin-top:15px; width:100%; border-style:dashed;">Update
+                    Modules</button>
+            </form>
+        </div>
+
         <!-- 1. ANNOUNCEMENTS (Large Area) -->
-        <div class="card col-span-8">
-            <div class="card-header">
-                <div class="card-title"><div class="card-icon"></div> Manage Announcements</div>
-            </div>
-            <form action="/admin/announcement" method="POST">
-                <input type="hidden" name="action" value="create">
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; margin-bottom:15px;">
-                    <div>
-                         <label>Title</label>
-                         <input type="text" name="title" placeholder="Important Update..." required>
-                    </div>
-                    <div>
-                         <label>Target Audience (Email Notification)</label>
-                         <select name="roleId">
-                             <option value="all">All Members</option>
-                             <% locals.roles && roles.forEach(r => { %>
-                                 <option value="<%= r.id %>"><%= r.name %></option>
-                             <% }) %>
-                         </select>
+        <% if (modules && modules.announcements==='true' ) { %>
+            <div class="card col-span-8">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon"></div> Manage Announcements
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Content (Enhanced Markdown Supported)</label>
-                    <textarea name="content" rows="4" placeholder="Use **bold**, # headers, - lists, or ```code blocks``` for ASCII art..." required></textarea>
-                </div>
-                <button class="btn btn-primary" style="width:100%;">Post Announcement</button>
-            </form>
-
-            <div style="margin-top:25px; border-top:1px solid var(--border); padding-top:15px;">
-                <h4 style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:15px;">Recent Announcements</h4>
-                <table>
-                    <thead><tr><th>Date</th><th>Title</th><th>Audience</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <% announcements.forEach(a => { %>
-                            <tr>
-                                <td><%= new Date(a.created_at).toLocaleDateString() %></td>
-                                <td style="font-weight:600;"><%= a.title %></td>
-                                <td><%= a.target_role_name || 'All Members' %></td>
-                                <td>
-                                    <form action="/admin/announcement" method="POST" style="margin:0;">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<%= a.id %>">
-                                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 2. PROJECT INFO & CONFIG (Side Column) -->
-        <div class="card col-span-4">
-            <div class="card-header">
-                <div class="card-title"><div class="card-icon">ℹ</div> Project Info</div>
-            </div>
-            <form action="/admin/project-info" method="POST">
-                <div class="form-group">
-                    <textarea name="content" rows="12" style="font-family:monospace; font-size:0.8rem;"><%= projectInfo || '' %></textarea>
-                </div>
-                <button class="btn btn-primary" style="width:100%;">Update Info Text</button>
-            </form>
-            
-            <div style="margin-top:30px;"></div>
-            
-            <div class="card-header">
-                <div class="card-title"><div class="card-icon"></div> Main Config</div>
-            </div>
-            <form action="/admin/config" method="POST">
-                <div class="form-group">
-                    <label>Discord Guild ID</label>
-                    <input type="text" name="guildId" value="<%= guildId %>">
-                </div>
-                <div class="form-group">
-                    <label>Verified Role ID</label>
-                    <input type="text" name="roleId" value="<%= roleId %>">
-                </div>
-                 <button class="btn btn-primary" style="width:100%;">Save Config</button>
-            </form>
-             
-             <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border); text-align:center;">
-                <label>Public Stats Visibility</label>
-                <form action="/admin/toggle-stats" method="POST">
-                    <button class="btn" style="width:100%; background: <%= statsVisible ? 'rgba(34,197,94,0.2); color:#4ade80' : 'rgba(239,68,68,0.2); color:#fca5a5' %>; border:1px solid <%= statsVisible ? '#4ade80' : '#fca5a5' %>;">
-                        <%= statsVisible ? ' Stats are VISIBLE' : ' Stats are HIDDEN' %>
-                    </button>
-                </form>
-             </div>
-        </div>
-
-        <!-- 3. DATA MANAGEMENT (Uploads) -->
-        <div class="card col-span-6">
-            <div class="card-header">
-                <div class="card-title"><div class="card-icon"></div> Data Management</div>
-            </div>
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                <!-- UPDATE -->
-                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
-                    <h4 style="color:#a78bfa; margin-bottom:10px;">Update Existing</h4>
-                    <form action="/admin/upload/update?force=true" method="POST" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label class="file-input-wrapper">
-                                 Choose Excel File
-                                <input type="file" name="file" style="display:none;" onchange="this.parentElement.innerText = ' ' + this.files[0].name" required>
-                            </label>
+                <form action="/admin/announcement" method="POST">
+                    <input type="hidden" name="action" value="create">
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div>
+                            <label>Title</label>
+                            <input type="text" name="title" placeholder="Important Update..." required>
                         </div>
-                        <button class="btn btn-primary" style="width:100%;">Update Data</button>
-                    </form>
-                </div>
-
-                <!-- NEW SCAN -->
-                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
-                    <h4 style="color:#f472b6; margin-bottom:10px;">New Scan (Reset)</h4>
-                    <form action="/admin/upload/creation" method="POST" enctype="multipart/form-data" onsubmit="return confirm('WARNING: This will RESET all stats data. Continue?')">
-                        <div class="form-group">
-                            <label class="file-input-wrapper" style="border-color:#f472b6;">
-                                 Choose Excel File
-                                <input type="file" name="file" style="display:none;" onchange="this.parentElement.innerText = ' ' + this.files[0].name" required>
-                            </label>
+                        <div>
+                            <label>Target Audience (Email Notification)</label>
+                            <select name="roleId">
+                                <option value="all">All Members</option>
+                                <% locals.roles && roles.forEach(r=> { %>
+                                    <option value="<%= r.id %>">
+                                        <%= r.name %>
+                                    </option>
+                                    <% }) %>
+                            </select>
                         </div>
-                        <button class="btn btn-primary" style="background:#f472b6; width:100%;">Start New Season</button>
-                    </form>
+                    </div>
+                    <div class="form-group">
+                        <label>Content (Enhanced Markdown Supported)</label>
+                        <textarea name="content" rows="4"
+                            placeholder="Use **bold**, # headers, - lists, or ```code blocks``` for ASCII art..."
+                            required></textarea>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;">Post Announcement</button>
+                </form>
+
+                <div style="margin-top:25px; border-top:1px solid var(--border); padding-top:15px;">
+                    <h4
+                        style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:15px;">
+                        Recent Announcements</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Title</th>
+                                <th>Audience</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% announcements.forEach(a=> { %>
+                                <tr>
+                                    <td>
+                                        <%= new Date(a.created_at).toLocaleDateString() %>
+                                    </td>
+                                    <td style="font-weight:600;">
+                                        <%= a.title %>
+                                    </td>
+                                    <td>
+                                        <%= a.target_role_name || 'All Members' %>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/announcement" method="POST" style="margin:0;">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id" value="<%= a.id %>">
+                                            <button class="btn btn-danger"
+                                                style="padding:4px 10px; font-size:0.8rem;">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+            <% } %>
 
-            <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px;">
-                <form action="/admin/kvk" method="POST" style="display:flex; align-items:flex-end; gap:10px;">
-                    <div style="flex:1;">
-                        <label>Current Season Name</label>
-                        <input type="text" name="kvkName" value="<%= currentKvK %>" placeholder="e.g. KvK Season 3">
-                    </div>
-                    <button class="btn btn-ghost">Update Name</button>
-                    <button name="action" value="reset" class="btn btn-danger" onclick="return confirm('Are you absolutely sure?')">End Season & Reset</button>
-                </form>
-            </div>
-        </div>
+                <!-- 2. PROJECT INFO & CONFIG (Side Column) -->
+                <div class="col-span-4" style="display:flex; flex-direction:column; gap:25px;">
 
-        <!-- 4. BACKUPS & SYSTEM (Side) -->
-        <div class="card col-span-6">
-            <div class="card-header">
-                <div class="card-title"><div class="card-icon"></div> Backups</div>
-            </div>
-            <div style="max-height:300px; overflow-y:auto;">
-                <table>
-                    <thead><tr><th>Name</th><th>Season</th><th>Date</th><th>Size</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <% if(backups && backups.length) { backups.forEach(b => { %>
-                            <tr>
-                                <td><%= b.name %></td>
-                                <td><span class="badge bg-orange"><%= b.kvk_season %></span></td>
-                                <td><%= new Date(b.created_at).toLocaleDateString() %></td>
-                                <td><%= b.count %> Rows</td>
-                                <td style="display:flex; gap:5px;">
-                                    <a href="/admin/backup/download/<%= b.id %>" class="btn btn-ghost" style="padding:4px 8px;"></a>
-                                    <form action="/admin/backup/delete" method="POST" style="margin:0;">
-                                        <input type="hidden" name="id" value="<%= b.id %>">
-                                        <button class="btn btn-danger" style="padding:4px 8px;">&times;</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <% }) } else { %>
-                            <tr><td colspan="5" style="text-align:center; padding:20px; opacity:0.5;">No backups found.</td></tr>
+                    <% if (modules && modules.project_info==='true' ) { %>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <div class="card-icon">ℹ</div> Project Info
+                                </div>
+                            </div>
+                            <form action="/admin/project-info" method="POST">
+                                <div class="form-group">
+                                    <textarea name="content" rows="12"
+                                        style="font-family:monospace; font-size:0.8rem;"><%= projectInfo || '' %></textarea>
+                                </div>
+                                <button class="btn btn-primary" style="width:100%;">Update Info Text</button>
+                            </form>
+
+                            <div
+                                style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border); text-align:center;">
+                                <label>Public Stats Visibility</label>
+                                <form action="/admin/toggle-stats" method="POST">
+                                    <button class="btn"
+                                        style="width:100%; background: <%= statsVisible ? 'rgba(34,197,94,0.2); color:#4ade80' : 'rgba(239,68,68,0.2); color:#fca5a5' %>; border:1px solid <%= statsVisible ? '#4ade80' : '#fca5a5' %>;">
+                                        <%= statsVisible ? ' Stats are VISIBLE' : ' Stats are HIDDEN' %>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                         <% } %>
-                    </tbody>
-                </table>
-            </div>
 
-            <div class="card-header" style="margin-top:20px;">
-                <div class="card-title"><div class="card-icon"></div> Admin Access</div>
-            </div>
-            <div>
-                 <form action="/admin/manage-admins" method="POST" style="display:flex; gap:10px; margin-bottom:10px;">
-                    <input type="hidden" name="action" value="add">
-                    <input type="text" name="discordId" placeholder="Discord ID to Promoto" required style="flex:2;">
-                    <input type="text" name="note" placeholder="Note" style="flex:1;">
-                    <button class="btn btn-primary">+</button>
-                </form>
-                <small style="opacity:0.6;">Current Admins: <%= admins.length %></small>
-                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:5px;">
-                    <% admins.forEach(a => { %>
-                         <form action="/admin/manage-admins" method="POST" onsubmit="return confirm('Remove admin?')">
-                             <input type="hidden" name="action" value="remove">
-                             <input type="hidden" name="discordId" value="<%= a.discord_id %>">
-                             <button class="badge bg-green" style="border:none; cursor:pointer;"><%= a.note || a.discord_id %> &times;</button>
-                         </form>
-                    <% }) %>
+                            <% if (modules && modules.discord==='true' ) { %>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <div class="card-icon"
+                                                style="background:rgba(88, 101, 242, 0.15); color:#5865F2;"></div>
+                                            Discord Config
+                                        </div>
+                                    </div>
+                                    <form action="/admin/config" method="POST">
+                                        <div class="form-group">
+                                            <label>Discord Guild ID</label>
+                                            <input type="text" name="guildId" value="<%= guildId %>">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Verified Role ID</label>
+                                            <input type="text" name="roleId" value="<%= roleId %>">
+                                        </div>
+                                        <button class="btn btn-primary" style="width:100%;">Save Config</button>
+                                    </form>
+                                </div>
+                                <% } %>
                 </div>
-            </div>
-        </div>
+
+                <!-- 3. DATA MANAGEMENT (Uploads) -->
+                <% if (modules && modules.data==='true' ) { %>
+                    <div class="card col-span-6">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon"></div> Data Management
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                            <!-- UPDATE -->
+                            <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                                <h4 style="color:#a78bfa; margin-bottom:10px;">Update Existing</h4>
+                                <form action="/admin/upload/update?force=true" method="POST"
+                                    enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label class="file-input-wrapper">
+                                            Choose Excel File
+                                            <input type="file" name="file" style="display:none;"
+                                                onchange="this.parentElement.innerText = ' ' + this.files[0].name"
+                                                required>
+                                        </label>
+                                    </div>
+                                    <button class="btn btn-primary" style="width:100%;">Update Data</button>
+                                </form>
+                            </div>
+
+                            <!-- NEW SCAN -->
+                            <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                                <h4 style="color:#f472b6; margin-bottom:10px;">New Scan (Reset)</h4>
+                                <form action="/admin/upload/creation" method="POST" enctype="multipart/form-data"
+                                    onsubmit="return confirm('WARNING: This will RESET all stats data. Continue?')">
+                                    <div class="form-group">
+                                        <label class="file-input-wrapper" style="border-color:#f472b6;">
+                                            Choose Excel File
+                                            <input type="file" name="file" style="display:none;"
+                                                onchange="this.parentElement.innerText = ' ' + this.files[0].name"
+                                                required>
+                                        </label>
+                                    </div>
+                                    <button class="btn btn-primary" style="background:#f472b6; width:100%;">Start New
+                                        Season</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px;">
+                            <form action="/admin/kvk" method="POST"
+                                style="display:flex; align-items:flex-end; gap:10px;">
+                                <div style="flex:1;">
+                                    <label>Current Season Name</label>
+                                    <input type="text" name="kvkName" value="<%= currentKvK %>"
+                                        placeholder="e.g. KvK Season 3">
+                                </div>
+                                <button class="btn btn-ghost">Update Name</button>
+                                <button name="action" value="reset" class="btn btn-danger"
+                                    onclick="return confirm('Are you absolutely sure?')">End Season & Reset</button>
+                            </form>
+                        </div>
+                    </div>
+                    <% } %>
+
+                        <!-- 4. ACCESS & BACKUPS -->
+                        <div class="col-span-6" style="display:flex; flex-direction:column; gap:25px;">
+
+                            <!-- ADMIN ACCESS (Always Visible) -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">
+                                        <div class="card-icon"
+                                            style="background:rgba(239, 68, 68, 0.15); color:#fca5a5;"></div> Admin
+                                        Access
+                                    </div>
+                                </div>
+                                <div>
+                                    <form action="/admin/manage-admins" method="POST"
+                                        style="display:flex; gap:10px; margin-bottom:10px;">
+                                        <input type="hidden" name="action" value="add">
+                                        <input type="text" name="discordId" placeholder="Discord ID to Promoto" required
+                                            style="flex:2;">
+                                        <input type="text" name="note" placeholder="Note" style="flex:1;">
+                                        <button class="btn btn-primary">+</button>
+                                    </form>
+                                    <small style="opacity:0.6;">Current Admins: <%= admins.length %></small>
+                                    <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:5px;">
+                                        <% admins.forEach(a=> { %>
+                                            <form action="/admin/manage-admins" method="POST"
+                                                onsubmit="return confirm('Remove admin?')">
+                                                <input type="hidden" name="action" value="remove">
+                                                <input type="hidden" name="discordId" value="<%= a.discord_id %>">
+                                                <button class="badge bg-green" style="border:none; cursor:pointer;">
+                                                    <%= a.note || a.discord_id %> &times;
+                                                </button>
+                                            </form>
+                                            <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- BACKUPS (Optional) -->
+                            <% if (modules && modules.backups==='true' ) { %>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <div class="card-icon"></div> Backups
+                                        </div>
+                                    </div>
+                                    <div style="max-height:300px; overflow-y:auto;">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Season</th>
+                                                    <th>Date</th>
+                                                    <th>Size</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% if(backups && backups.length) { backups.forEach(b=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= b.name %>
+                                                        </td>
+                                                        <td><span class="badge bg-orange">
+                                                                <%= b.kvk_season %>
+                                                            </span></td>
+                                                        <td>
+                                                            <%= new Date(b.created_at).toLocaleDateString() %>
+                                                        </td>
+                                                        <td>
+                                                            <%= b.count %> Rows
+                                                        </td>
+                                                        <td style="display:flex; gap:5px;">
+                                                            <a href="/admin/backup/download/<%= b.id %>"
+                                                                class="btn btn-ghost" style="padding:4px 8px;"></a>
+                                                            <form action="/admin/backup/delete" method="POST"
+                                                                style="margin:0;">
+                                                                <input type="hidden" name="id" value="<%= b.id %>">
+                                                                <button class="btn btn-danger"
+                                                                    style="padding:4px 8px;">&times;</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) } else { %>
+                                                        <tr>
+                                                            <td colspan="5"
+                                                                style="text-align:center; padding:20px; opacity:0.5;">No
+                                                                backups found.</td>
+                                                        </tr>
+                                                        <% } %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <% } %>
+
+                        </div>
 
     </div>
 </body>
+
 </html>

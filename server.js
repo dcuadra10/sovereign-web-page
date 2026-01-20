@@ -213,7 +213,42 @@ app.post('/forms/:id/submit', isAuthenticated, upload.any(), async (req, res) =>
 app.post('/admin/onboarding', isAuthenticated, isAdmin, async (req, res) => { await setConfig('onboarding_form_id', req.body.formId); res.redirect('/admin/forms'); });
 
 // ADMIN ROUTES (Standard)
-app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { try { const s = await getAllStats(); const t = await getAllTiers(); const a = await getAdmins(); const backups = await getBackups() || []; const g = await getConfig('discord_guild_id') || ''; const r = await getConfig('discord_role_id') || ''; const k = await getConfig('current_kvk') || ''; const linked = await getLinkedUsers() || []; const statsVisible = await getConfig('public_stats_visible'); const announcements = await getAnnouncements(); const projectInfo = await getProjectInfo(); const roles = await getRoles(); res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, statsVisible: statsVisible !== 'false', announcements, projectInfo, roles }); } catch (e) { res.status(500).send('Admin Panel Error: ' + e.message); } });
+app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
+    try { 
+        const s = await getAllStats(); 
+        const t = await getAllTiers(); 
+        const a = await getAdmins(); 
+        const backups = await getBackups() || []; 
+        const g = await getConfig('discord_guild_id') || ''; 
+        const r = await getConfig('discord_role_id') || ''; 
+        const k = await getConfig('current_kvk') || ''; 
+        const linked = await getLinkedUsers() || []; 
+        const statsVisible = await getConfig('public_stats_visible'); 
+        const announcements = await getAnnouncements(); 
+        const projectInfo = await getProjectInfo(); 
+        const roles = await getRoles(); 
+
+        // Modules Config
+        const modules = {
+            announcements: await getConfig('mod_announcements') || 'true',
+            project_info: await getConfig('mod_project_info') || 'true',
+            discord: await getConfig('mod_discord') || 'true',
+            data: await getConfig('mod_data') || 'true',
+            backups: await getConfig('mod_backups') || 'true'
+        };
+
+        res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, statsVisible: statsVisible !== 'false', announcements, projectInfo, roles, modules }); 
+    } catch (e) { res.status(500).send('Admin Panel Error: ' + e.message); } 
+});
+
+app.post('/admin/modules', isAuthenticated, isAdmin, async (req, res) => {
+    await setConfig('mod_announcements', req.body.mod_announcements ? 'true' : 'false');
+    await setConfig('mod_project_info', req.body.mod_project_info ? 'true' : 'false');
+    await setConfig('mod_discord', req.body.mod_discord ? 'true' : 'false');
+    await setConfig('mod_data', req.body.mod_data ? 'true' : 'false');
+    await setConfig('mod_backups', req.body.mod_backups ? 'true' : 'false');
+    res.redirect('/admin?ok=modules_updated');
+});
 app.post('/admin/announcement', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action === 'create') { const targetRoleId = req.body.roleId && req.body.roleId !== 'all' ? parseInt(req.body.roleId) : null; await createAnnouncement(req.body.title, req.body.content, targetRoleId); const recipients = targetRoleId ? (await getUsersByRole(targetRoleId)).map(u=>u.email) : []; if(recipients.length && recipients.length < 50) sendEmailNotification(recipients, req.body.title, parseMarkdown(req.body.content)); } else if (req.body.action === 'delete') { await deleteAnnouncement(req.body.id); } res.redirect('/admin?ok=announcement'); });
 app.get('/admin/forms', isAuthenticated, isAdmin, async (req, res) => { const forms = await getAllFormsAdmin(); const roles = await getRoles(); const onboardingId = await getConfig('onboarding_form_id'); res.render('admin-forms', { forms, roles, user: req.user, onboardingId }); });
 app.post('/admin/forms/create', isAuthenticated, isAdmin, async (req, res) => { await createForm(req.body.title, req.body.description, JSON.parse(req.body.schema), req.body.assignRoleId || null); res.redirect('/admin/forms'); });
