@@ -9,9 +9,9 @@ const http = require('http'); // Native HTTP
 require('dotenv').config();
 
 const { initDB, getAllStats, getKingdomTotals, upsertStats, createStatsWithInitial, upsertUser, getUser, getUserByEmail, linkGovernor, getLinkedUsers, unlinkUser, setConfig, getConfig, clearAllStats, getAllTiers, upsertTier, deleteTier, getAdmins, getAdminsWithDetails, addAdmin, removeAdmin, createBackup, getBackups, getBackupById, deleteBackup, createAnnouncement, getAnnouncements, getAnnouncementsForUser, deleteAnnouncement, getProjectInfo, setProjectInfo,
-createRole, getRoles, deleteRole, assignRoleToUser, removeRoleFromUser, getUserRoles, getUsersByRole,
-createForm, getActiveForms, getAllFormsAdmin, getFormById, toggleFormStatus, deleteForm, submitFormResponse, getFormResponses, hasUserCompletedForm,
-saveChatMessage, getRecentChatMessages
+    createRole, getRoles, deleteRole, assignRoleToUser, removeRoleFromUser, getUserRoles, getUsersByRole,
+    createForm, getActiveForms, getAllFormsAdmin, getFormById, toggleFormStatus, deleteForm, submitFormResponse, getFormResponses, hasUserCompletedForm,
+    saveChatMessage, getRecentChatMessages
 } = require('./database');
 
 const app = express();
@@ -31,14 +31,14 @@ try {
 // Email Setup
 let transporter = null;
 try {
-  const nodemailer = require('nodemailer');
-  if (process.env.EMAIL_USER) {
-      transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-      });
-  }
-} catch (e) {}
+    const nodemailer = require('nodemailer');
+    if (process.env.EMAIL_USER) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+    }
+} catch (e) { }
 
 async function sendEmailNotification(recipients, subject, content) {
     const validEmails = recipients.filter(e => e && e.includes('@'));
@@ -52,7 +52,7 @@ async function sendEmailNotification(recipients, subject, content) {
                 html: `<div style="font-family:sans-serif; padding:20px; background:#f4f4f4;"><div style="max-width:600px; margin:0 auto; background:white; padding:20px; border-radius:10px;"><h2 style="color:#7c3aed;">${subject}</h2><div style="line-height:1.6;">${content}</div><hr style="margin:20px 0; border:none; border-top:1px solid #eee;"><p style="font-size:12px; color:#888;">Sovereign Empire Notification</p></div></div>`
             });
             console.log(`Email sent to ${validEmails.length} recipients.`);
-        } catch(e) { console.error('Email Error:', e); }
+        } catch (e) { console.error('Email Error:', e); }
     } else {
         console.log(`[MOCK EMAIL] TO: ${validEmails.length} users | SUBJECT: ${subject}`);
     }
@@ -80,7 +80,7 @@ async function isAdmin(req, res, next) { const user = getUserFromToken(req); if 
 async function checkOnboarding(req, res, next) {
     if (!req.user) return next();
     if (req.path.startsWith('/admin') || req.path.startsWith('/logout') || req.path.startsWith('/api') || req.path.match(/^\/forms\/\d+/)) return next();
-    
+
     const onboardingId = await getConfig('onboarding_form_id');
     if (onboardingId) {
         const completed = await hasUserCompletedForm(req.user.discordId || req.user.email, onboardingId);
@@ -105,8 +105,8 @@ function parseMarkdown(text) {
         else if (line.match(/^##\s+(.*)/)) { line = line.replace(/^##\s+(.*)/, '<h3 style="color:#c4b5fd; font-size:1.2rem; margin:12px 0 8px;">$1</h3>'); }
         else if (line.match(/^###\s+(.*)/)) { line = line.replace(/^###\s+(.*)/, '<h4 style="color:#ddd; font-size:1.1rem; margin:10px 0;">$1</h4>'); }
         else if (line.match(/^>\s+(.*)/)) { line = line.replace(/^>\s+(.*)/, '<blockquote style="border-left:4px solid #7c3aed; background:rgba(124,58,237,0.1); padding:10px 15px; margin:10px 0; color:#e2e8f0; font-style:italic; border-radius:0 8px 8px 0;">$1</blockquote>'); }
-        else if (line.match(/^\s*-\s+(.*)/) || line.match(/^\s*\*\s+(.*)/)) { line = line.replace(/^\s*[-*]\s+(.*)/, '<div style="display:flex; gap:8px; align-items:flex-start; margin-bottom:4px;"><span style="color:#a78bfa;"></span><span>$1</span></div>'); } 
-        else if (line.match(/^\s*-#\s+(.*)/)) { line = line.replace(/^\s*-#\s+(.*)/, '<div style="margin-left:20px; font-size:0.85rem; opacity:0.7; font-style:italic;">$1</div>'); } 
+        else if (line.match(/^\s*-\s+(.*)/) || line.match(/^\s*\*\s+(.*)/)) { line = line.replace(/^\s*[-*]\s+(.*)/, '<div style="display:flex; gap:8px; align-items:flex-start; margin-bottom:4px;"><span style="color:#a78bfa;"></span><span>$1</span></div>'); }
+        else if (line.match(/^\s*-#\s+(.*)/)) { line = line.replace(/^\s*-#\s+(.*)/, '<div style="margin-left:20px; font-size:0.85rem; opacity:0.7; font-style:italic;">$1</div>'); }
         else { if (line.trim().length > 0) line += '<br>'; }
         line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/__(.*?)__/g, '<u>$1</u>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-family:monospace; color:#f472b6;">$1</code>').replace(/&lt;@(\d+)&gt;/g, '<span style="color:#a78bfa; background:rgba(124, 58, 237, 0.15); padding:2px 6px; border-radius:4px; font-weight:500;">@Member</span>').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#38bdf8; text-decoration:underline;">$1</a>');
         output.push(line);
@@ -127,10 +127,10 @@ if (io) {
 
         socket.on('chatMessage', async (data) => {
             // Data received: { userId, username, avatar, message }
-            if(!data.message || !data.message.trim()) return;
+            if (!data.message || !data.message.trim()) return;
             // Basic sanitization
             const cleanMsg = data.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            
+
             await saveChatMessage(data.userId, data.username, data.avatar, cleanMsg);
             io.emit('message', { ...data, message: cleanMsg, created_at: new Date() });
         });
@@ -141,52 +141,61 @@ if (io) {
 app.get('/', async (req, res) => { try { const isVisible = await getConfig('public_stats_visible'); const user = getUserFromToken(req); res.render('index', { statsVisible: isVisible !== 'false', user }); } catch (e) { res.status(500).send(e.message); } });
 app.get('/login', (req, res) => { const u = getUserFromToken(req); if (u) return res.redirect('/dashboard'); res.render('login', { error: req.query.err ? 'Login failed.' : null }); });
 app.get('/register', (req, res) => { res.render('register', { error: req.query.err }); });
-app.post('/register', async (req, res) => { try { const { username, email, password } = req.body; if (!email || !password || password.length < 6) return res.render('register', { error: 'Invalid input.' }); const existing = await getUserByEmail(email); if (existing) return res.render('register', { error: 'Email exists.' }); const uuid = crypto.randomUUID(); const hash = hashPassword(password); await upsertUser(uuid, username, null, email, hash); const token = jwt.sign({ discordId: uuid, username, email, isAdmin: false }, JWT_SECRET, { expiresIn: '7d' }); res.cookie('auth_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7*24*60*60*1000 }); res.redirect('/dashboard'); } catch (e) { res.render('register', { error: 'Error: ' + e.message }); } });
-app.post('/login', async (req, res) => { try { const { email, password } = req.body; const user = await getUserByEmail(email); if (!user || !verifyPassword(password, user.password_hash)) return res.redirect('/login?err=1'); const admins = await getAdmins(); const isAdminUser = admins.some(a => a.discord_id === user.discord_id); const token = jwt.sign({ discordId: user.discord_id, username: user.username, email: user.email, avatar: user.avatar, isAdmin: isAdminUser }, JWT_SECRET, { expiresIn: '7d' }); res.cookie('auth_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7*24*60*60*1000 }); res.redirect('/dashboard'); } catch(e) { res.redirect('/login?err=1'); } });
+app.post('/register', async (req, res) => { try { const { username, email, password } = req.body; if (!email || !password || password.length < 6) return res.render('register', { error: 'Invalid input.' }); const existing = await getUserByEmail(email); if (existing) return res.render('register', { error: 'Email exists.' }); const uuid = crypto.randomUUID(); const hash = hashPassword(password); await upsertUser(uuid, username, null, email, hash); const token = jwt.sign({ discordId: uuid, username, email, isAdmin: false }, JWT_SECRET, { expiresIn: '7d' }); res.cookie('auth_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 }); res.redirect('/dashboard'); } catch (e) { res.render('register', { error: 'Error: ' + e.message }); } });
+app.post('/login', async (req, res) => { try { const { email, password } = req.body; const user = await getUserByEmail(email); if (!user || !verifyPassword(password, user.password_hash)) return res.redirect('/login?err=1'); const admins = await getAdmins(); const isAdminUser = admins.some(a => a.discord_id === user.discord_id); const token = jwt.sign({ discordId: user.discord_id, username: user.username, email: user.email, avatar: user.avatar, isAdmin: isAdminUser }, JWT_SECRET, { expiresIn: '7d' }); res.cookie('auth_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 }); res.redirect('/dashboard'); } catch (e) { res.redirect('/login?err=1'); } });
 app.get('/auth/discord', (req, res) => res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK_URL)}&response_type=code&scope=identify guilds guilds.members.read email`));
-app.get('/auth/discord/callback', async (req, res) => { const code = req.query.code; if (!code) return res.redirect('/login'); try { const tr = await fetch('https://discord.com/api/oauth2/token', { method: 'POST', body: new URLSearchParams({ client_id: process.env.DISCORD_CLIENT_ID, client_secret: process.env.DISCORD_CLIENT_SECRET, grant_type: 'authorization_code', code, redirect_uri: process.env.DISCORD_CALLBACK_URL }) }); const td = await tr.json(); if (!td.access_token) return res.redirect('/login?err=1'); const ur = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${td.access_token}` } }); const ud = await ur.json(); await upsertUser(ud.id, ud.username, ud.avatar, ud.email); const admins = await getAdmins(); const isAdminUser = admins.some(a => a.discord_id === ud.id); const token = jwt.sign({ discordId: ud.id, username: ud.username, avatar: ud.avatar, email: ud.email, isAdmin: isAdminUser, accessToken: td.access_token }, JWT_SECRET, { expiresIn: '7d' }); res.cookie('auth_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7*24*60*60*1000 }); res.redirect('/dashboard'); } catch { res.redirect('/login?err=2'); } });
+app.get('/auth/discord/callback', async (req, res) => { const code = req.query.code; if (!code) return res.redirect('/login'); try { const tr = await fetch('https://discord.com/api/oauth2/token', { method: 'POST', body: new URLSearchParams({ client_id: process.env.DISCORD_CLIENT_ID, client_secret: process.env.DISCORD_CLIENT_SECRET, grant_type: 'authorization_code', code, redirect_uri: process.env.DISCORD_CALLBACK_URL }) }); const td = await tr.json(); if (!td.access_token) return res.redirect('/login?err=1'); const ur = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${td.access_token}` } }); const ud = await ur.json(); await upsertUser(ud.id, ud.username, ud.avatar, ud.email); const admins = await getAdmins(); const isAdminUser = admins.some(a => a.discord_id === ud.id); const token = jwt.sign({ discordId: ud.id, username: ud.username, avatar: ud.avatar, email: ud.email, isAdmin: isAdminUser, accessToken: td.access_token }, JWT_SECRET, { expiresIn: '7d' }); res.cookie('auth_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 }); res.redirect('/dashboard'); } catch { res.redirect('/login?err=2'); } });
 app.get('/logout', (req, res) => { res.clearCookie('auth_token'); res.redirect('/'); });
 
 // DASHBOARD (Apply Onboarding Check Here)
-app.get('/dashboard', isAuthenticated, checkOnboarding, async (req, res) => { 
-  try { 
-    const isVisible = await getConfig('public_stats_visible');
-    const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); 
-    const k = await getConfig('current_kvk'); 
-    const u = await getUser(req.user.discordId); 
-    const a = await getAdmins(); 
-    const adminList = await getAdminsWithDetails();
-    const lastStart = await getConfig('season_start_date');
-    const forms = await getActiveForms();
-    const userRoles = await getUserRoles(req.user.discordId);
-    let announcements = await getAnnouncementsForUser(req.user.discordId);
-    announcements = announcements.map(a => ({ ...a, content: parseMarkdown(a.content) }));
-    let projectInfo = await getProjectInfo();
-    projectInfo = parseMarkdown(projectInfo);
-    res.render('dashboard', { user: {...req.user, ...(u||{})}, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin=>admin.discord_id===req.user.discordId), statsVisible: isVisible !== 'false', announcements, projectInfo, adminList, forms, userRoles }); 
-  } catch (e){ res.status(500).send('Error loading dashboard: ' + e.message); } 
+app.get('/dashboard', isAuthenticated, checkOnboarding, async (req, res) => {
+    try {
+        const isVisible = await getConfig('public_stats_visible');
+        const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers);
+        const k = await getConfig('current_kvk');
+        const u = await getUser(req.user.discordId);
+        const a = await getAdmins();
+        const adminList = await getAdminsWithDetails();
+        const lastStart = await getConfig('season_start_date');
+        const forms = await getActiveForms();
+        const userRoles = await getUserRoles(req.user.discordId);
+        let announcements = await getAnnouncementsForUser(req.user.discordId);
+        announcements = announcements.map(a => ({ ...a, content: parseMarkdown(a.content) }));
+        let projectInfo = await getProjectInfo();
+        projectInfo = parseMarkdown(projectInfo);
+
+        // Modules Config
+        const modules = {
+            announcements: await getConfig('mod_announcements') || 'true',
+            project_info: await getConfig('mod_project_info') || 'true',
+            discord: await getConfig('mod_discord') || 'true',
+            forms: await getConfig('mod_forms') || 'true'
+        };
+
+        res.render('dashboard', { user: { ...req.user, ...(u || {}) }, stats: sp, totals: t, tiers, currentKvK: k, seasonStart: lastStart, isAdmin: a.some(admin => admin.discord_id === req.user.discordId), statsVisible: isVisible !== 'false', announcements, projectInfo, adminList, forms, userRoles, modules });
+    } catch (e) { res.status(500).send('Error loading dashboard: ' + e.message); }
 });
 
 // FORM ROUTES
-app.get('/forms/:id', isAuthenticated, async (req, res) => { try { const form = await getFormById(req.params.id); if (!form || (!form.is_active && !req.user.isAdmin)) return res.status(404).send('Form unavailable'); res.render('form-view', { form, user: req.user, isOnboarding: req.query.onboarding === 'true' }); } catch(e) { res.status(500).send(e.message); } });
-app.post('/forms/:id/submit', isAuthenticated, upload.any(), async (req, res) => { 
-    try { 
-        const form = await getFormById(req.params.id); 
-        if (!form) return res.status(404).send('Form not found'); 
-        
-        const answers = { ...req.body }; 
-        if (req.files && req.files.length) { 
-            req.files.forEach(f => { 
-                answers[f.fieldname] = `data:${f.mimetype};base64,${f.buffer.toString('base64')}`; 
-                answers[f.fieldname + '_name'] = f.originalname; 
-            }); 
-        } 
-        
-        await submitFormResponse(form.id, req.user.discordId || req.user.email, req.user.username, answers); 
-        
+app.get('/forms/:id', isAuthenticated, async (req, res) => { try { const form = await getFormById(req.params.id); if (!form || (!form.is_active && !req.user.isAdmin)) return res.status(404).send('Form unavailable'); res.render('form-view', { form, user: req.user, isOnboarding: req.query.onboarding === 'true' }); } catch (e) { res.status(500).send(e.message); } });
+app.post('/forms/:id/submit', isAuthenticated, upload.any(), async (req, res) => {
+    try {
+        const form = await getFormById(req.params.id);
+        if (!form) return res.status(404).send('Form not found');
+
+        const answers = { ...req.body };
+        if (req.files && req.files.length) {
+            req.files.forEach(f => {
+                answers[f.fieldname] = `data:${f.mimetype};base64,${f.buffer.toString('base64')}`;
+                answers[f.fieldname + '_name'] = f.originalname;
+            });
+        }
+
+        await submitFormResponse(form.id, req.user.discordId || req.user.email, req.user.username, answers);
+
         // 1. Assign Global Role (if set)
-        if (form.assign_role_id) { 
-            await assignRoleToUser(req.user.discordId, form.assign_role_id); 
+        if (form.assign_role_id) {
+            await assignRoleToUser(req.user.discordId, form.assign_role_id);
         }
 
         // 2. Assign Answer-Specific Roles (If Configured)
@@ -199,34 +208,34 @@ app.post('/forms/:id/submit', isAuthenticated, upload.any(), async (req, res) =>
                         try {
                             await assignRoleToUser(req.user.discordId || req.user.email /*Fallback for non-discord users logic*/, roleIdToAssign);
                             console.log(`Assigned mapped role ${roleIdToAssign} to User for answer "${selectedValue}"`);
-                        } catch(err) { console.error('Error assigning role:', err); }
+                        } catch (err) { console.error('Error assigning role:', err); }
                     }
                 }
             }
         }
 
-        res.send('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="3;url=/dashboard" /><title>Submitted</title><style>body{background:#0f172a;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><h1> Submitted Successfully!</h1><p>Redirecting to dashboard...</p></body></html>'); 
-    } catch (e) { res.status(500).send(e.message); } 
+        res.send('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="3;url=/dashboard" /><title>Submitted</title><style>body{background:#0f172a;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><h1> Submitted Successfully!</h1><p>Redirecting to dashboard...</p></body></html>');
+    } catch (e) { res.status(500).send(e.message); }
 });
 
 // ADMIN (Config Onboarding)
 app.post('/admin/onboarding', isAuthenticated, isAdmin, async (req, res) => { await setConfig('onboarding_form_id', req.body.formId); res.redirect('/admin/forms'); });
 
 // ADMIN ROUTES (Standard)
-app.get('/admin', isAuthenticated, isAdmin, async (req, res) => { 
-    try { 
-        const s = await getAllStats(); 
-        const t = await getAllTiers(); 
-        const a = await getAdmins(); 
-        const backups = await getBackups() || []; 
-        const g = await getConfig('discord_guild_id') || ''; 
-        const r = await getConfig('discord_role_id') || ''; 
-        const k = await getConfig('current_kvk') || ''; 
-        const linked = await getLinkedUsers() || []; 
-        const statsVisible = await getConfig('public_stats_visible'); 
-        const announcements = await getAnnouncements(); 
-        const projectInfo = await getProjectInfo(); 
-        const roles = await getRoles(); 
+app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const s = await getAllStats();
+        const t = await getAllTiers();
+        const a = await getAdmins();
+        const backups = await getBackups() || [];
+        const g = await getConfig('discord_guild_id') || '';
+        const r = await getConfig('discord_role_id') || '';
+        const k = await getConfig('current_kvk') || '';
+        const linked = await getLinkedUsers() || [];
+        const statsVisible = await getConfig('public_stats_visible');
+        const announcements = await getAnnouncements();
+        const projectInfo = await getProjectInfo();
+        const roles = await getRoles();
 
         // Modules Config
         const modules = {
@@ -234,11 +243,12 @@ app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
             project_info: await getConfig('mod_project_info') || 'true',
             discord: await getConfig('mod_discord') || 'true',
             data: await getConfig('mod_data') || 'true',
-            backups: await getConfig('mod_backups') || 'true'
+            backups: await getConfig('mod_backups') || 'true',
+            forms: await getConfig('mod_forms') || 'true'
         };
 
-        res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, statsVisible: statsVisible !== 'false', announcements, projectInfo, roles, modules }); 
-    } catch (e) { res.status(500).send('Admin Panel Error: ' + e.message); } 
+        res.render('admin', { user: req.user, stats: s, tiers: t, admins: a, backups, linkedUsers: linked, guildId: g, roleId: r, currentKvK: k, statsVisible: statsVisible !== 'false', announcements, projectInfo, roles, modules });
+    } catch (e) { res.status(500).send('Admin Panel Error: ' + e.message); }
 });
 
 app.post('/admin/modules', isAuthenticated, isAdmin, async (req, res) => {
@@ -247,15 +257,16 @@ app.post('/admin/modules', isAuthenticated, isAdmin, async (req, res) => {
     await setConfig('mod_discord', req.body.mod_discord ? 'true' : 'false');
     await setConfig('mod_data', req.body.mod_data ? 'true' : 'false');
     await setConfig('mod_backups', req.body.mod_backups ? 'true' : 'false');
+    await setConfig('mod_forms', req.body.mod_forms ? 'true' : 'false');
     res.redirect('/admin?ok=modules_updated');
 });
-app.post('/admin/announcement', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action === 'create') { const targetRoleId = req.body.roleId && req.body.roleId !== 'all' ? parseInt(req.body.roleId) : null; await createAnnouncement(req.body.title, req.body.content, targetRoleId); const recipients = targetRoleId ? (await getUsersByRole(targetRoleId)).map(u=>u.email) : []; if(recipients.length && recipients.length < 50) sendEmailNotification(recipients, req.body.title, parseMarkdown(req.body.content)); } else if (req.body.action === 'delete') { await deleteAnnouncement(req.body.id); } res.redirect('/admin?ok=announcement'); });
+app.post('/admin/announcement', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action === 'create') { const targetRoleId = req.body.roleId && req.body.roleId !== 'all' ? parseInt(req.body.roleId) : null; await createAnnouncement(req.body.title, req.body.content, targetRoleId); const recipients = targetRoleId ? (await getUsersByRole(targetRoleId)).map(u => u.email) : []; if (recipients.length && recipients.length < 50) sendEmailNotification(recipients, req.body.title, parseMarkdown(req.body.content)); } else if (req.body.action === 'delete') { await deleteAnnouncement(req.body.id); } res.redirect('/admin?ok=announcement'); });
 app.get('/admin/forms', isAuthenticated, isAdmin, async (req, res) => { const forms = await getAllFormsAdmin(); const roles = await getRoles(); const onboardingId = await getConfig('onboarding_form_id'); res.render('admin-forms', { forms, roles, user: req.user, onboardingId }); });
 app.post('/admin/forms/create', isAuthenticated, isAdmin, async (req, res) => { await createForm(req.body.title, req.body.description, JSON.parse(req.body.schema), req.body.assignRoleId || null); res.redirect('/admin/forms'); });
 app.post('/admin/forms/toggle', isAuthenticated, isAdmin, async (req, res) => { await toggleFormStatus(req.body.id); res.redirect('/admin/forms'); });
 app.post('/admin/forms/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteForm(req.body.id); res.redirect('/admin/forms'); });
 app.get('/admin/forms/:id/responses', isAuthenticated, isAdmin, async (req, res) => { const form = await getFormById(req.params.id); const responses = await getFormResponses(req.params.id); res.render('admin-form-responses', { form, responses, user: req.user }); });
-app.post('/admin/roles/create', isAuthenticated, isAdmin, async (req, res) => { await createRole(req.body.name, req.body.color); res.redirect('/admin/forms'); }); 
+app.post('/admin/roles/create', isAuthenticated, isAdmin, async (req, res) => { await createRole(req.body.name, req.body.color); res.redirect('/admin/forms'); });
 app.post('/admin/roles/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteRole(req.body.id); res.redirect('/admin/forms'); });
 
 // Other Admin Post Routes
@@ -264,16 +275,16 @@ app.post('/admin/toggle-stats', isAuthenticated, isAdmin, async (req, res) => { 
 app.post('/admin/unlink', isAuthenticated, isAdmin, async (req, res) => { await unlinkUser(req.body.discordId); res.redirect('/admin?ok=unlink'); });
 app.post('/admin/config', isAuthenticated, isAdmin, async (req, res) => { await setConfig('discord_guild_id', req.body.guildId); await setConfig('discord_role_id', req.body.roleId); res.redirect('/admin'); });
 app.post('/admin/kvk', isAuthenticated, isAdmin, async (req, res) => { const kvk = await getConfig('current_kvk'); if (req.body.action === 'reset') { await createBackup(`Auto-Backup (Reset ${kvk})`, kvk, 'Reset Action'); await clearAllStats(); } await setConfig('current_kvk', req.body.kvkName); res.redirect('/admin?ok=kvk'); });
-app.post('/admin/manage-admins', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action==='add') await addAdmin(req.body.discordId, req.body.note); else await removeAdmin(req.body.discordId); res.redirect('/admin'); });
-app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { try { const min = parseNumber(req.body.minPower); const max = parseNumber(req.body.maxPower); await upsertTier(req.body.id||null, req.body.name, min, max, parseFloat(req.body.killMultiplier), parseFloat(req.body.deathMultiplier)); res.redirect('/admin?ok=tier'); } catch(e) { res.redirect('/admin?err=' + e.message); } });
+app.post('/admin/manage-admins', isAuthenticated, isAdmin, async (req, res) => { if (req.body.action === 'add') await addAdmin(req.body.discordId, req.body.note); else await removeAdmin(req.body.discordId); res.redirect('/admin'); });
+app.post('/admin/tier', isAuthenticated, isAdmin, async (req, res) => { try { const min = parseNumber(req.body.minPower); const max = parseNumber(req.body.maxPower); await upsertTier(req.body.id || null, req.body.name, min, max, parseFloat(req.body.killMultiplier), parseFloat(req.body.deathMultiplier)); res.redirect('/admin?ok=tier'); } catch (e) { res.redirect('/admin?err=' + e.message); } });
 app.post('/admin/tier/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteTier(req.body.id); res.redirect('/admin'); });
 app.post('/admin/backup/delete', isAuthenticated, isAdmin, async (req, res) => { await deleteBackup(req.body.id); res.redirect('/admin?ok=del_backup'); });
-app.get('/admin/backup/download/:id', isAuthenticated, isAdmin, async (req, res) => { try { const b = await getBackupById(req.params.id); if (!b) return res.status(404).send('Backup not found'); res.setHeader('Content-Disposition', `attachment; filename="backup-${b.kvk_season}-${b.id}.json"`); res.setHeader('Content-Type', 'application/json'); res.send(JSON.stringify(b.data, null, 2)); } catch(e) { res.status(500).send(e.message); } });
+app.get('/admin/backup/download/:id', isAuthenticated, isAdmin, async (req, res) => { try { const b = await getBackupById(req.params.id); if (!b) return res.status(404).send('Backup not found'); res.setHeader('Content-Disposition', `attachment; filename="backup-${b.kvk_season}-${b.id}.json"`); res.setHeader('Content-Type', 'application/json'); res.send(JSON.stringify(b.data, null, 2)); } catch (e) { res.status(500).send(e.message); } });
 app.post('/admin/upload/:type', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => { try { if (!req.file) return res.status(400).send('No file'); const r = parseExcelData(req.file.buffer); if (!r.length) return res.status(400).send('No records'); const filename = req.file.originalname; const match = filename.match(/^(\d+)-(\d{4}-\d{2}-\d{2})-(\d{4}-\d{2}-\d{2})/); const force = req.query.force === 'true'; if (req.params.type === 'update' && match && !force) { const newKingdom = match[1]; const newStart = match[2]; const oldKindgom = await getConfig('last_scan_kingdom'); const oldEnd = await getConfig('last_scan_end_date'); if (oldKindgom && oldKindgom !== newKingdom) { return res.status(409).json({ warning: `Kingdom mismatch! Previous: ${oldKindgom}, File: ${newKingdom}. Use same Kingdom?` }); } if (oldEnd && oldEnd !== newStart) { return res.status(409).json({ warning: `Date gap! Previous ended: ${oldEnd}, File starts: ${newStart}. Recommendation: Match start date with previous end date.` }); } } if (req.params.type === 'creation') { const kvk = await getConfig('current_kvk'); await createBackup(`Auto-Backup (New List ${kvk})`, kvk, filename); await clearAllStats(); for (const x of r) await createStatsWithInitial(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources); if (match) await setConfig('season_start_date', match[2]); } else { for (const x of r) await upsertStats(x.governorId, x.username, x.kingdom, x.highestPower, x.deads, x.killPoints, x.resources); } if (match) { await setConfig('last_scan_kingdom', match[1]); await setConfig('last_scan_end_date', match[3]); } res.status(200).send(`Done: ${r.length}`); } catch (e) { res.status(500).send(e.message); } });
-app.post('/link-account', isAuthenticated, async (req, res) => { try { const guildId = await getConfig('discord_guild_id'); const roleId = await getConfig('discord_role_id'); const s = await getAllStats(); if (!s.find(x => x.governor_id === req.body.governorId)) { return res.redirect('/dashboard?error=Governor ID not found in the stats list.'); } if (req.user.accessToken) { if (!guildId) return res.redirect('/dashboard?error=Guild Config Missing'); const memberReq = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, { headers: { Authorization: `Bearer ${req.user.accessToken}` } }); if (!memberReq.ok) return res.redirect('/dashboard?error=Verify Failed'); const member = await memberReq.json(); if (roleId && (!member.roles || !member.roles.includes(roleId))) return res.redirect('/dashboard?error=Missing Role'); } await linkGovernor(req.user.discordId, req.body.governorId); res.redirect('/dashboard?success=Account Linked'); } catch(e) { res.redirect('/dashboard?error=' + encodeURIComponent(e.message)); } });
-app.get('/stats', async (req, res) => { try { const isVisible = await getConfig('public_stats_visible'); if (isVisible === 'false') { return res.send('<!DOCTYPE html><html lang="en"><head><title>Maintenance</title><style>body{background:#0f0c29;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><div style="text-align:center;"><h1> Stats Temporarily Unavailable</h1><p>We are updating the data. Please check back later.</p><a href="/" style="color:#a78bfa;">Return Home</a></div></body></html>'); } const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); sp.sort((a,b) => { const scoreA = a.killsGained + (a.deadsGained * 2); const scoreB = b.killsGained + (b.deadsGained * 2); return scoreB - scoreA; }); const k = await getConfig('current_kvk') || 'Unknown'; res.render('stats', { stats: sp, totals: t, tiers, currentKvK: k }); } catch { res.status(500).send('Error'); } });
-app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); res.json(sp.filter(x=>!x.isCompliant).map(x=>`${x.governor_id} ${x.username}`)); });
-app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); sp.sort((a,b) => { const scoreA = a.killsGained + (a.deadsGained * 2); const scoreB = b.killsGained + (b.deadsGained * 2); return scoreB - scoreA; }); res.json(sp.slice(0, parseInt(req.query.limit)||10).map((x,i)=>`Top ${i+1}: ${x.governor_id} ${x.username}`)); });
+app.post('/link-account', isAuthenticated, async (req, res) => { try { const guildId = await getConfig('discord_guild_id'); const roleId = await getConfig('discord_role_id'); const s = await getAllStats(); if (!s.find(x => x.governor_id === req.body.governorId)) { return res.redirect('/dashboard?error=Governor ID not found in the stats list.'); } if (req.user.accessToken) { if (!guildId) return res.redirect('/dashboard?error=Guild Config Missing'); const memberReq = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, { headers: { Authorization: `Bearer ${req.user.accessToken}` } }); if (!memberReq.ok) return res.redirect('/dashboard?error=Verify Failed'); const member = await memberReq.json(); if (roleId && (!member.roles || !member.roles.includes(roleId))) return res.redirect('/dashboard?error=Missing Role'); } await linkGovernor(req.user.discordId, req.body.governorId); res.redirect('/dashboard?success=Account Linked'); } catch (e) { res.redirect('/dashboard?error=' + encodeURIComponent(e.message)); } });
+app.get('/stats', async (req, res) => { try { const isVisible = await getConfig('public_stats_visible'); if (isVisible === 'false') { return res.send('<!DOCTYPE html><html lang="en"><head><title>Maintenance</title><style>body{background:#0f0c29;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><div style="text-align:center;"><h1> Stats Temporarily Unavailable</h1><p>We are updating the data. Please check back later.</p><a href="/" style="color:#a78bfa;">Return Home</a></div></body></html>'); } const s = await getAllStats(); const t = await getKingdomTotals(); const tiers = await getAllTiers(); const sp = await calculateProgress(s, tiers); sp.sort((a, b) => { const scoreA = a.killsGained + (a.deadsGained * 2); const scoreB = b.killsGained + (b.deadsGained * 2); return scoreB - scoreA; }); const k = await getConfig('current_kvk') || 'Unknown'; res.render('stats', { stats: sp, totals: t, tiers, currentKvK: k }); } catch { res.status(500).send('Error'); } });
+app.get('/api/reports/non-compliant', isAuthenticated, isAdmin, async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); res.json(sp.filter(x => !x.isCompliant).map(x => `${x.governor_id} ${x.username}`)); });
+app.get('/api/reports/top', isAuthenticated, isAdmin, async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); sp.sort((a, b) => { const scoreA = a.killsGained + (a.deadsGained * 2); const scoreB = b.killsGained + (b.deadsGained * 2); return scoreB - scoreA; }); res.json(sp.slice(0, parseInt(req.query.limit) || 10).map((x, i) => `Top ${i + 1}: ${x.governor_id} ${x.username}`)); });
 app.get('/api/stats', async (req, res) => { const s = await getAllStats(); const t = await getAllTiers(); const sp = await calculateProgress(s, t); res.json(sp); });
 
 if (process.env.NODE_ENV !== 'production') { server.listen(process.env.PORT || 3000, () => console.log('Server running on port ' + (process.env.PORT || 3000))); }

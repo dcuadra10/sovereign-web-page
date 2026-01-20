@@ -1,86 +1,439 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard - Sovereign Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); color: #fff; overflow-x: hidden; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 1000; }
-        .nav-brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: white; display: flex; align-items: center; gap: 10px; }
-        .nav-links { display: flex; gap: 20px; align-items: center; }
-        .btn { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
-        .btn-danger { background: rgba(220,38,38,0.8); color: white; }
-        .btn-admin { background: linear-gradient(135deg, #ff9966, #ff5e62); color:white; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        .container { max-width: 1400px; margin: 0 auto; padding: 40px; display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
-        .sidebar { display: flex; flex-direction: column; gap: 20px; }
-        .card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
-        .profile-card { text-align: center; }
-        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2); margin-bottom: 15px; object-fit: cover; }
-        .user-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; }
-        .user-id { font-size: 0.9rem; opacity: 0.6; margin-bottom: 20px; font-family: monospace; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 15px; }
-        .status-linked { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
-        .status-unlinked { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.4); }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
 
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-control { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; }
-        
-        .main-content { display: flex; flex-direction: column; gap: 30px; }
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .stat-box { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-val { font-size: 1.5rem; font-weight: 700; display: block; margin-bottom: 5px; }
-        .stat-lbl { font-size: 0.9rem; opacity: 0.7; }
-        
-        .progress-bar-container { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin-top: 20px; }
-        .bar-bg { background: rgba(0,0,0,0.3); height: 12px; border-radius: 6px; overflow: hidden; margin: 10px 0; }
-        .bar-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 1s ease; }
-        .bar-success { background: linear-gradient(90deg, #11998e, #38ef7d); }
-        .bar-warning { background: linear-gradient(90deg, #f5576c, #f093fb); }
-        
-        .announcements-box { margin-bottom: 20px; }
-        .announcement { background: rgba(255,255,255,0.03); border-left: 4px solid #a78bfa; padding: 15px; margin-bottom: 10px; border-radius: 4px; }
-        .announcement h4 { margin-bottom: 5px; color: #a78bfa; font-size: 1.1rem; }
-        .announcement p { font-size: 0.95rem; line-height: 1.5; opacity: 0.9; }
-        .date-tag { font-size: 0.75rem; opacity: 0.5; display: block; margin-top: 8px; }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-        .info-box { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; line-height: 1.6; }
+        .nav-brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-        .role-pill { display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:bold; color:black; margin:2px; }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn-danger {
+            background: rgba(220, 38, 38, 0.8);
+            color: white;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-card {
+            text-align: center;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .user-id {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .status-linked {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+        }
+
+        .status-unlinked {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-lbl {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .bar-bg {
+            background: rgba(0, 0, 0, 0.3);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 1s ease;
+        }
+
+        .bar-success {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+        }
+
+        .bar-warning {
+            background: linear-gradient(90deg, #f5576c, #f093fb);
+        }
+
+        .announcements-box {
+            margin-bottom: 20px;
+        }
+
+        .announcement {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid #a78bfa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .announcement h4 {
+            margin-bottom: 5px;
+            color: #a78bfa;
+            font-size: 1.1rem;
+        }
+
+        .announcement p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .date-tag {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            display: block;
+            margin-top: 8px;
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+
+        .role-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: black;
+            margin: 2px;
+        }
 
         /* CHAT CSS */
-        #chat-widget { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 500px; background: #1e293b; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #334155; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s; transform: translateY(110%); }
-        #chat-widget.open { transform: translateY(0); }
-        .chat-header { padding: 15px; background: #334155; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 600; cursor: pointer; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #0f172a; }
-        .chat-input-area { padding: 10px; border-top: 1px solid #334155; display: flex; gap: 10px; }
-        .msg { font-size: 0.9rem; padding: 8px 12px; border-radius: 10px; background: #334155; max-width: 85%; align-self: flex-start; }
-        .msg.mine { background: #7c3aed; align-self: flex-end; }
-        .msg strong { display: block; font-size: 0.75rem; opacity: 0.7; margin-bottom: 2px; }
-        #chat-toggle { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #7c3aed; border-radius: 50%; box-shadow: 0 10px 20px rgba(124, 58, 237, 0.4); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; cursor: pointer; z-index: 2001; transition: transform 0.2s; }
-        #chat-toggle:hover { transform: scale(1.1); }
+        #chat-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            z-index: 2000;
+            transition: transform 0.3s;
+            transform: translateY(110%);
+        }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 10px; color: white; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards; max-width: 90%; }
-        .toast-error { background: rgba(220, 38, 38, 0.9); } .toast-success { background: rgba(22, 163, 74, 0.9); }
-        
-        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } #chat-widget { width: 90%; right: 5%; bottom: 20px; } }
+        #chat-widget.open {
+            transform: translateY(0);
+        }
+
+        .chat-header {
+            padding: 15px;
+            background: #334155;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #0f172a;
+        }
+
+        .chat-input-area {
+            padding: 10px;
+            border-top: 1px solid #334155;
+            display: flex;
+            gap: 10px;
+        }
+
+        .msg {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: #334155;
+            max-width: 85%;
+            align-self: flex-start;
+        }
+
+        .msg.mine {
+            background: #7c3aed;
+            align-self: flex-end;
+        }
+
+        .msg strong {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        #chat-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #7c3aed;
+            border-radius: 50%;
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 2001;
+            transition: transform 0.2s;
+        }
+
+        #chat-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards;
+            max-width: 90%;
+        }
+
+        .toast-error {
+            background: rgba(220, 38, 38, 0.9);
+        }
+
+        .toast-success {
+            background: rgba(22, 163, 74, 0.9);
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -50px;
+                opacity: 0;
+            }
+
+            to {
+                top: 20px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            #chat-widget {
+                width: 90%;
+                right: 5%;
+                bottom: 20px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <a href="/" class="nav-brand"> Sovereign Empire</a>
         <div class="nav-links">
             <% if (statsVisible) { %>
                 <a href="/stats" class="btn btn-secondary">Leaderboard</a>
-            <% } %>
-            <% if (isAdmin) { %><a href="/admin" class="btn btn-admin">Admin Panel</a><% } %>
-            <a href="/logout" class="btn btn-danger">Logout</a>
+                <% } %>
+                    <% if (isAdmin) { %><a href="/admin" class="btn btn-admin">Admin Panel</a>
+                        <% } %>
+                            <a href="/logout" class="btn btn-danger">Logout</a>
         </div>
     </nav>
 
@@ -88,121 +441,186 @@
         <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="card profile-card">
-                <img src="<%= user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" class="avatar">
-                <h2 class="user-name"><%= user.username %></h2>
-                <div class="user-id">ID: <%= user.discordId || 'Email User' %></div>
-                
-                <% if(locals.userRoles && userRoles.length > 0) { %>
+                <img src="<%= user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>"
+                    class="avatar">
+                <h2 class="user-name">
+                    <%= user.username %>
+                </h2>
+                <div class="user-id">ID: <%= user.discordId || 'Email User' %>
+                </div>
+
+                <% if(locals.userRoles && userRoles.length> 0) { %>
                     <div style="margin-bottom:15px;">
-                        <% userRoles.forEach(r => { %>
-                            <span class="role-pill" style="background:<%= r.color %>"><%= r.name %></span>
-                        <% }) %>
+                        <% userRoles.forEach(r=> { %>
+                            <span class="role-pill" style="background:<%= r.color %>">
+                                <%= r.name %>
+                            </span>
+                            <% }) %>
                     </div>
-                <% } %>
-                
-                <% if (user.governor_id) { %>
-                     <div class="status-badge status-linked">Linked: <%= user.governor_id %></div>
-                <% } else { %>
-                     <div class="status-badge status-unlinked">Not Linked</div>
-                     <form action="/link-account" method="POST" style="margin-top:15px;">
-                        <input type="number" name="governorId" class="form-control" placeholder="Enter Governor ID" required>
-                        <button class="btn btn-secondary" style="width:100%; margin-top:10px;">Link Account</button>
-                     </form>
-                <% } %>
+                    <% } %>
+
+                        <% if (user.governor_id) { %>
+                            <div class="status-badge status-linked">Linked: <%= user.governor_id %>
+                            </div>
+                            <% } else { %>
+                                <div class="status-badge status-unlinked">Not Linked</div>
+                                <form action="/link-account" method="POST" style="margin-top:15px;">
+                                    <input type="number" name="governorId" class="form-control"
+                                        placeholder="Enter Governor ID" required>
+                                    <button class="btn btn-secondary" style="width:100%; margin-top:10px;">Link
+                                        Account</button>
+                                </form>
+                                <% } %>
             </div>
-            
+
             <div class="card">
-                <button onclick="document.getElementById('contactList').style.display = document.getElementById('contactList').style.display === 'none' ? 'flex' : 'none'" class="btn btn-secondary" style="width:100%;">
-                     Contact Leadership
+                <button
+                    onclick="document.getElementById('contactList').style.display = document.getElementById('contactList').style.display === 'none' ? 'flex' : 'none'"
+                    class="btn btn-secondary" style="width:100%;">
+                    Contact Leadership
                 </button>
-                <div id="contactList" style="display:none; flex-direction:column; gap:12px; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
-                    <% if(typeof adminList !== 'undefined' && adminList.length > 0) { 
-                       adminList.forEach(admin => { %>
-                        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); padding:8px; border-radius:6px;">
-                            <img src="<%= admin.avatar ? (admin.avatar.startsWith('http') ? admin.avatar : `https://cdn.discordapp.com/avatars/${admin.discord_id}/${admin.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+                <div id="contactList"
+                    style="display:none; flex-direction:column; gap:12px; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+                    <% if(typeof adminList !=='undefined' && adminList.length> 0) {
+                        adminList.forEach(admin => { %>
+                        <div
+                            style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); padding:8px; border-radius:6px;">
+                            <img src="<%= admin.avatar ? (admin.avatar.startsWith('http') ? admin.avatar : `https://cdn.discordapp.com/avatars/${admin.discord_id}/${admin.avatar}.png`) : 'https://cdn.discordapp.com/embed/avatars/0.png' %>"
+                                style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
                             <div>
-                               <div style="font-weight:600; font-size:0.9rem;"><%= admin.username || 'Unknown' %></div>
-                               <div style="font-size:0.75rem; opacity:0.6;"><%= admin.note || 'Admin' %></div>
+                                <div style="font-weight:600; font-size:0.9rem;">
+                                    <%= admin.username || 'Unknown' %>
+                                </div>
+                                <div style="font-size:0.75rem; opacity:0.6;">
+                                    <%= admin.note || 'Admin' %>
+                                </div>
                             </div>
                         </div>
-                    <% }); } else { %>
-                        <div style="text-align:center; opacity:0.6;">No contacts listed.</div>
-                    <% } %>
+                        <% }); } else { %>
+                            <div style="text-align:center; opacity:0.6;">No contacts listed.</div>
+                            <% } %>
                 </div>
             </div>
 
-            <% if (typeof forms !== 'undefined' && forms.length > 0) { %>
-            <div class="card">
-                <h3 style="margin-bottom:15px; font-size:1.1rem; color:#a78bfa;"> Available Apps</h3>
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    <% forms.forEach(f => { %>
-                        <a href="/forms/<%= f.id %>" class="btn btn-secondary" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
-                            <span><%= f.title %></span>
-                            <span>&rsaquo;</span>
-                        </a>
-                    <% }) %>
+            <% if (locals.modules && modules.forms==='true' && typeof forms !=='undefined' && forms.length> 0) { %>
+                <div class="card">
+                    <h3 style="margin-bottom:15px; font-size:1.1rem; color:#a78bfa;"> Available Apps</h3>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <% forms.forEach(f=> { %>
+                            <a href="/forms/<%= f.id %>" class="btn btn-secondary"
+                                style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                                <span>
+                                    <%= f.title %>
+                                </span>
+                                <span>&rsaquo;</span>
+                            </a>
+                            <% }) %>
+                    </div>
                 </div>
-            </div>
-            <% } %>
+                <% } %>
         </div>
 
         <!-- MAIN CONTENT -->
         <div class="main-content">
-            <% if (projectInfo || (announcements && announcements.length > 0)) { %>
-            <div class="card">
-                <h2 style="margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;"> News</h2>
-                <% if (announcements && announcements.length > 0) { %>
-                    <div class="announcements-box">
-                        <% announcements.forEach(a => { %>
-                            <div class="announcement" style="<%= a.target_role_id ? 'border-left-color:#f472b6' : '' %>">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <h4><%- a.title %></h4>
-                                    <% if(a.target_role_id) { %> <span style="font-size:0.7rem; background:#f472b6; padding:2px 6px; border-radius:4px; color:black;">Role Targeted</span> <% } %>
-                                </div>
-                                <div><%- a.content %></div>
-                                <span class="date-tag"><%= new Date(a.created_at).toLocaleDateString() %></span>
-                            </div>
-                        <% }) %>
-                    </div>
-                <% } %>
-                <% if (projectInfo) { %>
-                    <div class="info-box"><h3 style="color:#a78bfa;">ℹ Info</h3><div style="line-height:1.6;"><%- projectInfo %></div></div>
-                <% } %>
-            </div>
-            <% } %>
+            <% const showNews=locals.modules ? modules.announcements==='true' : true; const showInfo=locals.modules ?
+                modules.project_info==='true' : true; const hasNews=announcements && announcements.length> 0;
+                const hasInfo = !!projectInfo;
+                %>
 
-            <% 
-               let myStats = null;
-               if (user.governor_id && stats) { myStats = stats.find(s => s.governor_id === user.governor_id); }
-            %>
-            <% if (myStats && statsVisible) { %>
-                <div class="card">
-                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2>Your Stats <span style="font-size:0.9rem; opacity:0.6;">(Season: <%= currentKvK || 'N/A' %>)</span></h2>
-                        <span class="status-badge" style="<%= myStats.isCompliant ? 'background:rgba(74,222,128,0.2); color:#4ade80' : 'background:rgba(248,113,113,0.2); color:#f87171' %>">
-                            Status: <%= myStats.isCompliant ? 'COMPLIANT' : 'RISK' %>
-                        </span>
+                <% if ((showNews && hasNews) || (showInfo && hasInfo)) { %>
+                    <div class="card">
+                        <h2
+                            style="margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                            Community Board</h2>
+
+                        <% if (showNews && hasNews) { %>
+                            <div class="announcements-box">
+                                <% announcements.forEach(a=> { %>
+                                    <div class="announcement"
+                                        style="<%= a.target_role_id ? 'border-left-color:#f472b6' : '' %>">
+                                        <div style="display:flex; justify-content:space-between;">
+                                            <h4><%- a.title %></h4>
+                                            <% if(a.target_role_id) { %> <span
+                                                    style="font-size:0.7rem; background:#f472b6; padding:2px 6px; border-radius:4px; color:black;">Role
+                                                    Targeted</span>
+                                                <% } %>
+                                        </div>
+                                        <div><%- a.content %></div>
+                                        <span class="date-tag">
+                                            <%= new Date(a.created_at).toLocaleDateString() %>
+                                        </span>
+                                    </div>
+                                    <% }) %>
+                            </div>
+                            <% } %>
+
+                                <% if (showInfo && hasInfo) { %>
+                                    <div class="info-box">
+                                        <h3 style="color:#a78bfa;">ℹ Info</h3>
+                                        <div style="line-height:1.6;"><%- projectInfo %></div>
+                                    </div>
+                                    <% } %>
                     </div>
-                    <script>function fmt(n) { if (!n && n !== 0) return '0'; n = Number(n); if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B'; if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M'; if (n >= 1000) return (n / 1000).toFixed(1) + 'K'; return n.toLocaleString(); }</script>
-                    <div class="stat-grid">
-                        <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.highest_power %>))</script></span><span class="stat-lbl">Power</span></div>
-                         <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.killsGained %>))</script></span><span class="stat-lbl">KP Gained</span></div>
-                         <div class="stat-box"><span class="stat-val"><script>document.write(fmt(<%= myStats.deadsGained %>))</script></span><span class="stat-lbl">Deaths</span></div>
-                         <div class="stat-box"><span class="stat-val"><%= myStats.tier ? myStats.tier.name : 'Unknown' %></span><span class="stat-lbl">Tier</span></div>
-                    </div>
-                    <div class="progress-bar-container">
-                        <h3>Progress</h3>
-                        <div style="margin-top:15px;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;"><span>KP Goal (<script>document.write(fmt(<%= myStats.killReq %>))</script>)</span><span><%= myStats.killProgress %>%</span></div>
-                            <div class="bar-bg"><div class="bar-fill <%= myStats.killProgress >= 100 ? 'bar-success' : '' %>" style="width: <%= Math.min(myStats.killProgress, 100) %>%"></div></div>
-                        </div>
-                        <div style="margin-top:15px;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;"><span>Deaths Goal (<script>document.write(fmt(<%= myStats.deathReq %>))</script>)</span><span><%= myStats.deathProgress %>%</span></div>
-                            <div class="bar-bg"><div class="bar-fill <%= myStats.deathProgress >= 100 ? 'bar-success' : (myStats.deathProgress < 50 ? 'bar-warning' : '') %>" style="width: <%= Math.min(myStats.deathProgress, 100) %>%"></div></div>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
+                    <% } %>
+
+                        <% let myStats=null; if (user.governor_id && stats) { myStats=stats.find(s=> s.governor_id ===
+                            user.governor_id); }
+                            %>
+                            <% if (myStats && statsVisible) { %>
+                                <div class="card">
+                                    <div
+                                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                                        <h2>Your Stats <span style="font-size:0.9rem; opacity:0.6;">(Season: <%=
+                                                    currentKvK || 'N/A' %>)</span></h2>
+                                        <span class="status-badge"
+                                            style="<%= myStats.isCompliant ? 'background:rgba(74,222,128,0.2); color:#4ade80' : 'background:rgba(248,113,113,0.2); color:#f87171' %>">
+                                            Status: <%= myStats.isCompliant ? 'COMPLIANT' : 'RISK' %>
+                                        </span>
+                                    </div>
+                                    <script>function fmt(n) { if (!n && n !== 0) return '0'; n = Number(n); if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B'; if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M'; if (n >= 1000) return (n / 1000).toFixed(1) + 'K'; return n.toLocaleString(); }</script>
+                                    <div class="stat-grid">
+                                        <div class="stat-box"><span class="stat-val">
+                                                <script>document.write(fmt(<%= myStats.highest_power %>))</script>
+                                            </span><span class="stat-lbl">Power</span></div>
+                                        <div class="stat-box"><span class="stat-val">
+                                                <script>document.write(fmt(<%= myStats.killsGained %>))</script>
+                                            </span><span class="stat-lbl">KP Gained</span></div>
+                                        <div class="stat-box"><span class="stat-val">
+                                                <script>document.write(fmt(<%= myStats.deadsGained %>))</script>
+                                            </span><span class="stat-lbl">Deaths</span></div>
+                                        <div class="stat-box"><span class="stat-val">
+                                                <%= myStats.tier ? myStats.tier.name : 'Unknown' %>
+                                            </span><span class="stat-lbl">Tier</span></div>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <h3>Progress</h3>
+                                        <div style="margin-top:15px;">
+                                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                                                <span>KP Goal (
+                                                    <script>document.write(fmt(<%= myStats.killReq %>))</script>)
+                                                </span><span>
+                                                    <%= myStats.killProgress %>%
+                                                </span></div>
+                                            <div class="bar-bg">
+                                                <div class="bar-fill <%= myStats.killProgress >= 100 ? 'bar-success' : '' %>"
+                                                    style="width: <%= Math.min(myStats.killProgress, 100) %>%"></div>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top:15px;">
+                                            <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                                                <span>Deaths Goal (
+                                                    <script>document.write(fmt(<%= myStats.deathReq %>))</script>)
+                                                </span><span>
+                                                    <%= myStats.deathProgress %>%
+                                                </span></div>
+                                            <div class="bar-bg">
+                                                <div class="bar-fill <%= myStats.deathProgress >= 100 ? 'bar-success' : (myStats.deathProgress < 50 ? 'bar-warning' : '') %>"
+                                                    style="width: <%= Math.min(myStats.deathProgress, 100) %>%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
         </div>
     </div>
 
@@ -217,7 +635,8 @@
             <!-- Messages go here -->
         </div>
         <div class="chat-input-area">
-            <input type="text" id="chat-input" class="form-control" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChat()">
+            <input type="text" id="chat-input" class="form-control" placeholder="Type a message..."
+                onkeypress="if(event.key==='Enter') sendChat()">
             <button class="btn btn-primary" onclick="sendChat()">&rarr;</button>
         </div>
     </div>
@@ -258,7 +677,7 @@
                 chatToggle.style.display = 'flex';
             }
         }
-        
+
         // Hide toggle initially if open, show if closed logic handled above roughly.
         // Better logic: clicking X closes widget and shows toggle. Clicking toggle opens widget and hides toggle.
 
@@ -280,7 +699,7 @@
             const input = document.getElementById('chat-input');
             const txt = input.value.trim();
             if (!txt || !socket) return;
-            
+
             socket.emit('chatMessage', {
                 userId: myUserId,
                 username: "<%= user.username %>",
@@ -294,7 +713,7 @@
         const params = new URLSearchParams(window.location.search);
         function showToast(msg, type = 'success') {
             const t = document.createElement('div'); t.className = `toast toast-${type}`;
-            t.innerHTML = (type==='error'?' ':' ') + msg;
+            t.innerHTML = (type === 'error' ? ' ' : ' ') + msg;
             document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
         }
         if (params.get('success')) showToast(decodeURIComponent(params.get('success')), 'success');
@@ -302,4 +721,5 @@
         if (params.get('success') || params.get('error')) window.history.replaceState({}, document.title, window.location.pathname);
     </script>
 </body>
+
 </html>

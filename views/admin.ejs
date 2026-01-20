@@ -74,6 +74,14 @@
             gap: 8px;
         }
 
+        /* Increased button readability for table buttons */
+        .btn-table {
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            min-width: 80px;
+            justify-content: center;
+        }
+
         .btn-ghost {
             background: rgba(255, 255, 255, 0.05);
             color: white;
@@ -366,8 +374,10 @@
         </div>
         <div class="header-actions">
             <a href="/dashboard" class="btn btn-ghost">&larr; Dashboard</a>
-            <a href="/admin/forms" class="btn btn-primary"
-                style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);"> Manage Forms & Roles</a>
+            <% if (modules && modules.forms==='true' ) { %>
+                <a href="/admin/forms" class="btn btn-primary"
+                    style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);"> Manage Forms & Roles</a>
+                <% } %>
         </div>
     </header>
 
@@ -415,6 +425,14 @@
                         <label class="switch">
                             <input type="checkbox" name="mod_project_info" <%=modules.project_info==='true' ? 'checked'
                                 : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="module-item">
+                        <label style="margin:0; font-size:0.95rem; color:white;">Forms & Roles</label>
+                        <label class="switch">
+                            <input type="checkbox" name="mod_forms" <%=modules.forms==='true' ? 'checked' : '' %>>
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -513,8 +531,7 @@
                                         <form action="/admin/announcement" method="POST" style="margin:0;">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<%= a.id %>">
-                                            <button class="btn btn-danger"
-                                                style="padding:4px 10px; font-size:0.8rem;">Delete</button>
+                                            <button class="btn btn-danger btn-table">Delete</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -715,12 +732,11 @@
                                                         </td>
                                                         <td style="display:flex; gap:5px;">
                                                             <a href="/admin/backup/download/<%= b.id %>"
-                                                                class="btn btn-ghost" style="padding:4px 8px;"></a>
+                                                                class="btn btn-ghost btn-table">Download</a>
                                                             <form action="/admin/backup/delete" method="POST"
                                                                 style="margin:0;">
                                                                 <input type="hidden" name="id" value="<%= b.id %>">
-                                                                <button class="btn btn-danger"
-                                                                    style="padding:4px 8px;">&times;</button>
+                                                                <button class="btn btn-danger btn-table">Delete</button>
                                                             </form>
                                                         </td>
                                                     </tr>
