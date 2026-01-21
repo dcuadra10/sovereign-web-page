@@ -876,44 +876,107 @@
 
     </div>
 
+    <!-- EXPORT MODAL -->
+    <div id="exportModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+        <div class="card"
+            style="width:90%; max-width:600px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden;">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="card-icon" style="background:rgba(167, 139, 250, 0.2); color:#a78bfa;">🏆</div>
+                    Export Top Contributors
+                </div>
+                <button onclick="closeModal()" class="btn btn-ghost" style="padding:5px 10px;">✕</button>
+            </div>
+
+            <div style="padding:0 20px 20px 20px; display:flex; flex-direction:column; gap:15px; height:100%;">
+
+                <!-- Controls -->
+                <div style="display:flex; gap:15px; align-items:end;">
+                    <div style="flex:1;">
+                        <label>Number of Top Users</label>
+                        <input type="number" id="exportCount" value="300" min="1" max="5000" onchange="updatePreview()">
+                    </div>
+                    <div style="flex:1; text-align:right;">
+                        <small style="color:var(--text-muted);">Points = Kills + (Deaths × 2)</small>
+                    </div>
+                </div>
+
+                <!-- Preview Area -->
+                <label>Preview List <small>(ID + Username)</small></label>
+                <div id="exportPreview"
+                    style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; padding:15px; overflow-y:auto; font-family:monospace; font-size:0.85rem; color:#e2e8f0; white-space:pre-wrap;">
+                    Loading...
+                </div>
+
+                <!-- Actions -->
+                <div
+                    style="margin-top:auto; padding-top:15px; border-top:1px solid var(--border); display:flex; gap:10px;">
+                    <button id="copyBtn" onclick="executeCopy()" class="btn btn-primary" style="flex:1;">
+                        📋 Copy List to Clipboard
+                    </button>
+                    <button onclick="closeModal()" class="btn btn-ghost">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- UTILITIES SCRIPT -->
     <script>
         function showToast(msg, type = 'success') {
             const div = document.createElement('div');
-            div.style.cssText = `position:fixed; top:20px; left:50%; transform:translateX(-50%); background:${type === 'success' ? '#22c55e' : '#ef4444'}; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards;`;
-            div.innerHTML = msg;
+            div.style.cssText = `position:fixed; top:20px; left:50%; transform:translateX(-50%); background:${type === 'success' ? '#22c55e' : '#ef4444'}; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9999; font-weight:600; animation: fadeOut 4s forwards; display:flex; align-items:center; gap:10px;`;
+            // Add icon
+            const icon = type === 'success' ? '✅' : '⚠️';
+            div.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
             document.body.appendChild(div);
             setTimeout(() => div.remove(), 4000);
         }
-        function copyTable(id) {
-            const t = document.getElementById(id);
-            if (!t) return;
-            let txt = "";
-            // Headers
-            // Slice -1 to remove Action header
-            const headers = [...t.querySelectorAll('thead th')].slice(0, -1).map(x => x.innerText).join('\t');
-            txt += headers + "\n";
 
-            // Body
-            [...t.querySelectorAll('tbody tr')].forEach(tr => {
-                if (tr.innerText.includes('No backups found')) return;
-                const cells = [...tr.children];
-                // Skip last cell (Actions)
-                const rowData = cells.slice(0, -1).map(td => td.innerText.replace(/[\n\r]/g, ' ').trim()).join('\t');
-                txt += rowData + "\n";
-            });
-
-            navigator.clipboard.writeText(txt)
-                .then(() => showToast('List Copied to Clipboard!'))
-                .catch(e => showToast('Failed to copy', 'error'));
-        }
-
+        // --- EXPORT LOGIC ---
         // Data Usage from Server (Pre-sorted by Contribution)
         const statsData = <% - JSON.stringify(stats) %>;
-
-        // Chunking State
+        let currentList = [];
         let copyQueue = [];
-        let copyQueueType = '';
+
+        function openExportModal() {
+            document.getElementById('exportModal').style.display = 'flex';
+            updatePreview();
+        }
+
+        function closeModal() {
+            document.getElementById('exportModal').style.display = 'none';
+            copyQueue = []; // Reset queue on close
+            resetCopyButton();
+        }
+
+        function updatePreview() {
+            const countInput = document.getElementById('exportCount');
+            let n = parseInt(countInput.value) || 300;
+
+            // Limit N to stats length
+            if (n > statsData.length) n = statsData.length;
+
+            // Generate list
+            // Format: "ID  Username" (Tab separated for Excel/Discord readability?) 
+            // User requested visual list.
+
+            currentList = statsData.slice(0, n).map((s, i) => {
+                // Determine Points for display?
+                // const pts = (s.killsGained||0) + ((s.deadsGained||0)*2);
+                // Let's stick to the requested format: "ID Name"
+                return `${s.governor_id}\t${s.username}`;
+            });
+
+            const previewDiv = document.getElementById('exportPreview');
+            // Show first 100 lines for preview to save DOM
+            const previewText = currentList.slice(0, 100).join('\n') + (currentList.length > 100 ? `\n... (+${currentList.length - 100} more)` : '');
+            previewDiv.innerText = previewText || "No users found.";
+
+            // Reset Copy State if list changes
+            copyQueue = [];
+            resetCopyButton();
+        }
 
         function chunkify(lines, limit = 1900) {
             let chunks = [];
@@ -930,41 +993,118 @@
             return chunks;
         }
 
+        function resetCopyButton() {
+            const btn = document.getElementById('copyBtn');
+            btn.innerHTML = '📋 Copy List to Clipboard';
+            btn.classList.remove('btn-danger', 'btn-ghost');
+            btn.classList.add('btn-primary');
+        }
+
+        function executeCopy() {
+            const btn = document.getElementById('copyBtn');
+
+            // Initialize Queue if empty
+            if (copyQueue.length === 0) {
+                if (currentList.length === 0) return showToast('List is empty!', 'error');
+                copyQueue = chunkify(currentList);
+            }
+
+            // Process Queue
+            const chunk = copyQueue.shift();
+            navigator.clipboard.writeText(chunk)
+                .then(() => {
+                    const remaining = copyQueue.length;
+
+                    if (remaining > 0) {
+                        showToast(`Copied Part! ${remaining} parts remaining. Click again!`);
+                        btn.innerHTML = `📋 Copy Next Part (${remaining} left)`;
+                        btn.className = "btn btn-danger"; // Visual cue to click again
+                    } else {
+                        showToast(`Copied Final Part! All done.`);
+                        btn.innerHTML = `✅ Copied All (${currentList.length} users)`;
+                        btn.className = "btn btn-ghost"; // Visual cue done
+
+                        // Small timeout reset
+                        setTimeout(() => resetCopyButton(), 3000);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Failed to copy to clipboard', 'error');
+                });
+        }
+
+        function copyTable(id) {
+            const t = document.getElementById(id);
+            if (!t) return;
+            let txt = "";
+            const headers = [...t.querySelectorAll('thead th')].slice(0, -1).map(x => x.innerText).join('\t');
+            txt += headers + "\n";
+            [...t.querySelectorAll('tbody tr')].forEach(tr => {
+                if (tr.innerText.includes('No backups found')) return;
+                const cells = [...tr.children];
+                const rowData = cells.slice(0, -1).map(td => td.innerText.replace(/[\n\r]/g, ' ').trim()).join('\t');
+                txt += rowData + "\n";
+            });
+            navigator.clipboard.writeText(txt).then(() => showToast('Table Copied!'));
+        }
+
+        // Allow clicking off modal to close
+        document.getElementById('exportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'exportModal') closeModal();
+        });
+
+        // Specific function for the Non-Compliant button (legacy/quick button)
+        // Or we can just adapt the old function if needed, but the user specifically asked for Top Contributors.
+        // I will keep the old copySpecialList for the 'Risk' one, but update 'Top' to open modal.
+
         function copySpecialList(type) {
-            // Check if continuing a sequence
-            if (copyQueue.length > 0 && copyQueueType === type) {
-                const txt = copyQueue.shift();
-                const remaining = copyQueue.length;
+            if (type === 'top') {
+                openExportModal();
+                return;
+            }
+
+            // Legacy logic for 'risk' or others
+            let list = [];
+            if (type === 'risk') {
+                list = statsData.filter(s => !s.isCompliant).map(s => `${s.governor_id}\t${s.username}`);
+            }
+
+            if (list.length === 0) return showToast('No data found.', 'error');
+
+            // Simple single-click copy for risk (usually smaller?) or use chunk logic
+            // Let's use the same chunk logic but invisible queue for the button
+            const chunks = chunkify(list);
+            // Since this is a one-off button, we might just copy the first chunk or all?
+            // Discord limit applies.
+            // If risk list is huge, this simple button might fail to convey "click again".
+            // For safety, I'll just copy the first chunk and warn if truncated, OR iterate.
+            // Given user focus is TOP list, I'll leave Risk as "Copy All" (assuming it fits or user deals with it) 
+            // OR better: use the toast to prompt next clicks like before.
+
+            // Re-implementing the stateful global queue for the 'Risk' button
+            // We need a separate queue variable or reuse the global one but be careful.
+            // Let's stick to the previous implementation for 'risk' roughly, but customized.
+
+            // Check global queue from previous implementation (I removed it in the replace_content, so I must re-add support here)
+            // Actually, the previous implementation had `copyQueue` and `copyQueueType`.
+            // I'll re-add that simple logic for the Risk button to maintain its function.
+
+            if (window._riskQueue && window._riskQueue.length > 0) {
+                const txt = window._riskQueue.shift();
                 navigator.clipboard.writeText(txt).then(() => {
-                    if (remaining > 0) showToast(`Copied Next Part! ${remaining} remaining. Click again! 📋`);
-                    else { showToast('Copied Final Part! Done. ✅'); copyQueueType = ''; }
+                    if (window._riskQueue.length > 0) showToast(`Copied Next Part! ${window._riskQueue.length} remaining.`);
+                    else { showToast('Done! All copied.'); window._riskQueue = null; }
                 });
                 return;
             }
 
-            // Generate New List
-            let list = [];
-            if (type === 'risk') {
-                list = statsData.filter(s => !s.isCompliant).map(s => `${s.governor_id}\t${s.username}`);
-            } else if (type === 'top') {
-                const count = prompt("Enter number of top contributors to copy:", "300");
-                if (!count || isNaN(count)) return;
-                const n = parseInt(count);
-                list = statsData.slice(0, n).map(s => `${s.governor_id}\t${s.username}`);
-            }
-
-            if (list.length === 0) return showToast('No data found for this criteria', 'error');
-
-            // Chunk & Copy
-            const chunks = chunkify(list);
-            copyQueue = chunks;
-            copyQueueType = type;
-
-            const first = copyQueue.shift();
+            window._riskQueue = chunkify(list);
+            const first = window._riskQueue.shift();
             navigator.clipboard.writeText(first).then(() => {
-                if (copyQueue.length > 0) showToast(`Copied Part 1! ${copyQueue.length} parts remain. Click again to copy next! 📋`);
-                else showToast(`Copied all ${list.length} users! ✅`);
-            }).catch(e => showToast('Failed to copy', 'error'));
+                if (window._riskQueue.length > 0) showToast(`Copied Part 1! Click 'Copy Non-Compliant' again for next part.`);
+                else showToast('List Copied!');
+            });
         }
     </script>
 </body>
