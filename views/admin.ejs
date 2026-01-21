@@ -601,6 +601,104 @@
                                 <% } %>
                 </div>
 
+                <!-- NEW: TIER MANAGEMENT -->
+                <div class="card col-span-12">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon" style="background:rgba(16, 185, 129, 0.15); color:#34d399;">📊</div>
+                            Tier
+                            Configuration
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:25px;">
+                        <!-- LIST -->
+                        <div>
+                            <h4 style="color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">Existing Tiers
+                            </h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Power Range</th>
+                                        <th>Multipliers (K / D)</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (tiers && tiers.length) { %>
+                                        <% tiers.sort((a,b)=> a.min_power - b.min_power).forEach(t => { %>
+                                            <tr>
+                                                <td style="font-weight:600; color:#a78bfa;">
+                                                    <%= t.name %>
+                                                </td>
+                                                <td>
+                                                    <%= t.min_power.toLocaleString() %> - <%=
+                                                            t.max_power.toLocaleString() %>
+                                                </td>
+                                                <td>
+                                                    <span class="badge"
+                                                        style="background:rgba(59, 130, 246, 0.2); color:#60a5fa;">x<%=
+                                                            t.kill_multiplier %></span>
+                                                    <span class="badge"
+                                                        style="background:rgba(239, 68, 68, 0.2); color:#f87171;">x<%=
+                                                            t.death_multiplier %></span>
+                                                </td>
+                                                <td>
+                                                    <form action="/admin/tier/delete" method="POST" style="margin:0;">
+                                                        <input type="hidden" name="id" value="<%= t.id %>">
+                                                        <button class="btn btn-danger btn-table">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="4"
+                                                            style="text-align:center; padding:20px; opacity:0.5;">No
+                                                            tiers defined.</td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- ADD FORM -->
+                        <div style="background:rgba(0,0,0,0.2); padding:20px; border-radius:12px;">
+                            <h4 style="color:#f472b6; margin-bottom:15px; font-size:0.95rem;">Add / Update Tier</h4>
+                            <form action="/admin/tier" method="POST">
+                                <div class="form-group">
+                                    <label>Tier Name</label>
+                                    <input type="text" name="name" placeholder="e.g. Whale, T4, Low Spender" required>
+                                </div>
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                                    <div class="form-group">
+                                        <label>Min Power</label>
+                                        <input type="number" name="minPower" placeholder="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Max Power</label>
+                                        <input type="number" name="maxPower" placeholder="1000000000" required>
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                                    <div class="form-group">
+                                        <label>Kill Multiplier</label>
+                                        <input type="number" step="0.01" name="killMultiplier" placeholder="1.0"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Death Multiplier</label>
+                                        <input type="number" step="0.01" name="deathMultiplier" placeholder="1.0"
+                                            required>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" style="width:100%; margin-top:10px;">Save Tier</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 3. DATA MANAGEMENT (Uploads) -->
                 <% if (modules && modules.data==='true' ) { %>
                     <div class="card col-span-6">
@@ -644,6 +742,21 @@
                                     <button class="btn btn-primary" style="background:#f472b6; width:100%;">Start New
                                         Season</button>
                                 </form>
+                            </div>
+                        </div>
+
+                        <!-- EXPORT LISTS -->
+                        <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px;">
+                            <h4
+                                style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:10px;">
+                                Export Lists (Clipboard)</h4>
+                            <div style="display:flex; gap:10px;">
+                                <button type="button" onclick="copySpecialList('risk')" class="btn"
+                                    style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); flex:1;">📋
+                                    Copy Non-Compliant</button>
+                                <button type="button" onclick="copySpecialList('top')" class="btn"
+                                    style="background:rgba(167, 139, 250, 0.2); color:#a78bfa; border:1px solid rgba(167, 139, 250, 0.4); flex:1;">🏆
+                                    Copy Top Contributors</button>
                             </div>
                         </div>
 
@@ -793,6 +906,65 @@
             navigator.clipboard.writeText(txt)
                 .then(() => showToast('List Copied to Clipboard!'))
                 .catch(e => showToast('Failed to copy', 'error'));
+        }
+
+        // Data Usage from Server (Pre-sorted by Contribution)
+        const statsData = <% - JSON.stringify(stats) %>;
+
+        // Chunking State
+        let copyQueue = [];
+        let copyQueueType = '';
+
+        function chunkify(lines, limit = 1900) {
+            let chunks = [];
+            let current = "";
+            for (let line of lines) {
+                if (current.length + line.length + 1 > limit) {
+                    chunks.push(current);
+                    current = line;
+                } else {
+                    current = current ? (current + '\n' + line) : line;
+                }
+            }
+            if (current) chunks.push(current);
+            return chunks;
+        }
+
+        function copySpecialList(type) {
+            // Check if continuing a sequence
+            if (copyQueue.length > 0 && copyQueueType === type) {
+                const txt = copyQueue.shift();
+                const remaining = copyQueue.length;
+                navigator.clipboard.writeText(txt).then(() => {
+                    if (remaining > 0) showToast(`Copied Next Part! ${remaining} remaining. Click again! 📋`);
+                    else { showToast('Copied Final Part! Done. ✅'); copyQueueType = ''; }
+                });
+                return;
+            }
+
+            // Generate New List
+            let list = [];
+            if (type === 'risk') {
+                list = statsData.filter(s => !s.isCompliant).map(s => `${s.governor_id}\t${s.username}`);
+            } else if (type === 'top') {
+                const count = prompt("Enter number of top contributors to copy:", "300");
+                if (!count || isNaN(count)) return;
+                const n = parseInt(count);
+                list = statsData.slice(0, n).map(s => `${s.governor_id}\t${s.username}`);
+            }
+
+            if (list.length === 0) return showToast('No data found for this criteria', 'error');
+
+            // Chunk & Copy
+            const chunks = chunkify(list);
+            copyQueue = chunks;
+            copyQueueType = type;
+
+            const first = copyQueue.shift();
+            navigator.clipboard.writeText(first).then(() => {
+                if (copyQueue.length > 0) showToast(`Copied Part 1! ${copyQueue.length} parts remain. Click again to copy next! 📋`);
+                else showToast(`Copied all ${list.length} users! ✅`);
+            }).catch(e => showToast('Failed to copy', 'error'));
         }
     </script>
 </body>

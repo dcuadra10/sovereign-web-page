@@ -224,8 +224,17 @@ app.post('/admin/onboarding', isAuthenticated, isAdmin, async (req, res) => { aw
 // ADMIN ROUTES (Standard)
 app.get('/admin', isAuthenticated, isAdmin, async (req, res) => {
     try {
-        const s = await getAllStats();
+        const rawStats = await getAllStats();
         const t = await getAllTiers();
+
+        // Calculate Progress & Sort (Method used in /stats)
+        const s = await calculateProgress(rawStats, t);
+        s.sort((a, b) => {
+            const scoreA = (a.killsGained || 0) + ((a.deadsGained || 0) * 2);
+            const scoreB = (b.killsGained || 0) + ((b.deadsGained || 0) * 2);
+            return scoreB - scoreA;
+        });
+
         const a = await getAdmins();
         const backups = await getBackups() || [];
         const g = await getConfig('discord_guild_id') || '';
