@@ -935,7 +935,7 @@
 
         // --- EXPORT LOGIC ---
         // Data Usage from Server (Pre-sorted by Contribution)
-        const statsData = <% - JSON.stringify(stats) %>;
+        const statsDataExport = <% - JSON.stringify(stats) %>;
         let currentList = [];
         let copyQueue = [];
 
@@ -955,13 +955,13 @@
             let n = parseInt(countInput.value) || 300;
 
             // Limit N to stats length
-            if (n > statsData.length) n = statsData.length;
+            if (n > statsDataExport.length) n = statsDataExport.length;
 
             // Generate list
             // Format: "ID  Username" (Tab separated for Excel/Discord readability?) 
             // User requested visual list.
 
-            currentList = statsData.slice(0, n).map((s, i) => {
+            currentList = statsDataExport.slice(0, n).map((s, i) => {
                 // Determine Points for display?
                 // const pts = (s.killsGained||0) + ((s.deadsGained||0)*2);
                 // Let's stick to the requested format: "ID Name"
@@ -1067,7 +1067,7 @@
             // Legacy logic for 'risk' or others
             let list = [];
             if (type === 'risk') {
-                list = statsData.filter(s => !s.isCompliant).map(s => `${s.governor_id}\t${s.username}`);
+                list = statsDataExport.filter(s => !s.isCompliant).map(s => `${s.governor_id}\t${s.username}`);
             }
 
             if (list.length === 0) return showToast('No data found.', 'error');
